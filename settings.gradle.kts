@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "volcano"
 include(":app")
+include(":volcano")
