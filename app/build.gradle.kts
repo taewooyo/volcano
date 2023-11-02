@@ -2,8 +2,8 @@ import com.example.buildsrc.Configuration
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
-  alias(libs.plugins.android.application)
-  alias(libs.plugins.kotlin.android)
+  id(libs.plugins.android.application.get().pluginId)
+  id(libs.plugins.kotlin.android.get().pluginId)
 }
 
 android {
