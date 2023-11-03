@@ -16,14 +16,22 @@
 package com.example.volcano
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
-private fun getColor(percentage: Double) = when {
-  percentage < -3.0 -> Color(0xFFFF0000)
-  percentage < -2.0 -> Color(0xFFFF8c00)
-  percentage < -1.0 -> Color(0xFFFFFF00)
-  percentage < 0.0 -> Color(0xFF008000)
-  percentage < 1.0 -> Color(0xFF0000ff)
-  percentage < 2.0 -> Color(0xFF4b0082)
-  percentage < 3.0 -> Color(0xFF800080)
-  else -> Color(0xFF888888)
+internal fun getColor(percentage: Double): Int = when {
+  percentage < -30.0 -> Color(0xFFFF0000).toArgb()
+  percentage < -25.0 -> Color(0xFFFF4300).toArgb()
+  percentage < -20.0 -> Color(0xFF00f0ff).toArgb()
+  percentage < -15.0 -> Color(0xFFFF8ff0).toArgb()
+  percentage < -10.0 -> Color(0xFFFFFF00).toArgb()
+  percentage < -5.0 -> Color(0xFFFF3Ff0).toArgb()
+  percentage < 0.0 -> Color(0xFFFF4300).toArgb()
+  percentage < 5.0 -> Color(0xFF009f00).toArgb()
+  percentage < 10.0 -> Color(0xFF0080ff).toArgb()
+  percentage < 15.0 -> Color(0xFF0000ff).toArgb()
+  percentage < 20.0 -> Color(0xFF4b8f82).toArgb()
+  percentage < 25.0 -> Color(0xFF4b0082).toArgb()
+  percentage < 30.0 -> Color(0xFF800080).toArgb()
+  percentage < 35.0 -> Color(0xFF51243f).toArgb()
+  else -> Color(0xFF888888).toArgb()
 }

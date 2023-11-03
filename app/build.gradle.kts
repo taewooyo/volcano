@@ -41,6 +41,8 @@ android {
 }
 
 dependencies {
+  implementation(project(":volcano-compose"))
+  implementation(project(":volcano"))
 
   implementation(libs.androidx.material)
 

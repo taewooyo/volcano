@@ -18,32 +18,48 @@ package com.example.volcano
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.volcano.compose.Volcano
+import com.example.volcano.volcano.VolcanoBuilder
+import com.example.volcano.volcano.root
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    val totalValue = dummyData.sumOf { it.value }
+    val volcano = root {
+      name { "Volcano" }
+      weight { totalValue }
+      sections {
+        section {
+          name { "GDP Total" }
+          weight { totalValue }
+          elements {
+            dummyData.forEach { gdp ->
+              element {
+                name { gdp.name }
+                weight { gdp.value }
+                percentage { (gdp.oldValue / gdp.value) * 100 }
+                color { getColor((gdp.oldValue / gdp.value) * 100).toLong() }
+              }
+            }
+          }
+        }
+      }
+    }
+
     setContent {
-      // A surface container using the 'background' color from the theme
-      Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background,
-      ) {
-        Greeting("Android")
+      Box(modifier = Modifier.fillMaxSize()) {
+        Volcano(
+          modifier = Modifier,
+          items = VolcanoBuilder.build(volcano),
+          onClickSection = {},
+          onClickElement = {},
+        )
       }
     }
   }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(
-    text = "Hello $name!",
-    modifier = modifier,
-  )
 }
