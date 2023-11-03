@@ -1,4 +1,4 @@
-import com.example.buildsrc.Configuration
+import com.taewooyo.buildsrc.Configuration
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-  namespace = "com.example.volcano"
+  namespace = "com.taewooyo.volcano"
   compileSdk = Configuration.compileSdk
 
   defaultConfig {
-    applicationId = "com.example.volcano"
+    applicationId = "com.taewooyo.volcano"
     minSdk = Configuration.minSdk
     targetSdk = Configuration.targetSdk
     versionCode = Configuration.versionCode

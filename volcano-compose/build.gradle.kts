@@ -1,4 +1,4 @@
-import com.example.buildsrc.Configuration
+import com.taewooyo.buildsrc.Configuration
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -8,7 +8,7 @@ plugins {
 
 android {
     compileSdk = Configuration.compileSdk
-    namespace = "com.example.volcano.compose"
+    namespace = "com.taewooyo.volcano.compose"
 
     defaultConfig {
         minSdk = Configuration.minSdk
@@ -45,7 +45,6 @@ android {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.freeCompilerArgs += listOf(
         "-Xexplicit-api=strict",
-        "-opt-in=com.skydoves.balloon.annotations.InternalBalloonApi",
     )
 }
 
