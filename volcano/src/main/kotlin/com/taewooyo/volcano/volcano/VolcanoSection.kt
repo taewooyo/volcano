@@ -17,9 +17,9 @@ import com.taewooyo.volcano.volcano.VolcanoElement
 import com.taewooyo.volcano.volcano.VolcanoElementListBuilder
 
 public data class VolcanoSection(
-    val name: String?,
-    val weight: Double,
-    val elements: List<VolcanoElement>,
+  val name: String?,
+  val weight: Double,
+  val elements: List<VolcanoElement>,
 ) {
 
   class Builder {

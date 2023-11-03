@@ -95,9 +95,9 @@ class SquarifiedMeasurer : Measurer {
    * @param [w] 그려질 수 있는 영역의 남은 값.
    */
   private fun squarify(
-      elements: List<TreemapElement>,
-      row: List<TreemapElement>,
-      w: Double,
+    elements: List<TreemapElement>,
+    row: List<TreemapElement>,
+    w: Double,
   ) {
     if (elements.isNotEmpty()) {
       val remainPopped = ArrayDeque(elements)
