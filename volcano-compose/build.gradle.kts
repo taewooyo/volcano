@@ -4,6 +4,26 @@ import com.taewooyo.buildsrc.Configuration
 plugins {
     id(libs.plugins.android.library.get().pluginId)
     id(libs.plugins.kotlin.android.get().pluginId)
+    `maven-publish`
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            register("release", MavenPublication::class) {
+                from(components["release"])
+                groupId = "com.taewooyo.volcano"
+                artifactId = "volcano-compose"
+                version = "1.0.0"
+            }
+            register("debug", MavenPublication::class) {
+                from(components["debug"])
+                groupId = "com.taewooyo.volcano"
+                artifactId = "volcano-compose"
+                version = "1.0.0"
+            }
+        }
+    }
 }
 
 android {
