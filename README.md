@@ -6,9 +6,7 @@
 
 ## Volcano in Jetpack Compose
 
-If you want to use Volcano in your Jetpack Compose project, check out the *
-*[Volcano in Jetpack Compose](https://github.com/taewooyo/Volcano#volcano-in-jetpack-compose-1)**
-guidelines.
+If you want to use Volcano in your Jetpack Compose project, check out the **[Volcano in Jetpack Compose](https://github.com/taewooyo/Volcano#volcano-in-jetpack-compose-1)** guidelines.
 
 ## How to Use
 
