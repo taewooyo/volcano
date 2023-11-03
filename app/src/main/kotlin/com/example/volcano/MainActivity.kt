@@ -21,6 +21,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.example.volcano.compose.Volcano
 import com.example.volcano.volcano.VolcanoBuilder
 import com.example.volcano.volcano.root
@@ -58,6 +59,8 @@ class MainActivity : ComponentActivity() {
           items = VolcanoBuilder.build(volcano),
           onClickSection = {},
           onClickElement = {},
+          selectedBorderColor = Color.Black,
+          selectedItem = null,
         )
       }
     }
