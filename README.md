@@ -4,6 +4,12 @@
 🌋 Heatmap charts created in an optimized way, fully customizable for Android.
 </p>
 
+<br>
+<p align="center">
+<img src="https://github.com/taewooyo/volcano/assets/66770613/846f96eb-6088-4a72-a600-d70be969fb32" width="280"/>
+<img src="https://github.com/taewooyo/volcano/assets/66770613/d68b1211-026c-425d-a55f-a37cdab45f9d" height="280"/>
+</p>
+
 ## Volcano in Jetpack Compose
 
 If you want to use Volcano in your Jetpack Compose project, check out the **[Volcano in Jetpack Compose](https://github.com/taewooyo/Volcano#volcano-in-jetpack-compose-1)** guidelines.
