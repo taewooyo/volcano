@@ -7,6 +7,7 @@
 <br>
 <p align="center">
 <img src="https://github.com/taewooyo/volcano/assets/66770613/846f96eb-6088-4a72-a600-d70be969fb32" width="280"/>
+<img src="https://github.com/taewooyo/volcano/assets/66770613/51808daa-8d6b-44af-86b5-16be94bf5e82" width="280"/>
 <img src="https://github.com/taewooyo/volcano/assets/66770613/d68b1211-026c-425d-a55f-a37cdab45f9d" height="280"/>
 </p>
 

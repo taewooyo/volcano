@@ -31,20 +31,23 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
 
     val totalValue = dummyData.sumOf { it.value }
+    val dividedDummyData = dummyData.groupBy { it.type }
     val volcano = root {
-      name { "Volcano" }
+      name { "Volcano GDP Total" }
       weight { totalValue }
       sections {
-        section {
-          name { "GDP Total" }
-          weight { totalValue }
-          elements {
-            dummyData.forEach { gdp ->
-              element {
-                name { gdp.name }
-                weight { gdp.value }
-                percentage { (gdp.oldValue / gdp.value) * 100 }
-                color { getColor((gdp.oldValue / gdp.value) * 100).toLong() }
+        dividedDummyData.toList().forEach { (type, items) ->
+          section {
+            name { type.name }
+            weight { items.sumOf { it.value } }
+            elements {
+              dummyData.forEach { gdp ->
+                element {
+                  name { gdp.name }
+                  weight { gdp.value }
+                  percentage { (gdp.oldValue / gdp.value) * 100 }
+                  color { getColor((gdp.oldValue / gdp.value) * 100).toLong() }
+                }
               }
             }
           }
