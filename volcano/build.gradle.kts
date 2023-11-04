@@ -2,20 +2,6 @@
 plugins {
     id("java-library")
     id("kotlin")
-    `maven-publish`
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            register("kotlin", MavenPublication::class) {
-                from(components["kotlin"])
-                groupId = "com.taewooyo.volcano"
-                artifactId = "volcano"
-                version = "0.0.1"
-            }
-        }
-    }
 }
 
 java {
