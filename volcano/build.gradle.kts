@@ -12,7 +12,7 @@ afterEvaluate {
                 from(components["kotlin"])
                 groupId = "com.taewooyo.volcano"
                 artifactId = "volcano"
-                version = "1.0.0"
+                version = "0.0.1"
             }
         }
     }
