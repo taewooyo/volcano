@@ -14,6 +14,7 @@ androidxLifecycle = "2.6.2"
 androidxAnnotation = "1.7.0"
 androidxTest = "1.5.2"
 spotless = "6.21.0"
+nexusPlugin = "0.25.3"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -22,6 +23,7 @@ android-test = {id = "com.android.test", version.ref = "agp"}
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-binary-compatibility = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinBinaryCompatibility" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+nexus-plugin = { id = "com.vanniktech.maven.publish", version.ref = "nexusPlugin" }
 
 [libraries]
 androidx-material = { module = "com.google.android.material:material", version.ref = "androidxMaterial" }

@@ -4,6 +4,23 @@ import com.taewooyo.buildsrc.Configuration
 plugins {
     id(libs.plugins.android.library.get().pluginId)
     id(libs.plugins.kotlin.android.get().pluginId)
+    id(libs.plugins.nexus.plugin.get().pluginId)
+}
+
+apply(from = "${rootDir}/scripts/publish-module.gradle.kts")
+
+mavenPublishing {
+    val artifactId = "volcano-compose"
+    coordinates(
+        Configuration.artifactGroup,
+        artifactId,
+        rootProject.extra.get("libVersion").toString()
+    )
+
+    pom {
+        name.set(artifactId)
+        description.set("Modernized and sophisticated tooltips, fully customizable with an arrow and animations for Android.")
+    }
 }
 
 android {
