@@ -41,3 +41,5 @@ subprojects {
     }
   }
 }
+
+group = "com.taewooyo.volcano"
