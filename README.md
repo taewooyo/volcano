@@ -51,8 +51,8 @@ We can also create an instance of the Volcano with the Kotlin DSL.
 
 Volcano allows you to display heatmap chart in Jetpack Compose easily.
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.taewooyo/volcano/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.taewoo/volcano)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.taewooyo/volcano-compose/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.taewoo/volcano-compose)
+![Maven Central](https://img.shields.io/maven-central/v/io.github.taewooyo/volcano)
+![Maven Central](https://img.shields.io/maven-central/v/io.github.taewooyo/volcano-compose)
 
 Add the dependency below to your **module**'s `build.gradle` file
 
