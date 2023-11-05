@@ -15,7 +15,7 @@
  */
 package com.taewooyo.volcano.tree
 
-public sealed interface Item {
+interface Item {
   public val name: String?
   public val value: Double
   public val percentage: Double

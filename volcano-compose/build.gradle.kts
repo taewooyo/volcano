@@ -19,7 +19,7 @@ mavenPublishing {
 
     pom {
         name.set(artifactId)
-        description.set("Modernized and sophisticated tooltips, fully customizable with an arrow and animations for Android.")
+        description.set("Heatmap charts created in an optimized way, fully customizable for Android. Support only Jetpack Compose.")
     }
 }
 
