@@ -16,13 +16,13 @@
 import com.taewooyo.volcano.volcano.VolcanoElement
 import com.taewooyo.volcano.volcano.VolcanoElementListBuilder
 
-public data class VolcanoSection(
+public data class VolcanoSection internal constructor(
   val name: String?,
   val weight: Double,
   val elements: List<VolcanoElement>,
 ) {
 
-  class Builder {
+  class Builder internal constructor() {
     private var name: String? = null
     private var weight: Double = 0.0
     private val elements: MutableList<VolcanoElement> = mutableListOf()
@@ -44,7 +44,7 @@ public data class VolcanoSection(
   }
 }
 
-class VolcanoSectionListBuilder {
+class VolcanoSectionListBuilder internal constructor() {
 
   private val sectionList: MutableList<VolcanoSection> = mutableListOf()
 

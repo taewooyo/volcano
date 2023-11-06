@@ -22,13 +22,13 @@ fun root(builder: VolcanoRoot.Builder.() -> Unit): VolcanoRoot {
   return VolcanoRoot.Builder().apply(builder).build()
 }
 
-public data class VolcanoRoot(
+public data class VolcanoRoot internal constructor(
   val name: String?,
   val weight: Double,
   val sections: List<VolcanoSection>,
 ) {
 
-  class Builder {
+  class Builder internal constructor() {
     private var name: String? = null
     private var weight: Double = 0.0
     private val sections: MutableList<VolcanoSection> = mutableListOf()

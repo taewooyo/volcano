@@ -15,7 +15,7 @@
  */
 package com.taewooyo.volcano.configuration
 
-enum class LayoutOrientation {
+internal enum class LayoutOrientation {
   VERTICAL,
   HORIZONTAL,
   ;

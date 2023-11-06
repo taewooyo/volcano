@@ -15,14 +15,14 @@
  */
 package com.taewooyo.volcano.volcano
 
-public data class VolcanoElement(
+public data class VolcanoElement internal constructor(
   val name: String,
   val weight: Double,
   val color: Long,
   val percentage: Double,
 ) {
 
-  class Builder {
+  class Builder internal constructor() {
     private var name: String = ""
     private var weight: Double = 0.0
     private var color: Long = 0xFF000000
@@ -51,7 +51,7 @@ public data class VolcanoElement(
   }
 }
 
-class VolcanoElementListBuilder {
+class VolcanoElementListBuilder internal constructor() {
 
   private val elementList: MutableList<VolcanoElement> = mutableListOf()
 

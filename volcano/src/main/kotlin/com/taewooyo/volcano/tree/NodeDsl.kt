@@ -16,10 +16,10 @@
 package com.taewooyo.volcano.tree
 
 @DslMarker
-annotation class TreeDslMarker
+internal annotation class TreeDslMarker
 
 @TreeDslMarker
-interface NodeDsl<in T> {
+internal interface NodeDsl<in T> {
 
   @TreeDslMarker
   fun node(value: T, nodeBuilder: NodeDsl<T>.() -> Unit = {})
@@ -41,7 +41,7 @@ private class NodeDslImpl<T>(private val node: Tree.Node<T>) : NodeDsl<T> {
 }
 
 @TreeDslMarker
-interface TreeDsl<in T> : NodeDsl<T>
+internal interface TreeDsl<in T> : NodeDsl<T>
 
 @TreeDslMarker
 private class TreeDslImpl<T>(root: T) : TreeDsl<T> {
@@ -56,7 +56,7 @@ private class TreeDslImpl<T>(root: T) : TreeDsl<T> {
 }
 
 @TreeDslMarker
-fun <T> tree(root: T, treeBuilder: TreeDsl<T>.() -> Unit): Tree<T> =
+internal fun <T> tree(root: T, treeBuilder: TreeDsl<T>.() -> Unit): Tree<T> =
   TreeDslImpl(root)
     .apply(treeBuilder)
     .build()

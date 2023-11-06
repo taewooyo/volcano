@@ -21,14 +21,14 @@ interface Item {
   public val percentage: Double
 }
 
-public data class Element(
+public data class Element internal constructor(
   override val name: String?,
   override val value: Double,
   override val percentage: Double,
   val color: Long,
 ) : Item
 
-public data class Section(
+public data class Section internal constructor(
   override val name: String?,
   override val value: Double,
   override val percentage: Double,

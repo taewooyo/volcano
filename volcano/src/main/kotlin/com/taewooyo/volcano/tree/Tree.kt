@@ -16,7 +16,7 @@
 package com.taewooyo.volcano.tree
 
 @JvmInline
-value class Tree<T>(val root: Node<T>) {
+value class Tree<T> internal constructor(val root: Node<T>) {
   class Node<T>(val data: T, elements: List<Node<T>> = listOf()) {
 
     private val _elements = elements.toMutableList()

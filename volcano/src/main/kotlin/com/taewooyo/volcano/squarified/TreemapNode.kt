@@ -15,7 +15,7 @@
  */
 package com.taewooyo.volcano.squarified
 
-data class TreemapNode(
+data class TreemapNode internal constructor(
   val width: Int,
   val height: Int,
   val offsetX: Int,
