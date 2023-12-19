@@ -16,140 +16,114 @@
 package com.taewooyo.volcano
 
 internal enum class Type {
-  NORTH_AMERICA,
-  SOUTH_AMERICA,
-  ASIA,
-  EUROPE,
-  MIDDLE_EAST,
-  OCEANIA,
+  ENTERTAINMENT,
+  OTT,
+  SPORT,
+  E_SPORT,
 }
 
-internal data class GDP(
+internal data class HotIssue(
   val name: String,
   val value: Double,
   val oldValue: Double,
   val type: Type,
 )
 
-internal val dummyData = listOf<GDP>(
-  GDP(
-    name = "USA",
+internal val dummyData = listOf<HotIssue>(
+  HotIssue(
+    name = "BTS",
     value = 26_949_643.0,
     oldValue = 1_485_168.0,
-    type = Type.NORTH_AMERICA,
+    type = Type.ENTERTAINMENT,
   ),
-  GDP(
-    name = "China",
+  HotIssue(
+    name = "Black Pink",
     value = 17_700_899.0,
     oldValue = -399_145.0,
-    type = Type.ASIA,
+    type = Type.ENTERTAINMENT,
   ),
-  GDP(
-    name = "Germany",
+  HotIssue(
+    name = "NETFLIX",
     value = 4_429_838.0,
     oldValue = 354_443.0,
-    type = Type.EUROPE,
+    type = Type.OTT,
   ),
-  GDP(
-    name = "JAPAN",
+  HotIssue(
+    name = "Coupang Play",
     value = 4230862.0,
     oldValue = -2_676.0,
-    type = Type.ASIA,
+    type = Type.OTT,
   ),
-  GDP(
-    name = "India",
+  HotIssue(
+    name = "TVING",
     value = 3_732_224.0,
     oldValue = 345_821.0,
-    type = Type.ASIA,
+    type = Type.OTT,
   ),
-  GDP(
-    name = "UK",
+  HotIssue(
+    name = "Wavve",
     value = 3_332_059.0,
     oldValue = 261_459.0,
-    type = Type.EUROPE,
+    type = Type.OTT,
   ),
-  GDP(
-    name = "France",
+  HotIssue(
+    name = "LOL",
     value = 3_049_016.0,
     oldValue = 264_996.0,
-    type = Type.EUROPE,
+    type = Type.E_SPORT,
   ),
-  GDP(
-    name = "Italy",
+  HotIssue(
+    name = "Valorant",
     value = 2_186_082.0,
     oldValue = 174_069.0,
-    type = Type.EUROPE,
+    type = Type.E_SPORT,
   ),
-  GDP(
-    name = "Brazil",
+  HotIssue(
+    name = "Disney+",
     value = 2_126_809.0,
     oldValue = 202_675.0,
-    type = Type.SOUTH_AMERICA,
+    type = Type.OTT,
   ),
-  GDP(
-    name = "Canada",
+  HotIssue(
+    name = "G-Dragon",
     value = 2_117_805.0,
     oldValue = -22_035.0,
-    type = Type.NORTH_AMERICA,
+    type = Type.ENTERTAINMENT,
   ),
-  GDP(
-    name = "Russia",
+  HotIssue(
+    name = "Overwatch",
     value = 1_862_470.0,
     oldValue = -377_952.0,
-    type = Type.EUROPE,
+    type = Type.E_SPORT,
   ),
-  GDP(
-    name = "Mexico",
-    value = 1_811_468.0,
-    oldValue = 386_935.0,
-    type = Type.SOUTH_AMERICA,
-  ),
-  GDP(
-    name = "Korea",
+  HotIssue(
+    name = "Son Heung min",
     value = 1_709_232.0,
     oldValue = 43_986.0,
-    type = Type.ASIA,
+    type = Type.SPORT,
   ),
-  GDP(
-    name = "Australia",
-    value = 1_687_713.0,
-    oldValue = -14_180.0,
-    type = Type.OCEANIA,
-  ),
-  GDP(
-    name = "Spain",
+  HotIssue(
+    name = "Cristiano Ronaldo",
     value = 1_582_054.0,
     oldValue = 192_127.0,
-    type = Type.EUROPE,
+    type = Type.SPORT,
   ),
-  GDP(
-    name = "Indonesia",
+  HotIssue(
+    name = "Lionell Messi",
     value = 1_417_387.0,
     oldValue = 127_958.0,
-    type = Type.ASIA,
+    type = Type.SPORT,
   ),
-  GDP(
-    name = "Turkye",
-    value = 1_154_600.0,
-    oldValue = 301_113.0,
-    type = Type.MIDDLE_EAST,
-  ),
-  GDP(
-    name = "Netherlands",
+  HotIssue(
+    name = "Fortnite",
     value = 1_092_748.0,
     oldValue = 102_165.0,
-    type = Type.EUROPE,
+    type = Type.E_SPORT,
   ),
-  GDP(
-    name = "Saudi Arabia",
-    value = 1_069_437.0,
-    oldValue = 58_849.0,
-    type = Type.MIDDLE_EAST,
-  ),
-  GDP(
-    name = "Swiss",
+  HotIssue(
+    name = "Battle Ground",
     value = 905_684.0,
     oldValue = 98_450.0,
-    type = Type.EUROPE,
+    type = Type.E_SPORT,
   ),
 )

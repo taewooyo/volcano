@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
     val totalValue = dummyData.sumOf { it.value }
     val dividedDummyData = dummyData.groupBy { it.type }
     val volcano = root {
-      name { "Volcano GDP Total" }
+      name { null }
       weight { totalValue }
       sections {
         dividedDummyData.toList().forEach { (type, items) ->
@@ -41,12 +41,12 @@ class MainActivity : ComponentActivity() {
             name { type.name }
             weight { items.sumOf { it.value } }
             elements {
-              dummyData.forEach { gdp ->
+              items.forEach { hotIssue ->
                 element {
-                  name { gdp.name }
-                  weight { gdp.value }
-                  percentage { (gdp.oldValue / gdp.value) * 100 }
-                  color { getColor((gdp.oldValue / gdp.value) * 100).toLong() }
+                  name { hotIssue.name }
+                  weight { hotIssue.value }
+                  percentage { (hotIssue.oldValue / hotIssue.value) * 100 }
+                  color { getColor((hotIssue.oldValue / hotIssue.value) * 100).toLong() }
                 }
               }
             }
@@ -64,6 +64,7 @@ class MainActivity : ComponentActivity() {
           onClickElement = {},
           selectedBorderColor = Color.Black,
           selectedItem = null,
+          showRateText = true,
         )
       }
     }

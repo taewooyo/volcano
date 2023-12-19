@@ -22,12 +22,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -65,7 +68,8 @@ public fun Volcano(
   selectedBorderColor: Color = Color.White,
   onClickElement: (element: Element) -> Unit = {},
   onClickSection: (sectionName: String?) -> Unit = {},
-  borderColor: Color = Color.Black,
+  borderColor: Color = Color.White,
+  showRateText: Boolean = false,
 ) {
   val minScale = 1f
   val maxScale = 10f
@@ -144,10 +148,11 @@ public fun Volcano(
     InternalTreemapChart(
       tree = items,
       selectedItem = selectedItem,
-      selectedBorderColor,
+      selectedBorderColor = selectedBorderColor,
       onClickItem = onClickElement,
       onClickSection = onClickSection,
       borderColor = borderColor,
+      showRateText = showRateText,
     )
   }
 }
@@ -161,11 +166,13 @@ private fun InternalTreemapChart(
   onClickItem: (Element) -> Unit,
   onClickSection: (String?) -> Unit,
   borderColor: Color,
+  showRateText: Boolean,
 ) {
   TreemapChart(
     data = tree,
     evaluateItem = Item::value,
     modifier = modifier,
+    borderColor = borderColor,
   ) { node, groupContent ->
     when (val item = node.data) {
       is Section -> {
@@ -180,6 +187,7 @@ private fun InternalTreemapChart(
             selectedBorderColor = selectedBorderColor,
             onClick = onClickItem,
             borderColor = borderColor,
+            showRateText = showRateText,
           )
         }
       }
@@ -195,6 +203,7 @@ private fun Element(
   modifier: Modifier = Modifier,
   onClick: (Element) -> Unit,
   borderColor: Color,
+  showRateText: Boolean,
 ) {
   BoxWithConstraints(
     contentAlignment = Alignment.Center,
@@ -204,6 +213,7 @@ private fun Element(
         0.5.dp,
         if (item.name == selectedItem?.name) selectedBorderColor else borderColor,
       )
+      .clip(RoundedCornerShape(5.dp))
       .background(Color(item.color)),
   ) {
     val boxWidth = constraints.maxWidth
@@ -211,7 +221,8 @@ private fun Element(
     if (boxWidth >= 20 && boxHeight >= 20) {
       item.name?.let {
         AutoSizeText(
-          stockText = it,
+          showRateText = showRateText,
+          name = it,
           fluctuateText = "${item.percentage}%",
           width = with(LocalDensity.current) { boxWidth.toFloat() },
           height = with(LocalDensity.current) { boxHeight.toFloat() },
@@ -236,18 +247,19 @@ private fun Section(
 
 @Composable
 internal fun AutoSizeText(
-  stockText: String,
+  showRateText: Boolean,
+  name: String,
   fluctuateText: String,
   modifier: Modifier = Modifier,
   width: Float,
   height: Float,
 ) {
-  val nameLength = stockText.length
+  val nameLength = name.length
   val fluctuation = fluctuateText.length
 
   val widthBaseTextSize = (
     (width / nameLength)
-      .coerceAtMost(width / fluctuation) / LocalDensity.current.density
+      .coerceAtMost(width / if (showRateText) fluctuation else 1) / LocalDensity.current.density
     )
     .coerceAtLeast(minTextSize)
 
@@ -258,11 +270,13 @@ internal fun AutoSizeText(
 
   Column(
     modifier = Modifier
+      .fillMaxSize()
       .padding(horizontal = 2.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
   ) {
     Text(
-      text = stockText,
+      text = name,
       modifier = modifier,
       fontSize = length.sp,
       fontWeight = FontWeight.W600,
@@ -273,18 +287,20 @@ internal fun AutoSizeText(
       textAlign = TextAlign.Center,
       softWrap = false,
     )
-    Text(
-      text = fluctuateText,
-      modifier = modifier,
-      fontSize = length.sp,
-      fontWeight = FontWeight.W600,
-      letterSpacing = if (length < 1f && width * 2f > height) 0.2.sp else 0.1.sp,
-      overflow = TextOverflow.Ellipsis,
-      maxLines = 1,
-      color = Color.White,
-      textAlign = TextAlign.Center,
-      softWrap = false,
-    )
+    if (showRateText) {
+      Text(
+        text = fluctuateText,
+        modifier = modifier,
+        fontSize = length.sp,
+        fontWeight = FontWeight.W600,
+        letterSpacing = if (length < 1f && width * 2f > height) 0.2.sp else 0.1.sp,
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1,
+        color = Color.White,
+        textAlign = TextAlign.Center,
+        softWrap = false,
+      )
+    }
   }
 }
 
@@ -296,6 +312,7 @@ internal fun <T> TreemapChart(
   data: Tree<T>,
   evaluateItem: (T) -> Double,
   modifier: Modifier = Modifier,
+  borderColor: Color,
   nodeContent: @Composable (
     data: Tree.Node<T>,
     groupContent: @Composable (Tree.Node<T>, String?, (String?) -> Unit) -> Unit,
@@ -306,6 +323,7 @@ internal fun <T> TreemapChart(
       data = data.root,
       evaluateItem = evaluateItem,
       nodeContent = nodeContent,
+      borderColor = borderColor,
     )
   }
 }
@@ -314,6 +332,7 @@ internal fun <T> TreemapChart(
 internal fun <T> TreemapChartNode(
   data: Tree.Node<T>,
   evaluateItem: (T) -> Double,
+  borderColor: Color,
   nodeContent: @Composable (
     data: Tree.Node<T>,
     groupContent: @Composable (Tree.Node<T>, String?, (String?) -> Unit) -> Unit,
@@ -325,11 +344,13 @@ internal fun <T> TreemapChartNode(
       sectionName = sectionName,
       evaluateItem = evaluateItem,
       onClickSection = onClickSection,
+      borderColor = borderColor,
     ) { elementNode ->
       TreemapChartNode(
         data = elementNode,
         evaluateItem = evaluateItem,
         nodeContent = nodeContent,
+        borderColor = borderColor,
       )
     }
   }
@@ -341,6 +362,7 @@ internal fun <T> TreemapChartLayout(
   sectionName: String?,
   evaluateItem: (T) -> Double,
   modifier: Modifier = Modifier,
+  borderColor: Color,
   onClickSection: (String?) -> Unit,
   itemContent: @Composable (Tree.Node<T>) -> Unit,
 ) {
@@ -352,14 +374,13 @@ internal fun <T> TreemapChartLayout(
           text = sectionName,
           modifier = Modifier
             .fillMaxWidth()
-            .border(0.5.dp, Color.Black)
-            .background(Color(0xFF212529))
+            .border(0.5.dp, borderColor)
+            .background(borderColor)
             .clickable { onClickSection(sectionName) },
           fontSize = 12.sp,
-          color = Color.White,
+          color = Color.Black,
           overflow = TextOverflow.Ellipsis,
           maxLines = 1,
-          textAlign = TextAlign.Center,
         )
       }
       data.elements.forEach { node ->

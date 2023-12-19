@@ -6,9 +6,8 @@
 
 <br>
 <p align="center">
-<img src="https://github.com/taewooyo/volcano/assets/66770613/846f96eb-6088-4a72-a600-d70be969fb32" width="280"/>
-<img src="https://github.com/taewooyo/volcano/assets/66770613/51808daa-8d6b-44af-86b5-16be94bf5e82" width="280"/>
-<img src="https://github.com/taewooyo/volcano/assets/66770613/d68b1211-026c-425d-a55f-a37cdab45f9d" height="280"/>
+<img src="https://github.com/taewooyo/volcano/assets/66770613/783e67b5-21d3-4647-9f6b-4616cef0b354" width="280"/>
+<img src="https://github.com/taewooyo/volcano/assets/66770613/18c66d45-e454-44b9-b1e1-4e57c93d4a1f" height="280"/>
 </p>
 
 ## Volcano in Jetpack Compose
@@ -21,25 +20,28 @@ Volcano supports Kotlin projects, so you can reference it by your language.
 
 ```kotlin
 val totalValue = dummyData.sumOf { it.value }
+val dividedDummyData = dummyData.groupBy { it.type }
 val volcano = root {
-    name { "Volcano" }
-    weight { totalValue }
-    sections {
-        section {
-            name { "GDP Total" }
-            weight { totalValue }
-            elements {
-                dummyData.forEach { gdp ->
-                    element {
-                        name { gdp.name }
-                        weight { gdp.value }
-                        percentage { (gdp.oldValue / gdp.value) * 100 }
-                        color { getColor((gdp.oldValue / gdp.value) * 100).toLong() }
-                    }
-                }
+  name { null }
+  weight { totalValue }
+  sections {
+    dividedDummyData.toList().forEach { (type, items) ->
+      section {
+        name { type.name }
+        weight { items.sumOf { it.value } }
+        elements {
+          items.forEach { hotIssue ->
+            element {
+              name { hotIssue.name }
+              weight { hotIssue.value }
+              percentage { (hotIssue.oldValue / hotIssue.value) * 100 }
+              color { getColor((hotIssue.oldValue / hotIssue.value) * 100).toLong() }
             }
+          }
         }
+      }
     }
+  }
 }
 ```
 
@@ -69,34 +71,38 @@ You can display heatmap with `Volcano` composable function and `Builder` like th
 
 ```kotlin
 val totalValue = dummyData.sumOf { it.value }
+val dividedDummyData = dummyData.groupBy { it.type }
 val volcano = root {
-    name { "Volcano" }
-    weight { totalValue }
-    sections {
-        section {
-            name { "GDP Total" }
-            weight { totalValue }
-            elements {
-                dummyData.forEach { gdp ->
-                    element {
-                        name { gdp.name }
-                        weight { gdp.value }
-                        percentage { (gdp.oldValue / gdp.value) * 100 }
-                        color { getColor((gdp.oldValue / gdp.value) * 100).toLong() }
-                    }
-                }
+  name { null }
+  weight { totalValue }
+  sections {
+    dividedDummyData.toList().forEach { (type, items) ->
+      section {
+        name { type.name }
+        weight { items.sumOf { it.value } }
+        elements {
+          items.forEach { hotIssue ->
+            element {
+              name { hotIssue.name }
+              weight { hotIssue.value }
+              percentage { (hotIssue.oldValue / hotIssue.value) * 100 }
+              color { getColor((hotIssue.oldValue / hotIssue.value) * 100).toLong() }
             }
+          }
         }
+      }
     }
+  }
 }
 
 Volcano(
-    modifier = Modifier,
-    items = VolcanoBuilder.build(volcano),
-    onClickSection = {},
-    onClickElement = {},
-    selectedBorderColor = Color.Black,
-    selectedItem = null,
+  modifier = Modifier,
+  items = VolcanoBuilder.build(volcano),
+  onClickSection = {},
+  onClickElement = {},
+  selectedBorderColor = Color.Black,
+  selectedItem = null,
+  showRateText = true,
 )
 ```
 
