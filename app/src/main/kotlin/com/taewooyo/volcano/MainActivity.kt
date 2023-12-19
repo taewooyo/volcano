@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
           onClickElement = {},
           selectedBorderColor = Color.Black,
           selectedItem = null,
-          showRateText = true,
+          showRateText = false,
         )
       }
     }
