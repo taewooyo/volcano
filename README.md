@@ -7,8 +7,8 @@
 <br>
 <p align="center">
 <img src="https://github.com/taewooyo/volcano/assets/66770613/18a319ba-1570-4a11-9f71-e701bcc165da" width="280"/>
-<img src="https://github.com/wisemuji/zoom-clone-compose/assets/167275873/d87d1583-30c2-407b-a61f-cdac4ed587e3" width="280"/>
-<img src="https://github.com/wisemuji/zoom-clone-compose/assets/167275873/1db96251-72ec-4a94-8058-327ac0ef33a6" height="280"/>
+  <img src="https://github.com/wisemuji/zoom-clone-compose/assets/167275873/1db96251-72ec-4a94-8058-327ac0ef33a6" width="280"/>
+<img src="https://github.com/wisemuji/zoom-clone-compose/assets/167275873/d87d1583-30c2-407b-a61f-cdac4ed587e3" height="280"/>
 <img src="https://github.com/taewooyo/volcano/assets/66770613/90d1a9b7-bdf4-488a-a326-2404f2d7e668" height="280"/>
 
 </p>
