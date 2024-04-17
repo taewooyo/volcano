@@ -32,11 +32,11 @@ class SquarifiedMeasurer : Measurer {
   private var elements = mutableListOf<TreemapElement>() // 차트의 요소 리스트
 
   /**
-   * 차트의 요소들 사이즈 측정 및 설정하는 함수
-   * @param [values] 비중 값
-   * @param [width] 차트의 가로 길이
-   * @param [height] 차트의 세로 길이
-   * @return 노드들의 가로, 세로, 오프셋 리스트 반환
+   * Functions to measure and set the size of elements in a chart.
+   * @param [values] specific gravity value
+   * @param [width] horizontal length of the chart
+   * @param [height] vertical length of the chart
+   * @return Returns a list of horizontal, vertical, and offset nodes
    */
   override fun measureNodes(values: List<Double>, width: Int, height: Int): List<TreemapNode> {
     setSizeAndValues(values, width.toDouble(), height.toDouble())
@@ -44,10 +44,10 @@ class SquarifiedMeasurer : Measurer {
   }
 
   /**
-   * 차트의 사이즈 설정 및 비중 설정하는 함수
-   * @param [values] 비중 값
-   * @param [width] 차트의 가로 길이
-   * @param [height] 차트의 세로 길이
+   * Function to set the size and proportion of the chart
+   * @param [values] specific gravity value
+   * @param [width] horizontal length of the chart
+   * @param [height] vertical length of the chart
    */
   private fun setSizeAndValues(values: List<Double>, width: Double, height: Double) {
     this.width = width
@@ -67,8 +67,8 @@ class SquarifiedMeasurer : Measurer {
   }
 
   /**
-   * 차트의 노드들의 좌표 및 크기를 반환해주는 함수
-   * @return 차트맵 배치 알고리즘을 통해 좌표 및 크기가 설정된 차트 노드 리스트를 반환
+   * Function that returns the coordinates and sizes of the nodes in the chart
+   * @return Returns a list of chart nodes with coordinates and sizes set through the chart map placement algorithm
    */
   private fun measureNodes(): List<TreemapNode> {
     val treemapNodes: MutableList<TreemapNode> = ArrayList()
@@ -90,9 +90,9 @@ class SquarifiedMeasurer : Measurer {
   }
 
   /**
-   * @param [elements] 가중치
-   * @param [row] 현재 행
-   * @param [w] 그려질 수 있는 영역의 남은 값.
+   * @param [elements] specific gravity value
+   * @param [row] current row
+   * @param [w] The remaining value of the drawable area
    */
   private fun squarify(
     elements: List<TreemapElement>,
@@ -121,27 +121,27 @@ class SquarifiedMeasurer : Measurer {
   }
 
   /**
-   * @return 사용 가능한 영역에서 너비와 높이의 작은 값 반환
+   * @return Return small values of width and height from available area
    */
   private fun minimumSide(): Double = min(heightLeft, widthLeft)
 
   /**
-   * 2개의 Double 타입의 정확한 비교를 위한 함수
+   * Function for accurate comparison of two Double types
    */
   private fun isEqual(source: Double, target: Double): Boolean = abs(source - target) < 0.00001
 
   /**
-   * 레이아웃 변경
+   * Change layout
    */
   private fun changeLayout() {
     layoutOrientation = layoutOrientation.toggle(layoutOrientation)
   }
 
   /**
-   * - w값에 따른 최악의 형태(면적 비율)를 계산.
-   * - 반환 값이 커질수록 w 값에서 더 최악의 형태.
-   * - 반환 값이 작을수록 w 값에서 더 좋은 형태.
-   * @return w 값과 요소들의 면적을 고려하여 최악의 값을 반환.
+   * - Calculate the worst shape (area ratio) according to the w value.
+   * - The larger the return value, the worse the worst form for the w value.
+   * - The smaller the return value, the better the shape for the w value
+   * @return Returns the worst value considering the w value and the area of ​​the elements
    */
   private fun worst(ch: List<TreemapElement>, w: Double): Double {
     if (ch.isEmpty()) {
@@ -165,7 +165,7 @@ class SquarifiedMeasurer : Measurer {
   }
 
   /**
-   * squarify로 인해 그릴 준비가 완료되면 노드들의 좌표를 구하는 함수
+   * A function that calculates the coordinates of nodes when preparation for drawing is completed with squarify
    */
   private fun layoutRow(row: List<TreemapElement>, w: Double) {
     var totalArea = 0.0
@@ -215,8 +215,8 @@ class SquarifiedMeasurer : Measurer {
   }
 
   /**
-   * 화면에 맞게 비중 값을 재 설정하는 함수
-   * @param [elements] 비중이 담긴 차트 요소 리스트
+   * Function to reset the specific gravity value to fit the screen
+   * @param [elements] List of chart elements with proportions
    */
   private fun scaleArea(elements: List<TreemapElement>) {
     val areaGiven = width * height

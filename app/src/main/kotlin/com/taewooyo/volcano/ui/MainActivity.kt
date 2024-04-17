@@ -13,49 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.taewooyo.volcano
+package com.taewooyo.volcano.ui
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.taewooyo.volcano.compose.Volcano
+import com.taewooyo.volcano.getColor
 import com.taewooyo.volcano.volcano.VolcanoBuilder
 import com.taewooyo.volcano.volcano.root
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+  private val viewModel: MainViewModel by viewModels()
+
+  @RequiresApi(Build.VERSION_CODES.M)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    val totalValue = dummyData.sumOf { it.value }
-    val dividedDummyData = dummyData.groupBy { it.type }
-    val volcano = root {
-      name { null }
-      weight { totalValue }
-      sections {
-        dividedDummyData.toList().forEach { (type, items) ->
-          section {
-            name { type.name }
-            weight { items.sumOf { it.value } }
-            elements {
-              items.forEach { hotIssue ->
-                element {
-                  name { hotIssue.name }
-                  weight { hotIssue.value }
-                  percentage { (hotIssue.oldValue / hotIssue.value) * 100 }
-                  color { getColor((hotIssue.oldValue / hotIssue.value) * 100).toLong() }
+    setContent {
+      val stocks = viewModel.stocks.collectAsState().value
+      val total = stocks.stocks.sumOf { it.value }
+      val sector = stocks.stocks.groupBy { it.type }
+
+      val volcano = root {
+        name { null }
+        weight { total }
+        sections {
+          sector.toList().forEach { (type, items) ->
+            section {
+              name { type }
+              weight { items.sumOf { it.value } }
+              elements {
+                items.forEach { stock ->
+                  element {
+                    name { stock.name }
+                    weight { stock.value }
+                    percentage { (stock.oldValue / stock.value) * 100 }
+                    color { getColor((stock.oldValue / stock.value) * 100).toLong() }
+                  }
                 }
               }
             }
           }
         }
       }
-    }
 
-    setContent {
+
       Box(modifier = Modifier.fillMaxSize()) {
         Volcano(
           modifier = Modifier,
@@ -64,7 +78,7 @@ class MainActivity : ComponentActivity() {
           onClickElement = {},
           selectedBorderColor = Color.Black,
           selectedItem = null,
-          showRateText = false,
+          showRateText = true,
         )
       }
     }

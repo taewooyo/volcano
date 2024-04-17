@@ -1,10 +1,11 @@
 [versions]
-agp = "8.3.2"
-kotlin = "1.9.10"
-dokka = "1.9.20"
+agp = "8.2.2"
+kotlin = "1.9.23"
+dokka = "1.9.10"
+ksp = "1.9.23-1.0.20"
 kotlinBinaryCompatibility = "0.13.2"
-androidxComposeBom = "2023.10.01"
-androidxComposeCompiler = "1.5.3"
+androidxComposeBom = "2024.04.00"
+androidxComposeCompiler = "1.5.11"
 jvmTarget = "11"
 androidxComposeConstraintLayout = "1.0.1"
 androidxMaterial = "1.11.0"
@@ -16,16 +17,21 @@ androidxAnnotation = "1.7.1"
 androidxTest = "1.5.2"
 spotless = "6.21.0"
 nexusPlugin = "0.27.0"
+androidxHiltNavigationCompose = "1.2.0"
+hilt = "2.51.1"
+gson = "2.10.1"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-android-test = {id = "com.android.test", version.ref = "agp"}
+android-test = { id = "com.android.test", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-binary-compatibility = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinBinaryCompatibility" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 nexus-plugin = { id = "com.vanniktech.maven.publish", version.ref = "nexusPlugin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+hilt-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [libraries]
 androidx-material = { module = "com.google.android.material:material", version.ref = "androidxMaterial" }
@@ -42,7 +48,15 @@ androidx-compose-material = { group = "androidx.compose.material", name = "mater
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
+androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
 androidx-compose-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "androidxComposeConstraintLayout" }
+
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 # unit test
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }

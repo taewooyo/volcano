@@ -16,6 +16,7 @@
 package com.taewooyo.volcano.compose
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,6 +48,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -213,7 +216,6 @@ private fun Element(
         0.5.dp,
         if (item.name == selectedItem?.name) selectedBorderColor else borderColor,
       )
-      .clip(RoundedCornerShape(5.dp))
       .background(Color(item.color)),
   ) {
     val boxWidth = constraints.maxWidth

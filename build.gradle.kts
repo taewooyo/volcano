@@ -8,6 +8,8 @@ plugins {
   alias(libs.plugins.spotless)
   alias(libs.plugins.dokka)
   alias(libs.plugins.kotlin.binary.compatibility)
+  alias(libs.plugins.ksp) apply false
+  alias(libs.plugins.hilt.plugin) apply false
 }
 
 subprojects {

@@ -1,9 +1,10 @@
 import com.taewooyo.buildsrc.Configuration
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
   id(libs.plugins.android.application.get().pluginId)
   id(libs.plugins.kotlin.android.get().pluginId)
+  id(libs.plugins.hilt.plugin.get().pluginId)
+  id(libs.plugins.ksp.get().pluginId)
 }
 
 android {
@@ -54,4 +55,10 @@ dependencies {
   implementation(libs.androidx.compose.foundation)
   implementation(libs.androidx.compose.runtime)
   implementation(libs.androidx.compose.constraintlayout)
+  implementation(libs.androidx.hilt.navigation.compose)
+  implementation(libs.hilt.android)
+  ksp(libs.hilt.compiler)
+  implementation(libs.gson)
+  implementation(libs.androidx.lifecycle.runtimeCompose)
+  implementation(libs.androidx.lifecycle.viewModelCompose)
 }
