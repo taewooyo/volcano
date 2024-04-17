@@ -16,7 +16,7 @@
 package com.taewooyo.volcano.core.model
 
 data class Stocks(
-  val stocks: List<StockItem>
+  val stocks: List<StockItem>,
 )
 
 data class StockItem(

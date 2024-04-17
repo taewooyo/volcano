@@ -69,7 +69,6 @@ class MainActivity : ComponentActivity() {
         }
       }
 
-
       Box(modifier = Modifier.fillMaxSize()) {
         Volcano(
           modifier = Modifier,
