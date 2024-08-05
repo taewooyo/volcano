@@ -18,7 +18,7 @@ androidxTest = "1.6.1"
 spotless = "6.21.0"
 nexusPlugin = "0.29.0"
 androidxHiltNavigationCompose = "1.2.0"
-hilt = "2.51.1"
+hilt = "2.52"
 gson = "2.11.0"
 
 [plugins]
