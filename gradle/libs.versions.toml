@@ -19,7 +19,7 @@ spotless = "6.21.0"
 nexusPlugin = "0.31.0"
 androidxHiltNavigationCompose = "1.2.0"
 hilt = "2.55"
-gson = "2.13.0"
+gson = "2.13.1"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
