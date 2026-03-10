@@ -49,6 +49,7 @@ public object VolcanoBuilder {
                     value = element.weight,
                     percentage = (element.percentage * 100).roundToInt() / 100.0,
                     color = element.color,
+                    logoUrl = element.logoUrl,
                   ),
                 )
               }

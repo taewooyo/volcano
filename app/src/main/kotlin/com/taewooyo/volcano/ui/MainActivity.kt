@@ -17,6 +17,7 @@ package com.taewooyo.volcano.ui
 
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -24,13 +25,16 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import com.taewooyo.volcano.compose.Volcano
 import com.taewooyo.volcano.getColor
 import com.taewooyo.volcano.volcano.VolcanoBuilder
 import com.taewooyo.volcano.volcano.root
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -42,6 +46,8 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
 
     setContent {
+      val context = LocalContext.current
+      val scope = rememberCoroutineScope()
       val stocks = viewModel.stocks.collectAsState().value
       val total = stocks.stocks.sumOf { it.value }
       val sector = stocks.stocks.groupBy { it.type }
@@ -61,6 +67,7 @@ class MainActivity : ComponentActivity() {
                     weight { stock.value }
                     percentage { (stock.oldValue / stock.value) * 100 }
                     color { getColor((stock.oldValue / stock.value) * 100).toLong() }
+                    logoUrl { stock.logoUrl }
                   }
                 }
               }
@@ -73,8 +80,16 @@ class MainActivity : ComponentActivity() {
         Volcano(
           modifier = Modifier,
           items = VolcanoBuilder.build(volcano),
-          onClickSection = {},
-          onClickElement = {},
+          onClickSection = {
+            if (it != null) {
+              scope.launch {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+              }
+            }
+          },
+          onClickElement = {
+            scope.launch { Toast.makeText(context, it.name, Toast.LENGTH_SHORT).show() }
+          },
           selectedBorderColor = Color.Black,
           selectedItem = null,
           showRateText = true,

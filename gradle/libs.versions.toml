@@ -20,6 +20,7 @@ nexusPlugin = "0.34.0"
 androidxHiltNavigationCompose = "1.2.0"
 hilt = "2.55"
 gson = "2.13.2"
+coil = "2.6.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -57,6 +58,7 @@ hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hil
 hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 # unit test
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }

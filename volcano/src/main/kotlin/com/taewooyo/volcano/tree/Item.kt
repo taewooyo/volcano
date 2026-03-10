@@ -26,6 +26,7 @@ public data class Element internal constructor(
   override val value: Double,
   override val percentage: Double,
   val color: Long,
+  val logoUrl: String? = null,
 ) : Item
 
 public data class Section internal constructor(

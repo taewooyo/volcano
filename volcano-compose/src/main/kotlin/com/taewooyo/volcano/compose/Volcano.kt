@@ -35,6 +35,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +55,10 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import com.taewooyo.volcano.tree.Element
 import com.taewooyo.volcano.tree.Item
 import com.taewooyo.volcano.tree.Section
@@ -215,15 +222,46 @@ private fun Element(
   ) {
     val boxWidth = constraints.maxWidth
     val boxHeight = constraints.maxHeight
-    if (boxWidth >= 20 && boxHeight >= 20) {
-      item.name?.let {
-        AutoSizeText(
-          showRateText = showRateText,
-          name = it,
-          fluctuateText = "${item.percentage}%",
-          width = with(LocalDensity.current) { boxWidth.toFloat() },
-          height = with(LocalDensity.current) { boxHeight.toFloat() },
-        )
+    val density = LocalDensity.current.density
+    
+    val minDim = if (boxWidth < boxHeight) boxWidth.toFloat() else boxHeight.toFloat()
+
+    // 1. 아주 극단적으로 작은 박스 (20px 미만) -> 아무것도 안 보여줌
+    if (minDim >= 20f) {
+      Column(
+        modifier = Modifier.fillMaxSize().padding((minDim * 0.02f / density).dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+      ) {
+        // 2. 로고: 20px 이상이면 무조건 표시 (우선순위 1)
+        if (item.logoUrl != null) {
+           AsyncImage(
+             model = item.logoUrl,
+             contentDescription = null,
+             modifier = Modifier
+               .size((minDim * 0.25f / density).dp)
+               .background(Color.White.copy(alpha = 0.2f), CircleShape)
+               .clip(CircleShape),
+             contentScale = ContentScale.Crop
+           )
+        }
+
+        // 3. 텍스트 영역: 최소폭이 40px 이상일 때만 표시 시도
+        if (minDim >= 40f) {
+          Spacer(modifier = Modifier.height((minDim * 0.04f / density).dp))
+          
+          val rateText = "${if (item.percentage > 0) "+" else ""}${item.percentage}%"
+          
+          // 4. 종목명은 최소폭이 80px 이상일 때만 보여줌 (우선순위 3)
+          val finalName = if (minDim >= 80f) item.name ?: "" else ""
+          
+          AutoSizeText(
+            showRateText = showRateText, // 등락률은 우선순위 2 (40px 이상이면 표시)
+            name = finalName,
+            fluctuateText = rateText,
+            minDim = minDim
+          )
+        }
       }
     }
   }
@@ -248,61 +286,58 @@ internal fun AutoSizeText(
   name: String,
   fluctuateText: String,
   modifier: Modifier = Modifier,
-  width: Float,
-  height: Float,
+  minDim: Float,
 ) {
-  val nameLength = name.length
-  val fluctuation = fluctuateText.length
-
-  val widthBaseTextSize = (
-    (width / nameLength)
-      .coerceAtMost(width / if (showRateText) fluctuation else 1) / LocalDensity.current.density
-    )
-    .coerceAtLeast(minTextSize)
-
-  val heightBaseTextSize = ((height * textLineSpace - 15) / 2 / LocalDensity.current.density)
-    .coerceAtLeast(minTextSize)
-
-  val length = widthBaseTextSize.coerceAtMost(heightBaseTextSize)
+  val density = LocalDensity.current.density
+  
+  // 폰트 크기 계산 (coerceAtLeast를 낮춰서 더 작은 박스에서도 대응)
+  val nameSize = (minDim * 0.14f / density).coerceAtLeast(5f)
+  val rateSize = (minDim * 0.12f / density).coerceAtLeast(5f)
 
   Column(
-    modifier = Modifier
-      .fillMaxSize()
-      .padding(horizontal = 2.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Center,
+    verticalArrangement = Arrangement.Center
   ) {
-    Text(
-      text = name,
-      modifier = modifier,
-      fontSize = length.sp,
-      fontWeight = FontWeight.W600,
-      letterSpacing = if (length < 1f && width * 2f > height) 0.2.sp else 0.1.sp,
-      overflow = TextOverflow.Ellipsis,
-      maxLines = 1,
-      color = Color.White,
-      textAlign = TextAlign.Center,
-      softWrap = false,
-    )
-    if (showRateText) {
+    if (name.isNotEmpty()) {
       Text(
-        text = fluctuateText,
-        modifier = modifier,
-        fontSize = length.sp,
-        fontWeight = FontWeight.W600,
-        letterSpacing = if (length < 1f && width * 2f > height) 0.2.sp else 0.1.sp,
-        overflow = TextOverflow.Ellipsis,
-        maxLines = 1,
+        text = name,
+        fontSize = nameSize.sp,
+        fontWeight = FontWeight.Bold,
         color = Color.White,
         textAlign = TextAlign.Center,
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1,
         softWrap = false,
+        style = androidx.compose.ui.text.TextStyle(
+          platformStyle = androidx.compose.ui.text.PlatformTextStyle(
+            includeFontPadding = false
+          )
+        )
+      )
+    }
+    
+    if (showRateText) {
+      if (name.isNotEmpty()) {
+        Spacer(modifier = Modifier.height((minDim * 0.01f / density).dp))
+      }
+      Text(
+        text = fluctuateText,
+        fontSize = rateSize.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = Color.White.copy(alpha = 0.9f),
+        textAlign = TextAlign.Center,
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1,
+        softWrap = false,
+        style = androidx.compose.ui.text.TextStyle(
+          platformStyle = androidx.compose.ui.text.PlatformTextStyle(
+            includeFontPadding = false
+          )
+        )
       )
     }
   }
 }
-
-private const val textLineSpace = 0.9f
-private const val minTextSize = 0.8f
 
 @Composable
 internal fun <T> TreemapChart(

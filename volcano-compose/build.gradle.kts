@@ -79,4 +79,5 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle)
+    implementation(libs.coil.compose)
 }

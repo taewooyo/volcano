@@ -24,4 +24,5 @@ data class StockItem(
   val value: Double,
   val oldValue: Double,
   val type: String,
+  val logoUrl: String? = null,
 )

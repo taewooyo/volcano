@@ -20,6 +20,7 @@ public data class VolcanoElement internal constructor(
   val weight: Double,
   val color: Long,
   val percentage: Double,
+  val logoUrl: String? = null,
 ) {
 
   class Builder internal constructor() {
@@ -27,6 +28,7 @@ public data class VolcanoElement internal constructor(
     private var weight: Double = 0.0
     private var color: Long = 0xFF000000
     private var percentage: Double = 0.0
+    private var logoUrl: String? = null
 
     fun name(lambda: () -> String) {
       name = lambda()
@@ -44,9 +46,13 @@ public data class VolcanoElement internal constructor(
       percentage = lambda()
     }
 
+    fun logoUrl(lambda: () -> String?) {
+      logoUrl = lambda()
+    }
+
     fun build(): VolcanoElement {
       require(name != "") { "You need to enter the name value. Don't enter the Blank" }
-      return VolcanoElement(name, weight, color, percentage)
+      return VolcanoElement(name, weight, color, percentage, logoUrl)
     }
   }
 }
