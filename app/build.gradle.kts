@@ -3,6 +3,7 @@ import com.taewooyo.buildsrc.Configuration
 plugins {
   id(libs.plugins.android.application.get().pluginId)
   id(libs.plugins.kotlin.android.get().pluginId)
+  id(libs.plugins.kotlin.compose.get().pluginId)
   id(libs.plugins.hilt.plugin.get().pluginId)
   id(libs.plugins.ksp.get().pluginId)
 }
@@ -30,10 +31,6 @@ android {
 
   buildFeatures {
     compose = true
-  }
-
-  composeOptions {
-    kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get()
   }
 
   lint {
