@@ -1,0 +1,36 @@
+---
+title: 2.0 마이그레이션
+description: 기존 DSL 기반 API에서 데이터 기반 2.0 API로 전환합니다.
+---
+
+## 변경 사항
+
+Volcano 2.0은 의도적으로 호환성을 깨는 메이저 재설계입니다. 1.x의 `root {}`, `section {}`, `element {}` DSL, 트리 클래스, `VolcanoBuilder`, `Volcano()` 컴포저블은 더 이상 존재하지 않습니다. 이를 플랫폼 독립의 불변 `HeatmapNode` 트리와 `Heatmap` 컴포저블이 대체합니다.
+
+## 경계에서 데이터 변환
+
+DTO나 도메인 객체는 composition 밖에서 한 번만 `HeatmapNode`로 매핑합니다. `value`는 면적에, `metric`은 부호 있는 색상 지표에 사용합니다.
+
+```kotlin
+val root = HeatmapNode(
+  id = "market", label = "Market", value = positions.sumOf { it.marketValue },
+  children = positions.map { position ->
+    HeatmapNode(id = position.symbol, label = position.symbol,
+      value = position.marketValue, metric = position.dailyReturnPercent)
+  },
+)
+```
+
+## UI 호출 교체
+
+```kotlin
+val state = rememberHeatmapState(root)
+Heatmap(state = state, modifier = Modifier.fillMaxSize(),
+  onLeafClick = { node -> openDetail(node.id) })
+```
+
+그룹 drill-down이 필요하면 `HeatmapBreadcrumb(state)`와 호스트의 Back 처리를 추가합니다. 이미지 로딩은 기본 Compose 아티팩트에 포함되지 않으므로 `logoContent`로 선택적 이미지 통합을 고릅니다.
+
+## 안전한 릴리스
+
+소비 앱을 하나씩 이전하고 검증 전까지는 이전 버전을 고정하세요. 1.x와 2.0 API를 함께 사용하지 마세요. 운영 의존성을 교체하기 전 Android Back, iOS safe area, Desktop 크기 변경, 데이터 집계, 사용자 색상을 검증합니다.

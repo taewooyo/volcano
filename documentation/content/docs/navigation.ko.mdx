@@ -1,0 +1,28 @@
+---
+title: 탐색과 선택
+description: 그룹 drill-down, 뒤로 가기, 리프 선택을 앱 상태와 연결합니다.
+---
+
+## Drill-down 계약
+
+자식을 가진 노드는 그룹이고 그 헤더가 기본 drill-down 대상입니다. 리프 영역 클릭은 리프 동작으로 남습니다. `HeatmapInteraction(drillDownOnGroupClick = true)`가 기본값이며 `onGroupClick`은 상태 변경 전에 실행되어 분석이나 외부 UI 갱신에 쓸 수 있습니다.
+
+```kotlin
+Heatmap(state = state,
+  onGroupClick = { group -> analytics.logOpenGroup(group.id) },
+  onLeafClick = { leaf -> navigator.openDetail(leaf.id) })
+```
+
+## Back 처리
+
+Back은 화면을 나가기 전에 부모 그룹으로 이동해야 합니다. SDK는 앱 탐색을 소유하지 않으므로 플랫폼 Back을 설치하지 않습니다.
+
+```kotlin
+BackHandler(enabled = state.canNavigateUp) { state.navigateUp() }
+```
+
+iOS·Desktop toolbar에서는 `state.canNavigateUp`일 때만 `HeatmapBackButton`을 표시하거나 호스트 제어에서 `navigateUp()`을 호출합니다. root에서는 `false`를 반환하므로 앱 탐색과 조합해도 안전합니다.
+
+## Breadcrumb과 리프 선택
+
+차트 위 `HeatmapBreadcrumb(state)`는 조상으로 직접 이동합니다. 맞춤 breadcrumb는 `state.breadcrumbs`와 `navigateToBreadcrumb(index)`를 사용하세요. ID는 트리 전체가 아니라 형제 사이에서만 고유하므로 ID보다 index를 선호합니다. 리프 선택은 drill-down과 독립적이고, 별도 선택 모델이 있다면 `selectLeafOnClick = false`로 끌 수 있습니다.

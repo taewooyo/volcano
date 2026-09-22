@@ -1,0 +1,52 @@
+name: Deploy documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - documentation/**
+      - .github/workflows/docs.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: documentation/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew :dokkaGeneratePublicationHtml --no-daemon --console=plain
+      - run: npm ci
+        working-directory: documentation
+      - run: npm run check:locales
+        working-directory: documentation
+      - run: npm run build
+        working-directory: documentation
+        env:
+          NEXT_PUBLIC_BASE_PATH: /volcano
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: documentation/out
+      - id: deployment
+        uses: actions/deploy-pages@v4

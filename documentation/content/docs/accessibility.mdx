@@ -1,0 +1,30 @@
+---
+title: Accessibility
+description: Preserve meaningful navigation and data when a heatmap becomes visually dense.
+---
+
+## Built-in semantics
+
+The default cell exposes its label, formatted metric, and selected state to accessibility services.
+Group headers, breadcrumbs, and Back controls expose their navigation action. This makes the
+default experience usable without requiring consumers to recreate basic semantics.
+
+## Custom cells
+
+When `cellContent` replaces the default visual cell, it also replaces its content. Preserve an
+equivalent accessible name and state in the outermost cell that receives the supplied modifier.
+Include the domain meaning of a metric, not only its number: for example, “NVIDIA, up 2.3 percent”
+or “Checkout latency, 18 milliseconds above target.”
+
+## Do not rely on color alone
+
+Color is compact but insufficient as the sole carrier of positive/negative or healthy/unhealthy
+meaning. Show a legend, expose formatted text where it fits, and provide a leaf detail destination.
+Use a palette that remains distinguishable for the product's accessibility requirements; a financial
+green/red scale may not be suitable for every domain or user.
+
+## Dense data is an accessibility concern
+
+Hidden text in tiny rectangles is intentional, not missing content. Use aggregation and drill-down
+so an assistive-technology user and a touch user can both reach the same underlying item. See
+[Large Datasets](/docs/large-datasets) for the recommended overview strategy.

@@ -1,4 +1,4 @@
-name: Android CI
+name: Library CI
 
 on:
   push:
@@ -7,36 +7,43 @@ on:
     branches: [ main ]
 
 jobs:
-  lint:
-    name: Spotless check
+  verify:
+    name: Android, Desktop, tests, and ABI
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4.3.1
-      - name: Set up JDK
-        uses: actions/setup-java@v3.14.1
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          distribution: zulu
+          distribution: temurin
           java-version: 17
-      - uses: gradle/gradle-build-action@v3.5.0
-      - name: spotless
-        run: ./gradlew spotlessCheck
-
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4.3.1
-      - name: set up JDK
-        uses: actions/setup-java@v3.14.1
-        with:
-          distribution: zulu
-          java-version: 17
-
-      - uses: gradle/gradle-build-action@v3.5.0
+      - uses: gradle/actions/setup-gradle@v4
       - name: Make Gradle executable
         run: chmod +x ./gradlew
-
-      - name: Build with Gradle
+      - name: Verify shared libraries
         run: |
-          ./gradlew --scan --stacktrace \
-              assemble
+          ./gradlew \
+            :volcano:allTests \
+            :volcano-compose:allTests \
+            :volcano-compose-coil:allTests \
+            :androidApp:compileDebugKotlin \
+            :desktopApp:compileKotlinDesktop \
+            :volcano:apiCheck \
+            :volcano-compose:apiCheck \
+            :volcano-compose-coil:apiCheck \
+            --no-daemon --console=plain
+
+  ios-link:
+    name: iOS Simulator framework
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x ./gradlew
+      - name: Link iOS Simulator framework
+        run: ./gradlew :iosApp:linkDebugFrameworkIosSimulatorArm64 --no-daemon --console=plain

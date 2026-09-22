@@ -1,0 +1,44 @@
+---
+title: Architecture and Modules
+description: Choose the smallest Volcano artifact set and keep domain data outside the SDK.
+---
+
+## Artifact boundary
+
+| Artifact | Responsibility | Add when |
+| --- | --- | --- |
+| `volcano` | `HeatmapNode`, color contracts, sorting, filtering, aggregation, squarified layout primitives | A shared data/domain module prepares heatmap data. |
+| `volcano-compose` | `Heatmap`, state, navigation controls, default rendering, interaction, accessibility | A Compose Multiplatform UI renders a heatmap. |
+| `volcano-compose-coil` | `CoilHeatmapLogo` optional remote-image renderer | The application chooses Coil for `imageUrl` values. |
+
+The first two artifacts are normally paired in a UI source set. Coil is deliberately separate:
+an SDK must not force an image loader, a networking stack, or its cache policy onto every client.
+
+## Ownership model
+
+The application owns source data, navigation destination, image loading policy, analytics, and
+layout constraints. Volcano owns only hierarchical layout and the reusable heatmap interaction
+surface. Keep API DTOs and business objects out of `HeatmapNode`; map them at the presentation
+boundary.
+
+```kotlin
+fun Portfolio.toHeatmapNode() = HeatmapNode(
+  id = id,
+  label = title,
+  value = marketValue,
+  metric = dailyReturnPercent,
+  children = positions.map(Position::toHeatmapNode),
+)
+```
+
+This keeps the SDK domain-neutral: a `metric` can be a stock return, SLA deviation, budget
+variance, inventory health, or another signed measure.
+
+## State lifetime
+
+`rememberHeatmapState(root)` retains drill-down and leaf selection while the same immutable `root`
+instance is used. When refreshed data replaces the root, construct the display tree before
+composition and pass the new root; state safely starts from the updated root. Hoist state only when
+the host needs to coordinate Back behavior or a detail pane.
+
+Use `HeatmapState` as presentation state, not as a repository for mutable domain data.

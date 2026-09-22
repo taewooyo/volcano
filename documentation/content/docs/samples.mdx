@@ -1,0 +1,68 @@
+---
+title: Sample Gallery
+description: Reference integrations to validate a Volcano implementation on each supported host.
+---
+
+import { GalleryGrid } from "@/components/gallery-grid";
+
+## Included applications
+
+| Sample | What it verifies |
+| --- | --- |
+| `androidApp` | Edge-to-edge host layout, system Back drill-up, interactive leaf selection. |
+| `iosApp` | Compose `UIViewController` bridge, safe-area-aware host, iOS Simulator framework. |
+| `desktopApp` | Resizable window, hover tooltip, pointer interaction. |
+| `benchmark` | Shared layout measurement with a synthetic 5,000-leaf tree. |
+
+The applications are deliberately demos, not required runtime dependencies of the library.
+
+## Android: overview and drill-down
+
+The following captures were verified on a Galaxy S25 (`SM-S938N`) with the Android demo's bundled
+financial fixture. The overview shows groups and a legend; selecting the `전자 기술` group header
+opens its leaf-level heatmap with a breadcrumb and enabled Back control.
+
+<GalleryGrid>
+
+![Android overview](../gallery/android-overview.jpeg)
+
+![Android electronic-technology drill-down](../gallery/android-drilldown.jpeg)
+
+</GalleryGrid>
+
+## Desktop: resizable overview and drill-down
+
+The Desktop sample uses the same shared `Heatmap` API in a resizable Compose Desktop window. The
+overview shows sibling groups at once; the Finance drill-down preserves the breadcrumb and enables
+the Back control. Pointer hover is available as a separate Desktop interaction policy.
+
+<GalleryGrid>
+
+![Desktop overview](../gallery/desktop-overview.png)
+
+![Desktop Finance drill-down](../gallery/desktop-drilldown.png)
+
+</GalleryGrid>
+
+## iOS: safe-area overview and drill-down
+
+The iOS Simulator host embeds the same shared Compose UI in a `UIViewController`. The overview
+respects the iPhone safe area; Electronic Technology drill-down retains the breadcrumb and provides
+the same Back behavior as the other hosts.
+
+<GalleryGrid>
+
+![iOS overview](../gallery/ios-overview.png)
+
+![iOS electronic-technology drill-down](../gallery/ios-drilldown.png)
+
+</GalleryGrid>
+
+## Capture policy
+
+Publish screenshots or short GIFs from a verified release candidate, not hand-drawn mockups. Each
+capture should identify platform, library version, device/window size, dataset size, and the
+interaction shown. Recommended flows are: overview to group drill-down, breadcrumb/Back return,
+leaf detail selection, and Desktop hover tooltip.
+
+Android, Desktop, and iOS captures are committed under `documentation/content/gallery/`.

@@ -15,6 +15,10 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "volcano"
-include(":app")
+include(":androidApp")
+include(":benchmark")
+include(":desktopApp")
+include(":iosApp")
 include(":volcano")
 include(":volcano-compose")
+include(":volcano-compose-coil")

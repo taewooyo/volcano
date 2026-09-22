@@ -1,0 +1,8 @@
+---
+title: 릴리스와 호환성
+description: 버전 선택, 호환성 검증, 변경 사항 확인 방법입니다.
+---
+
+Volcano는 Kotlin Multiplatform 라이브러리이므로 소비 앱의 Kotlin, Compose Multiplatform, Android Gradle Plugin 조합과 호환성을 확인해야 합니다. 새 버전으로 올리기 전에는 변경 로그와 API 호환성 검사를 검토하고 Android·iOS·Desktop의 실제 타깃을 모두 빌드하세요.
+
+2.0은 이전 DSL을 대체하는 메이저 릴리스입니다. 새 API로 마이그레이션한 뒤 의존성 버전을 고정하고, 이후 업데이트는 CI에서 core·Compose·Coil 모듈의 테스트와 공개 API 검사를 함께 실행하는 것이 좋습니다.

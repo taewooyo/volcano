@@ -1,0 +1,52 @@
+---
+title: 시작하기
+description: KMP 아티팩트를 설치하고 유효한 데이터를 만든 뒤 첫 히트맵을 렌더링합니다.
+---
+
+## 설치
+
+`commonMain`에 core와 Compose 아티팩트를 추가합니다. `volcano`는 플랫폼 독립 모델과 레이아웃 변환을, `volcano-compose`는 Compose Multiplatform 렌더링을 담당합니다.
+
+```kotlin
+kotlin {
+  sourceSets { commonMain.dependencies {
+    implementation("io.github.taewooyo:volcano:<version>")
+    implementation("io.github.taewooyo:volcano-compose:<version>")
+  } }
+}
+```
+
+소비 앱이 Android, iOS, Desktop 중 무엇을 대상으로 하든 같은 의존성을 사용합니다. 원격 `imageUrl`을 Coil로 불러올 때만 `volcano-compose-coil`을 추가합니다. 기본 UI 모듈은 이미지를 네트워크에서 가져오지 않습니다.
+
+## 유효한 원본 데이터 만들기
+
+각 노드는 비어 있지 않고 형제 사이에서 고유한 `id`, 표시용 `label`, 유한한 `value`가 필요합니다. 양수 `value`만 면적을 받으며, 0 또는 음수 값은 시각적 면적이 없습니다. 그룹은 양수 값의 보이는 하위 노드에서 레이아웃 가중치를 구합니다.
+
+`metric`은 선택 사항이며 면적과 별개입니다. 보통 부호 있는 변동률, 오류율 변화, 상태 점수에 사용합니다. `imageUrl`도 선택 사항이고, `null` 또는 빈 값은 로고를 표시하지 말라는 의미입니다.
+
+## 히트맵 렌더링
+
+```kotlin
+val market = HeatmapNode(
+  id = "market",
+  label = "Market",
+  value = 100.0,
+  children = listOf(
+    HeatmapNode(id = "nvidia", label = "NVIDIA", value = 100.0, metric = 2.3),
+  ),
+)
+
+val state = rememberHeatmapState(market)
+Heatmap(state = state, modifier = Modifier.fillMaxSize())
+```
+
+`Heatmap`은 고정 크기를 갖지 않습니다. 호스트가 제약을 소유하므로 유효한 높이를 지정하거나 부모가 제한된 높이를 제공해야 합니다.
+
+```kotlin
+Heatmap(
+  state = state,
+  modifier = Modifier.fillMaxWidth().height(320.dp),
+)
+```
+
+`value`는 면적을, `metric`은 기본 부호 색상 스케일을 제어합니다. 실제 앱 연결 전 [플랫폼 통합](/ko/docs/platforms)을 확인하세요.

@@ -1,0 +1,16 @@
+---
+title: 핵심 개념
+description: 계층, 면적, 지표, drill-down의 의미를 정의합니다.
+---
+
+## 계층과 drill-down
+
+자식을 가진 노드는 그룹입니다. 기본적으로 그룹 헤더를 탭하면 그 그룹으로 drill-down합니다. `HeatmapState`는 hoist하고 플랫폼 Back 처리에서 `navigateUp()`을 호출합니다.
+
+## 면적과 색상
+
+`value`는 항상 상대 사각형 면적을 결정합니다. `metric`은 선택 사항이며 수익률, 오류율, 편차, 상태 점수처럼 부호가 있는 도메인 지표가 될 수 있습니다. `SignedMetricColorScale`을 사용하거나 맞춤 `HeatmapColorScale`을 제공합니다.
+
+## 선택
+
+기본적으로 리프 탭은 선택합니다. `state.selectedNode`로 상세 패널을 표시하고, 패널이 닫히면 `clearSelection()`을 호출합니다.

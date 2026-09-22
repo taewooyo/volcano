@@ -1,0 +1,60 @@
+---
+title: Getting Started
+description: Install the KMP artifacts, create valid data, and render a first heatmap.
+---
+
+## Install
+
+Add the core and Compose artifacts to `commonMain`. `volcano` owns the platform-neutral model and
+layout transforms; `volcano-compose` renders that model with Compose Multiplatform.
+
+```kotlin
+kotlin {
+  sourceSets { commonMain.dependencies {
+    implementation("io.github.taewooyo:volcano:<version>")
+    implementation("io.github.taewooyo:volcano-compose:<version>")
+  } }
+}
+```
+
+Use the same dependencies whether the consuming application targets Android, iOS, Desktop, or all
+three. Add `volcano-compose-coil` only when remote `imageUrl` values should be loaded with Coil.
+The base UI module does not fetch images.
+
+## Build valid source data
+
+Every node needs a non-blank sibling-unique `id`, a display `label`, and a finite `value`. A
+positive `value` receives area; zero and negative values have no visual area. A group derives its
+layout weight from visible descendants when they have positive values.
+
+`metric` is optional and independent from area. It is normally a signed change, error-rate delta,
+or health score. `imageUrl` is optional; `null` and blank values intentionally request no logo.
+
+## Render a heatmap
+
+```kotlin
+val market = HeatmapNode(
+  id = "market",
+  label = "Market",
+  value = 100.0,
+  children = listOf(
+    HeatmapNode(id = "nvidia", label = "NVIDIA", value = 100.0, metric = 2.3),
+  ),
+)
+
+val state = rememberHeatmapState(market)
+Heatmap(state = state, modifier = Modifier.fillMaxSize())
+```
+
+The `Heatmap` deliberately has no fixed size. The host owns constraints, so specify a useful
+height or let a parent provide bounded height.
+
+```kotlin
+Heatmap(
+  state = state,
+  modifier = Modifier.fillMaxWidth().height(320.dp),
+)
+```
+
+`value` controls area. `metric` controls the default signed color scale. Continue with
+[Platform Integration](/docs/platforms) before wiring a real application.

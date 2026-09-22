@@ -1,0 +1,4 @@
+public final class com/taewooyo/volcano/compose/coil/CoilHeatmapLogoKt {
+	public static final fun CoilHeatmapLogo-uFdPcIQ (Lcom/taewooyo/volcano/heatmap/HeatmapNode;FLandroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+}
+

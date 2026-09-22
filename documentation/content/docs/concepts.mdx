@@ -1,0 +1,16 @@
+---
+title: Core Concepts
+description: Model hierarchy, navigation, colors, and selection.
+---
+
+## Hierarchy and drill-down
+
+A node with children is a group. Tapping its header drills into that group by default. Keep `HeatmapState` hoisted and call `navigateUp()` from platform Back handling.
+
+## Area and color
+
+`value` always determines relative rectangle area. `metric` is optional and can represent a return, error rate, variance, health score, or any signed domain indicator. Use `SignedMetricColorScale` or provide a custom `HeatmapColorScale`.
+
+## Selection
+
+Leaf taps select by default. Read `state.selectedNode` to show a detail panel, then call `clearSelection()` when it closes.

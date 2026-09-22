@@ -1,0 +1,34 @@
+---
+title: Logos and Images
+description: Use optional images without coupling the base SDK to an image-loading stack.
+---
+
+## No loader by default
+
+`HeatmapNode.imageUrl` is nullable. The core and base Compose artifacts never request a network
+image. A missing, null, or blank URL displays no logo and is valid production data.
+
+## Coil integration
+
+Install the optional artifact in `commonMain` and provide its slot implementation:
+
+```kotlin
+implementation("io.github.taewooyo:volcano-compose-coil:<version>")
+
+Heatmap(
+  state = state,
+  logoContent = { node, size -> CoilHeatmapLogo(node, size) },
+)
+```
+
+`CoilHeatmapLogo` uses a circular crop and shows a label initial while the image loads or fails.
+It is only invoked for cells large enough for the current display policy.
+
+## Another image stack or local resources
+
+Do not add Coil merely for a few local resources. Provide `logoContent` yourself and render an
+`Image`, a cached bitmap, or a platform resource. This separation gives clients control over
+network headers, authentication, memory cache, placeholder treatment, and offline behavior.
+
+For thousands of cells, avoid starting remote image requests in the overview. Aggregate first and
+load logos only for visible, meaningful leaves after drill-down.

@@ -1,0 +1,43 @@
+---
+title: Troubleshooting
+description: Diagnose common integration, data, navigation, and rendering problems.
+---
+
+## A cell is not visible
+
+Only positive layout value receives area. Check that the leaf `value` is finite and greater than
+zero. For a group with visible descendants, descendant layout values control the displayed area.
+If several siblings have zero or negative values, they intentionally occupy no area.
+
+## Text or logo is missing
+
+The default display policy hides content that cannot fit. This prevents overlapping, unreadable
+text. Increase available chart size, drill into the group, reduce data through aggregation, or
+adjust `HeatmapDisplayPolicy`. Do not force labels into every tiny cell.
+
+A missing logo is valid when `imageUrl` is null or blank. For remote URLs, also verify that the
+optional Coil artifact is installed and that `logoContent` calls `CoilHeatmapLogo`.
+
+## Group Back exits the screen
+
+The SDK does not intercept system navigation. On Android, install `BackHandler` only while
+`state.canNavigateUp` is true and call `state.navigateUp()`. On iOS/Desktop, connect the host's
+Back control to the same method before dismissing the route.
+
+## Drill-down does not happen
+
+The target must be a direct child group of `state.visibleNode`; leaves cannot be drilled into. Check
+that `HeatmapInteraction.drillDownOnGroupClick` has not been disabled and that the tap is on the
+group header, which is the built-in group navigation target.
+
+## IllegalArgumentException while creating nodes
+
+`HeatmapNode` rejects blank ids, non-finite values/metrics, and duplicate ids among siblings.
+Normalize API data at the mapping boundary. Ids may repeat in different branches, but not within
+the same group's direct children.
+
+## Slow large view
+
+Do not treat the layout benchmark as full rendering performance. Profile the target device with
+production labels and images, aggregate the initial display tree, and defer images and raw leaves
+to drill-down. See [Large Datasets](/docs/large-datasets).

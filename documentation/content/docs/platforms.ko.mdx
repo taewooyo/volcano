@@ -1,0 +1,20 @@
+---
+title: 플랫폼 통합
+description: Android, iOS, Desktop에서 같은 commonMain UI를 호스팅합니다.
+---
+
+## 공통 의존성
+
+세 플랫폼 모두 `commonMain`에 `volcano`와 `volcano-compose`를 추가합니다. 플랫폼별 화면은 같은 `Heatmap` 컴포저블을 호출하므로 히트맵 데이터와 렌더링 정책을 중복 구현할 필요가 없습니다.
+
+## Android
+
+`ComponentActivity`의 `setContent` 안에서 다른 Compose 화면과 마찬가지로 사용합니다. edge-to-edge를 활성화했다면 시스템 바 인셋을 호스트 레이아웃에서 처리하고, 히트맵에는 실제로 사용할 수 있는 제한된 영역을 제공하세요.
+
+## iOS
+
+Kotlin의 `ComposeUIViewController`를 SwiftUI 또는 UIKit 호스트에 연결합니다. 고주사율 iPhone에서는 `Info.plist`의 `CADisableMinimumFrameDurationOnPhone`을 `true`로 설정해야 Compose의 프레임 성능 검사가 통과합니다.
+
+## Desktop
+
+`application { Window { ... } }`에서 사용합니다. 창 크기가 유동적이므로 `fillMaxSize()` 또는 제한된 부모 크기를 제공하고, 마우스 hover·tooltip 정책은 `HeatmapInteraction`으로 제어합니다.

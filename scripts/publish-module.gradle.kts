@@ -1,7 +1,5 @@
 import com.taewooyo.buildsrc.Configuration
 
-apply(plugin = "com.vanniktech.maven.publish")
-
 rootProject.extra.apply {
     val snapshot = System.getenv("SNAPSHOT").toBoolean()
     val libVersion = if (snapshot) {
@@ -9,5 +7,8 @@ rootProject.extra.apply {
     } else {
         Configuration.versionName
     }
-    set("libVersion", libVersion)
+  set("libVersion", libVersion)
+
+  project.group = Configuration.artifactGroup
+  project.version = libVersion
 }

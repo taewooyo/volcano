@@ -1,126 +1,180 @@
-<h1 align="center">Volcano</h1></br>
+# Volcano
+
+> A production-oriented hierarchical heatmap SDK for Kotlin Multiplatform and Compose Multiplatform.
 
 <p align="center">
-🌋 Heatmap charts created in an optimized way, fully customizable for Android.
+  <img src="documentation/public/images/volcano-banner.png" alt="Volcano hierarchical heatmap landscape" width="100%" />
 </p>
 
-<br>
-<p align="center">
-<img src="https://github.com/taewooyo/volcano/assets/66770613/18a319ba-1570-4a11-9f71-e701bcc165da" width="280"/>
-  <img src="https://github.com/wisemuji/zoom-clone-compose/assets/167275873/1db96251-72ec-4a94-8058-327ac0ef33a6" width="280"/>
-<img src="https://github.com/wisemuji/zoom-clone-compose/assets/167275873/d87d1583-30c2-407b-a61f-cdac4ed587e3" height="280"/>
-<img src="https://github.com/taewooyo/volcano/assets/66770613/90d1a9b7-bdf4-488a-a326-2404f2d7e668" height="280"/>
+Volcano turns immutable hierarchical data into responsive treemaps on **Android, iOS, and Desktop**. It separates area, color, navigation, image loading, and host UI ownership so the same visualization works for financial markets, service health, budgets, inventories, and any other dense changing data.
 
-</p>
+[Documentation](https://taewooyo.github.io/volcano/) · [Korean documentation](https://taewooyo.github.io/volcano/ko/docs/) · [Sample gallery](https://taewooyo.github.io/volcano/en/docs/samples) · [API reference](https://taewooyo.github.io/volcano/api-reference/index.html)
 
-## Volcano in Jetpack Compose
+## Why Volcano
 
-If you want to use Volcano in your Jetpack Compose project, check out the **[Volcano in Jetpack Compose](https://github.com/taewooyo/Volcano#volcano-in-jetpack-compose-1)** guidelines.
+| Need | Volcano approach |
+| --- | --- |
+| One visualization across platforms | `commonMain` data model and Compose UI for Android, iOS, and Desktop. |
+| Dense information without unreadable cells | Measured adaptive content hides logo, label, and metric progressively. |
+| Overview and detail without separate screens | Group headers drill down; breadcrumbs and Back return to the parent group. |
+| A library, not a finance-only widget | `value` controls area, while a domain-neutral signed `metric` controls color. |
+| No forced network stack | Image URLs are nullable; Coil support is an optional artifact. |
+| Production-scale data | Aggregate first, drill down on demand, and verify raw 5,000-leaf behavior with the benchmark. |
 
-## How to Use
+## Modules
+
+| Module | Use it for |
+| --- | --- |
+| `volcano` | Immutable model, sorting, filtering, aggregation, color contracts, and squarified layout. |
+| `volcano-compose` | Compose `Heatmap`, state, navigation, default cells, accessibility, and interaction. |
+| `volcano-compose-coil` | Optional `CoilHeatmapLogo` implementation for remote `imageUrl` values. |
+
+## Installation
+
+Add core and Compose to `commonMain`. All target applications use the same dependencies.
 
 ```kotlin
-val totalValue = dummyData.sumOf { it.value }
-val dividedDummyData = dummyData.groupBy { it.type }
-val volcano = root {
-  name { null }
-  weight { totalValue }
-  sections {
-    dividedDummyData.toList().forEach { (type, items) ->
-      section {
-        name { type.name }
-        weight { items.sumOf { it.value } }
-        elements {
-          items.forEach { hotIssue ->
-            element {
-              name { hotIssue.name }
-              weight { hotIssue.value }
-              percentage { (hotIssue.oldValue / hotIssue.value) * 100 }
-              color { getColor((hotIssue.oldValue / hotIssue.value) * 100).toLong() }
-            }
-          }
-        }
-      }
+kotlin {
+  sourceSets {
+    commonMain.dependencies {
+      implementation("io.github.taewooyo:volcano:<version>")
+      implementation("io.github.taewooyo:volcano-compose:<version>")
+
+      // Only if the app chooses Coil for remote imageUrl values.
+      implementation("io.github.taewooyo:volcano-compose-coil:<version>")
     }
   }
 }
 ```
 
-### Create Volcano with Kotlin DSL
+The base SDK never fetches an image. `imageUrl = null` or a blank URL simply renders no logo.
 
-We can also create an instance of the Volcano with the Kotlin DSL.
+## Five-minute integration
 
-## Volcano in Jetpack Compose
-
-Volcano allows you to display heatmap chart in Jetpack Compose easily.
-
-![Maven Central](https://img.shields.io/maven-central/v/io.github.taewooyo/volcano)
-![Maven Central](https://img.shields.io/maven-central/v/io.github.taewooyo/volcano-compose)
-
-Add the dependency below to your **module**'s `build.gradle` file
-
-```build.gradle
-dependencies {
-    implementation "io.github.taewooyo:volcano:${version}"
-    implementation "io.github.taewooyo:volcano-compose:${version}"
-}
-```
-
-### Volcano Composable
-
-You can display heatmap with `Volcano` composable function and `Builder` like the below:
+Create an immutable tree outside composition. Each sibling `id` must be non-blank and unique; only positive finite `value` values receive visual area.
 
 ```kotlin
-val totalValue = dummyData.sumOf { it.value }
-val dividedDummyData = dummyData.groupBy { it.type }
-val volcano = root {
-  name { null }
-  weight { totalValue }
-  sections {
-    dividedDummyData.toList().forEach { (type, items) ->
-      section {
-        name { type.name }
-        weight { items.sumOf { it.value } }
-        elements {
-          items.forEach { hotIssue ->
-            element {
-              name { hotIssue.name }
-              weight { hotIssue.value }
-              percentage { (hotIssue.oldValue / hotIssue.value) * 100 }
-              color { getColor((hotIssue.oldValue / hotIssue.value) * 100).toLong() }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-Volcano(
-  modifier = Modifier,
-  items = VolcanoBuilder.build(volcano),
-  onClickSection = {},
-  onClickElement = {},
-  selectedBorderColor = Color.Black,
-  selectedItem = null,
-  showRateText = true,
+val market = HeatmapNode(
+  id = "market",
+  label = "US Market",
+  value = 100.0,
+  children = listOf(
+    HeatmapNode(
+      id = "technology",
+      label = "Technology",
+      value = 42.0,
+      children = listOf(
+        HeatmapNode(
+          id = "nvidia",
+          label = "NVIDIA",
+          value = 12.0,       // rectangle area
+          metric = 3.2,       // signed color value
+          imageUrl = "https://cdn.example.com/logos/nvidia.png",
+        ),
+      ),
+    ),
+  ),
 )
 ```
 
-# License
+Render it in a bounded Compose area. Volcano does not impose a width or height.
 
-```xml
+```kotlin
+val state = rememberHeatmapState(market)
+val scale = SignedMetricColorScale(maximumAbsoluteMetric = 10.0)
+
+Column(Modifier.fillMaxSize()) {
+  HeatmapBreadcrumb(state)
+  Heatmap(
+    state = state,
+    modifier = Modifier.weight(1f).fillMaxWidth(),
+    colorScale = scale,
+    interaction = HeatmapInteraction(
+      drillDownOnGroupClick = true,
+      selectLeafOnClick = true,
+    ),
+    logoContent = { node, size -> CoilHeatmapLogo(node, size) },
+    onLeafClick = { node -> openDetail(node.id) },
+  )
+  HeatmapLegend(entries = scale.legendEntries())
+}
+```
+
+Use the Coil slot only after adding `volcano-compose-coil`; otherwise omit `logoContent` or provide an implementation for your own image stack.
+
+## Interaction model
+
+| Input | Default behavior | Host responsibility |
+| --- | --- | --- |
+| Group header tap | Drill into that group | Record analytics or intercept with `onGroupClick`. |
+| Leaf tap | Select the leaf | Open a detail destination with `onLeafClick`. |
+| Android Back / toolbar Back | `state.navigateUp()` while possible | Install system/host Back dispatch. |
+| Desktop hover | Optional tooltip after 400ms | Enable `showTooltipOnHover` or use `onLeafHover`. |
+| Long press | Optional tooltip for 2 seconds | Enable it or present a host-owned sheet/dialog. |
+
+`HeatmapState` exposes `visibleNode`, `breadcrumbs`, `selectedNode`, `selectedId`, and `canNavigateUp`. Call `clearSelection()` when the host closes a detail panel.
+
+## Responsive by design
+
+`HeatmapDisplayPolicy` uses actual measured space rather than a single device-specific threshold. It removes secondary content before labels, and labels before values only when a rectangle cannot render them cleanly. Padding also scales down for small cells. This prevents a 5,000-item phone overview from turning into an unreadable grid.
+
+For deliberately deterministic visual systems, provide thresholds explicitly:
+
+```kotlin
+val policy = HeatmapDisplayPolicy(
+  adaptiveContent = true,
+  hideContentBelow = 16.dp,
+  showMetricAbove = 40.dp,
+  showLabelAbove = 48.dp,
+  cellContentPadding = 6.dp,
+)
+```
+
+## Large datasets
+
+Do not expose every leaf in an initial mobile viewport simply because it can be laid out. Build a compact display tree in a ViewModel or repository, then use drill-down, filtering, or search to reveal raw data.
+
+```kotlin
+val overview = rawMarket.toDisplayTree(
+  aggregation = HeatmapAggregation(
+    maximumChildren = 12,
+    minimumChildFraction = 0.01,
+    othersLabel = "Others",
+  ),
+)
+Heatmap(state = rememberHeatmapState(overview))
+```
+
+The `benchmark` module exercises the shared layout engine with 5,000 leaves. Treat it as a layout measurement, not a universal end-user frame-time guarantee: profile actual labels, images, devices, and animation policy on each target.
+
+## Platform notes
+
+- **Android:** apply edge-to-edge and safe drawing padding in the host; connect `BackHandler` only while `state.canNavigateUp` is true.
+- **iOS:** host the shared `ComposeUIViewController` in UIKit or SwiftUI; set `CADisableMinimumFrameDurationOnPhone = YES` for high-refresh-rate devices.
+- **Desktop:** keep the window resizable; use adaptive content and optionally enable pointer hover tooltips.
+
+## Accessibility
+
+Default cells expose label, formatted metric, and selection state. Group headers, breadcrumbs, and Back controls expose navigation semantics. If `cellContent` replaces a default cell, preserve an equivalent accessible label and domain meaning. Do not communicate positive/negative or healthy/unhealthy state through color alone.
+
+## Samples and verification
+
+| Module | Command |
+| --- | --- |
+| Android demo | `./gradlew :androidApp:installDebug` |
+| Desktop demo | `./gradlew :desktopApp:run` |
+| iOS Simulator framework | `./gradlew :iosApp:linkDebugFrameworkIosSimulatorArm64` |
+| Core and Compose tests | `./gradlew :volcano:allTests :volcano-compose:allTests` |
+| Public API compatibility | `./gradlew :volcano:apiCheck :volcano-compose:apiCheck :volcano-compose-coil:apiCheck` |
+
+See the [platform sample gallery](https://taewooyo.github.io/volcano/en/docs/samples) for Android, Desktop, and iOS overview/drill-down captures.
+
+## Migrating from 1.x
+
+Volcano 2.0 deliberately replaces the former Android-only builder DSL (`root {}`, `section {}`, `element {}`), `VolcanoBuilder`, tree classes, and `Volcano()` composable. Map source data to `HeatmapNode`, create `rememberHeatmapState`, and render `Heatmap`. Keep a 1.x release pinned until each consumer completes migration; do not mix the two API generations in one integration.
+
+## License
+
 Copyright 2023 taewooyo
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-```
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).

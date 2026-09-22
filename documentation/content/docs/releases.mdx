@@ -1,0 +1,33 @@
+---
+title: Releases and Compatibility
+description: Consume Volcano safely and maintain binary-compatible library releases.
+---
+
+## Versioning
+
+Volcano 2.0 is a deliberate major release. The 1.x builder DSL, tree model, and `Volcano()`
+composable were removed in favor of immutable `HeatmapNode`, `rememberHeatmapState`, and `Heatmap`.
+Keep a 1.x dependency or tag until every consumer can migrate; do not mix the two APIs in a single
+integration plan.
+
+Use the same Volcano version for `volcano`, `volcano-compose`, and `volcano-compose-coil`.
+
+## API compatibility
+
+Public Desktop JVM ABI baselines are checked with Binary Compatibility Validator. Maintainers run:
+
+```bash
+./gradlew :volcano:apiCheck :volcano-compose:apiCheck :volcano-compose-coil:apiCheck
+```
+
+This is an important compatibility signal, but it does not replace behavioral tests across Android,
+iOS, and Desktop. Consumers should pin a tested version and review release notes before upgrading a
+major version.
+
+## Consumer verification checklist
+
+- Build `commonMain` with the selected Kotlin and Compose Multiplatform toolchain.
+- Render representative localized labels at target font scale.
+- Verify Android Back, iOS safe area, and Desktop resizing.
+- Verify aggregate overview and a drill-down path using production-sized data.
+- Verify image failure behavior if using the optional Coil integration.

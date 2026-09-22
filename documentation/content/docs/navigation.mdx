@@ -1,0 +1,46 @@
+---
+title: Navigation and Selection
+description: Implement drill-down, Back, breadcrumbs, and leaf-detail behavior consistently.
+---
+
+## Drill-down contract
+
+A node with children is a group. Its header is the built-in drill-down target; clicking the leaf
+area remains a leaf action. `HeatmapInteraction(drillDownOnGroupClick = true)` is the default.
+`onGroupClick` runs before state changes, which is useful for analytics or external UI updates.
+
+```kotlin
+Heatmap(
+  state = state,
+  onGroupClick = { group -> analytics.logOpenGroup(group.id) },
+  onLeafClick = { leaf -> navigator.openDetail(leaf.id) },
+)
+```
+
+## Back handling
+
+Back should go to the parent group before it exits a screen. The SDK does not install platform
+Back handling because application navigation belongs to the host.
+
+```kotlin
+BackHandler(enabled = state.canNavigateUp) {
+  state.navigateUp()
+}
+```
+
+For an iOS or Desktop toolbar, show the provided `HeatmapBackButton` only while
+`state.canNavigateUp` is true, or call `navigateUp()` from the host's own control. `navigateUp()`
+returns `false` at the root, so it is safe to compose with application navigation.
+
+## Breadcrumbs
+
+Place `HeatmapBreadcrumb(state)` above the chart for direct ancestor navigation. For a custom
+breadcrumb, use `state.breadcrumbs` and call `navigateToBreadcrumb(index)`. Prefer the index over
+an id because ids are unique among siblings, not globally across a tree.
+
+## Leaf selection
+
+Leaf tap selection is on by default and is independent of drill-down. Read `state.selectedNode`
+for all node data or `state.selectedId` for a lightweight key. Call `clearSelection()` when a
+detail panel closes. Disable automatic selection with `selectLeafOnClick = false` when the host
+uses a separate selection model.

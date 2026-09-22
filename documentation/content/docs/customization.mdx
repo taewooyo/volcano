@@ -1,0 +1,43 @@
+---
+title: Customization and Interaction
+description: Style cells, configure press motion, and choose tooltip behavior per platform.
+---
+
+## Visual style and motion
+
+`HeatmapStyle` controls borders, group headers, leaf text, and an optional persistent selection
+border. The default selection cue is a short press scale/alpha response rather than a permanent
+outline. Use `HeatmapMotion` to tune it or disable transitions in a high-density overview.
+
+```kotlin
+Heatmap(
+  state = state,
+  style = HeatmapStyle(
+    borderColor = Color.White,
+    groupHeaderColor = Color(0xFFF8FAFC),
+    groupHeaderTextColor = Color(0xFF0F172A),
+  ),
+  motion = HeatmapMotion(enabled = true, durationMillis = 180),
+)
+```
+
+## Tooltips
+
+Enable the built-in long-press or Desktop hover tooltip through `HeatmapInteraction`. Long press is
+off by default and closes after 2 seconds; `tooltipDurationMillis = 0` requires dismissal. Hover
+is off by default and appears after a 400ms dwell. Both values can be changed per use case.
+
+Use `tooltipContent` to replace the built-in Popup body, or `onLeafLongClick` and `onLeafHover` for
+a host-owned dialog, bottom sheet, or external detail panel. Enable only one presentation path to
+avoid duplicate information.
+
+```kotlin
+Heatmap(
+  state = state,
+  interaction = HeatmapInteraction(
+    showTooltipOnHover = true,
+    tooltipHoverDelayMillis = 400,
+  ),
+  tooltipContent = { node, dismiss -> /* custom compact popup */ },
+)
+```

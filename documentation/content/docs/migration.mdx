@@ -1,0 +1,52 @@
+---
+title: Migrate from 1.x
+description: Move from the Android-only builder DSL to Volcano 2.0 KMP data and Compose APIs.
+---
+
+## What changed
+
+Volcano 2.0 is a major, intentionally breaking redesign. The 1.x `root {}`, `section {}`, and
+`element {}` DSL, tree classes, `VolcanoBuilder`, and `Volcano()` composable no longer exist.
+The replacement is a platform-neutral immutable `HeatmapNode` tree and the `Heatmap` composable.
+
+## Convert data at the boundary
+
+Map a DTO or domain object to `HeatmapNode` once, outside composition. Use `value` for area and
+`metric` for the signed color indicator.
+
+```kotlin
+val root = HeatmapNode(
+  id = "market",
+  label = "Market",
+  value = positions.sumOf { it.marketValue },
+  children = positions.map { position ->
+    HeatmapNode(
+      id = position.symbol,
+      label = position.symbol,
+      value = position.marketValue,
+      metric = position.dailyReturnPercent,
+    )
+  },
+)
+```
+
+## Replace the UI call
+
+```kotlin
+val state = rememberHeatmapState(root)
+Heatmap(
+  state = state,
+  modifier = Modifier.fillMaxSize(),
+  onLeafClick = { node -> openDetail(node.id) },
+)
+```
+
+Add `HeatmapBreadcrumb(state)` and host Back handling when groups should drill down. Choose an
+optional image integration through `logoContent`; image loading is no longer implied by the base
+Compose artifact.
+
+## Release safely
+
+Migrate one consumer at a time, keep the previous release pinned until its migration is verified,
+and do not attempt to use 1.x and 2.0 APIs together. Check Android Back, iOS safe area, Desktop
+resize, data aggregation, and custom colors before replacing a production dependency.

@@ -1,0 +1,58 @@
+---
+title: Platform Integration
+description: Integrate one shared Heatmap API into Android, iOS, and Desktop hosts.
+---
+
+## Supported targets
+
+The published libraries target Android, iOS device (`iosArm64`), iOS Simulator Apple Silicon
+(`iosSimulatorArm64`), and Desktop JVM. The current Android library minimum is API 23. The supplied
+iOS host sample uses an iOS 16 deployment target; align an application's deployment target with
+the Compose Multiplatform version it uses.
+
+All shared UI code belongs in `commonMain`. Keep app lifecycle, navigation framework, permission
+handling, and platform resource access in the relevant app module.
+
+## Android
+
+Use `Heatmap` inside any Compose layout. Volcano requests no Android permission, including for
+optional image URLs; the application's network and image policies still apply. Apply edge-to-edge
+and safe-drawing padding in the host application, not inside the SDK.
+
+```kotlin
+Scaffold { padding ->
+  Column(Modifier.padding(padding).fillMaxSize()) {
+    HeatmapBreadcrumb(state)
+    Heatmap(state, Modifier.weight(1f))
+  }
+}
+```
+
+Connect `BackHandler` to `state.navigateUp()` only while `state.canNavigateUp` is true, so the
+screen's normal navigation Back action remains available at the root.
+
+## iOS
+
+Expose a Compose `UIViewController` from the shared KMP module and host it from Swift/UIKit. The
+included `iosApp` sample demonstrates that bridge. Add
+`CADisableMinimumFrameDurationOnPhone = YES` to the iOS target Info settings: Compose checks this
+on high-refresh-rate iPhones to avoid an unnecessarily limited frame rate.
+
+Use the host view controller's safe-area-aware content rather than hard-coding top/bottom insets in
+the heatmap. Call `state.navigateUp()` from a Swift toolbar or a shared Compose Back control before
+dismissing the screen.
+
+## Desktop
+
+Desktop supports the same API plus pointer hover. Set `showTooltipOnHover = true` for the built-in
+tooltip, or observe `onLeafHover` to render an application-specific inspector panel. Hover supplies
+a visual cue even when tooltips are disabled; it does not alter selection.
+
+Desktop layouts must remain resizable. Give the chart a bounded parent and rely on adaptive content
+instead of assuming one fixed monitor size.
+
+## Platform parity and limits
+
+Data model, layout, drill-down, selection, style, adaptive content, and optional Coil integration
+are shared. System Back dispatch is intentionally host-specific. Pointer hover only has meaning on
+pointer-capable environments; mobile applications should use tap or long press instead.

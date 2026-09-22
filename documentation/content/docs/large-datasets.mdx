@@ -1,0 +1,38 @@
+---
+title: Large Datasets and Performance
+description: Keep thousands of leaves responsive with aggregation, drill-down, and measured limits.
+---
+
+## Product strategy
+
+Do not render every leaf in the first viewport. Five thousand rectangles may be technically laid
+out, but most are too small to identify or tap on a phone. Start with a meaningful overview,
+then use groups, a search/filter, or a detail screen to reveal the raw items.
+
+Build the compact display tree in a ViewModel or repository, not during composition.
+
+```kotlin
+val overview = rawMarket.toDisplayTree(
+  aggregation = HeatmapAggregation(
+    maximumChildren = 12,
+    minimumChildFraction = 0.01,
+    othersLabel = "Others",
+  ),
+)
+Heatmap(state = rememberHeatmapState(overview))
+```
+
+`toDisplayTree()` aggregates first and then sorts recursively by descending layout value. The
+synthetic `Others` node is intentionally a leaf, so it remains an honest compact summary rather
+than pretending to expose omitted data.
+
+## What the benchmark means
+
+The shared layout engine benchmarks at approximately 2ms p95 for 5,000 leaves on the desktop JVM.
+That is a layout-only number, not an end-user frame guarantee. Android, iOS, and Desktop frame time
+also includes Compose composition, drawing, text measurement, images, device GPU behavior, and
+animations. Profile the target device with representative labels and image policy before setting a
+product SLA.
+
+For a raw diagnostic view, disable transitions with `HeatmapMotion(enabled = false)`. For normal
+users, the aggregate overview plus drill-down is the recommended experience.

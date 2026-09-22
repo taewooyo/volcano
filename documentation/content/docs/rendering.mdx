@@ -1,0 +1,48 @@
+---
+title: Rendering, Color, and Layout
+description: Control area, color, text density, adaptive padding, and custom cell content.
+---
+
+## Area versus color
+
+`value` determines rectangle area. `metric` determines color through `HeatmapColorScale`; it does
+not change area. `SignedMetricColorScale` is a sensible default for positive/negative measures.
+Provide `color` on a node to override the scale for that node.
+
+```kotlin
+val scale = SignedMetricColorScale(maximumAbsoluteMetric = 10.0)
+Heatmap(state = state, colorScale = scale)
+HeatmapLegend(entries = scale.legendEntries())
+```
+
+For non-financial semantics, implement `HeatmapColorScale` and return an ARGB `Long`. Keep the
+meaning of color in the host product, and use an accompanying legend whenever colors carry meaning.
+
+## Adaptive content
+
+`HeatmapDisplayPolicy` uses measured text dimensions by default. It progressively removes logo,
+label, and metric when a rectangle cannot present them cleanly; it does not force text into tiny
+cells. Small cells also receive proportionally smaller padding up to `cellContentPadding`.
+
+Fixed fallback thresholds remain useful for a deliberately deterministic visual system:
+
+```kotlin
+val policy = HeatmapDisplayPolicy(
+  adaptiveContent = true,
+  hideContentBelow = 16.dp,
+  showMetricAbove = 40.dp,
+  showLabelAbove = 48.dp,
+  cellContentPadding = 6.dp,
+)
+```
+
+Avoid treating a particular device dp width as an application-wide rule. Parent constraints,
+font scale, localization, and Desktop window size all affect what fits; measured adaptive content
+is the default for this reason.
+
+## Custom cells
+
+Pass `cellContent` to replace the default content while Volcano still supplies layout, press,
+hover, and click modifiers. Apply the supplied modifier to the outermost composable. If the custom
+cell replaces meaningful label or value information, provide equivalent semantics for assistive
+technology.

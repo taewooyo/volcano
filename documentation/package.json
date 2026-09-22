@@ -1,0 +1,30 @@
+{
+  "name": "volcano-documentation",
+  "private": true,
+  "version": "2.0.0",
+  "scripts": {
+    "prepare:api-reference": "node scripts/prepare-api-reference.mjs",
+    "predev": "npm run prepare:api-reference",
+    "prebuild": "npm run prepare:api-reference",
+    "dev": "next dev",
+    "build": "next build",
+    "check:locales": "node scripts/verify-locales.mjs",
+    "start": "next start"
+  },
+  "dependencies": {
+    "fumadocs-core": "16.15.12",
+    "fumadocs-mdx": "15.4.3",
+    "fumadocs-ui": "16.15.12",
+    "next": "16.3.5",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "22.15.29",
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.6",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.8.3"
+  }
+}

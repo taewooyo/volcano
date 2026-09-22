@@ -1,0 +1,33 @@
+---
+title: 아키텍처
+description: 데이터 모델, 레이아웃 엔진, Compose 렌더러의 책임을 분리합니다.
+---
+
+## 아티팩트 경계
+
+| 아티팩트 | 책임 | 추가하는 경우 |
+| --- | --- | --- |
+| `volcano` | `HeatmapNode`, 색상 계약, 정렬·필터·집계, squarified 레이아웃 기본 요소 | 공유 데이터·도메인 모듈에서 히트맵 데이터를 준비할 때 |
+| `volcano-compose` | `Heatmap`, 상태, 탐색 제어, 기본 렌더링, 상호작용, 접근성 | Compose Multiplatform UI에서 히트맵을 그릴 때 |
+| `volcano-compose-coil` | 선택적 원격 이미지 렌더러 `CoilHeatmapLogo` | 앱이 `imageUrl`에 Coil을 선택할 때 |
+
+처음 두 아티팩트는 일반적으로 UI source set에서 함께 사용합니다. Coil은 의도적으로 분리되어 있습니다. SDK가 모든 클라이언트에게 이미지 로더, 네트워킹 스택, 캐시 정책을 강제해서는 안 되기 때문입니다.
+
+## 소유권 모델
+
+앱은 원본 데이터, 탐색 목적지, 이미지 로딩 정책, 분석, 레이아웃 제약을 소유합니다. Volcano는 계층 레이아웃과 재사용 가능한 히트맵 상호작용 표면만 소유합니다. API DTO와 비즈니스 객체를 `HeatmapNode`에 넣지 말고 presentation 경계에서 매핑하세요.
+
+```kotlin
+fun Portfolio.toHeatmapNode() = HeatmapNode(
+  id = id, label = title, value = marketValue, metric = dailyReturnPercent,
+  children = positions.map(Position::toHeatmapNode),
+)
+```
+
+이렇게 하면 `metric`은 주식 수익률, SLA 편차, 예산 차이, 재고 상태 등 어떤 부호 있는 값도 될 수 있어 SDK가 도메인 중립으로 남습니다.
+
+## 상태 수명
+
+`rememberHeatmapState(root)`는 같은 불변 `root` 인스턴스를 쓰는 동안 drill-down과 리프 선택을 보존합니다. 갱신 데이터가 root를 교체하면 composition 전에 표시 트리를 만들고 새 root를 전달하세요. 상태는 새 root에서 안전하게 시작합니다. Back 동작이나 상세 패널을 호스트와 조정할 때만 상태를 hoist합니다. `HeatmapState`는 변경 가능한 도메인 데이터 저장소가 아니라 presentation state입니다.
+
+`value`는 면적, `metric`은 색상이라는 역할을 분리하면 금융·운영·조직·저장소 분석 등 다른 도메인에도 같은 모델을 적용할 수 있습니다.

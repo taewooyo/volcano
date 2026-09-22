@@ -1,0 +1,81 @@
+---
+title: API Reference
+description: Stable public APIs, defaults, and extension points intended for applications.
+---
+
+## Core
+
+| API | Purpose |
+| --- | --- |
+| `HeatmapNode` | Immutable hierarchical data model |
+| `HeatmapAggregation` | Reduces dense sibling lists into an overview |
+| `toDisplayTree` | Sorts and aggregates a display-oriented tree |
+| `HeatmapColorScale` | Maps a node to an ARGB color |
+| `SignedMetricColorScale` | Default signed negative/neutral/positive scale |
+
+### `HeatmapNode`
+
+| Property | Meaning |
+| --- | --- |
+| `id` | Non-blank identifier, unique among direct siblings. |
+| `label` | Text used by default cells, groups, breadcrumbs, and accessibility. |
+| `value` | Finite area weight. Positive values are visible. |
+| `metric` | Optional finite signed measure used for color and formatted text. |
+| `color` | Optional ARGB `Long` overriding the color scale. |
+| `children` | Nested groups or leaves. |
+| `imageUrl` | Optional loader-owned address; the base artifact never fetches it. |
+
+Transforms include `sorted(HeatmapSort)`, `filterLeaves { ... }`,
+`aggregateSmallChildren(HeatmapAggregation)`, and `toDisplayTree(...)`.
+
+## Compose
+
+| API | Purpose |
+| --- | --- |
+| `Heatmap` | Main responsive CMP heatmap composable |
+| `HeatmapState` | Drill-down path and selected leaf state |
+| `rememberHeatmapState` | Creates state from the root node |
+| `HeatmapStyle` | Border, header, and text colors |
+| `HeatmapDisplayPolicy` | Adaptive cell content and padding rules |
+| `HeatmapInteraction` | Selection, tooltip, long-press, and hover behavior |
+
+### `Heatmap`
+
+`Heatmap` accepts a host-owned `Modifier`, `HeatmapState`, color scale, display policy, visual
+style, interaction policy, callbacks, content slots, motion, and custom tooltip body. It never
+imposes a width or height. The key callbacks are `onGroupClick`, `onLeafClick`,
+`onLeafLongClick`, and `onLeafHover`.
+
+### Defaults that affect behavior
+
+| API | Default |
+| --- | --- |
+| Group header click | Drill down enabled |
+| Leaf click | Select leaf enabled |
+| Long-press tooltip | Disabled |
+| Long-press tooltip duration | 2,000ms; `0` means explicit dismissal |
+| Hover tooltip | Disabled |
+| Hover dwell | 400ms |
+| Drill-down motion | Enabled, 180ms |
+| Press feedback | 0.97 scale, 0.92 alpha |
+| Small-cell policy | Adaptive measured content enabled |
+
+### State and controls
+
+`HeatmapState` exposes `visibleNode`, `breadcrumbs`, `selectedNode`, `selectedId`, and
+`canNavigateUp`. Its navigation methods are `drillDown`, `navigateUp`, `navigateTo`,
+`navigateToBreadcrumb`, and `reset`. Selection methods are `select`, `isSelected`, and
+`clearSelection`. `HeatmapBreadcrumb`, `HeatmapBackButton`, and `HeatmapLegend` are optional
+ready-made Compose controls.
+
+## Optional Coil artifact
+
+`volcano-compose-coil` exposes `CoilHeatmapLogo(node, size, modifier)`. Use it only through the
+`logoContent` slot after adding its artifact.
+
+## Generated reference
+
+The versioned Dokka API HTML is generated from KDoc for the three published library modules. It is
+published alongside this guide at [Generated API Reference](/api-reference/index.html).
+
+The project records Desktop JVM ABI baselines. Compatibility checks run with `./gradlew apiCheck` before releases.
