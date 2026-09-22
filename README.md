@@ -1,14 +1,33 @@
 # Volcano
 
+<p align="center">
+  <a href="https://github.com/taewooyo/volcano/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/taewooyo/volcano/build.yml?label=build" alt="Build status" /></a>
+  <a href="https://github.com/taewooyo/volcano/blob/main/LICENSE"><img src="https://img.shields.io/github/license/taewooyo/volcano" alt="Apache 2.0 license" /></a>
+  <a href="https://kotlinlang.org/docs/multiplatform.html"><img src="https://img.shields.io/badge/Kotlin%20Multiplatform-Android%20%7C%20iOS%20%7C%20Desktop-7f52ff" alt="Kotlin Multiplatform" /></a>
+  <a href="https://taewooyo.github.io/volcano/en/docs/getting-started"><img src="https://img.shields.io/badge/docs-online-e85d04" alt="Documentation" /></a>
+</p>
+
 > A production-oriented hierarchical heatmap SDK for Kotlin Multiplatform and Compose Multiplatform.
+
+Volcano turns dense, changing data into an adaptive treemap that users can scan, select, and drill
+into. It is finance-friendly, but the data model is domain-neutral: use it for markets, service
+health, budgets, inventories, capacity, or any other hierarchy with measurable values.
 
 <p align="center">
   <img src="documentation/public/images/volcano-banner.png" alt="Volcano hierarchical heatmap landscape" width="100%" />
 </p>
 
-Volcano turns immutable hierarchical data into responsive treemaps on **Android, iOS, and Desktop**. It separates area, color, navigation, image loading, and host UI ownership so the same visualization works for financial markets, service health, budgets, inventories, and any other dense changing data.
-
 [Documentation](https://taewooyo.github.io/volcano/) · [Korean documentation](https://taewooyo.github.io/volcano/ko/docs/) · [Sample gallery](https://taewooyo.github.io/volcano/en/docs/samples) · [API reference](https://taewooyo.github.io/volcano/api-reference/index.html)
+
+## At a glance
+
+| Property | Details |
+| --- | --- |
+| Platforms | Android, iOS, and Desktop through Kotlin Multiplatform and Compose Multiplatform |
+| Rendering | Squarified treemap layout with adaptive content and measured cell padding |
+| Navigation | Overview, group drill-down, breadcrumbs, selection, and parent navigation |
+| Images | Nullable image URLs with an optional Coil integration; no forced network stack |
+| Scale | Aggregation helpers plus a 5,000-leaf layout benchmark |
 
 ## Why Volcano
 
@@ -29,6 +48,9 @@ Volcano turns immutable hierarchical data into responsive treemaps on **Android,
 | `volcano-compose` | Compose `Heatmap`, state, navigation, default cells, accessibility, and interaction. |
 | `volcano-compose-coil` | Optional `CoilHeatmapLogo` implementation for remote `imageUrl` values. |
 
+All modules use the same version. Most applications need `volcano` and `volcano-compose`; add the
+Coil module only when remote logo loading is desired.
+
 ## Installation
 
 Add core and Compose to `commonMain`. All target applications use the same dependencies.
@@ -48,6 +70,31 @@ kotlin {
 ```
 
 The base SDK never fetches an image. `imageUrl = null` or a blank URL simply renders no logo.
+
+### Version catalog
+
+If the project uses `libs.versions.toml`, define the version and libraries once:
+
+```toml
+[versions]
+volcano = "<version>"
+
+[libraries]
+volcano-core = { module = "io.github.taewooyo:volcano", version.ref = "volcano" }
+volcano-compose = { module = "io.github.taewooyo:volcano-compose", version.ref = "volcano" }
+volcano-compose-coil = { module = "io.github.taewooyo:volcano-compose-coil", version.ref = "volcano" }
+```
+
+Then use the aliases from `commonMain`:
+
+```kotlin
+commonMain.dependencies {
+  implementation(libs.volcano.core)
+  implementation(libs.volcano.compose)
+  // Optional:
+  implementation(libs.volcano.compose.coil)
+}
+```
 
 ## Five-minute integration
 
@@ -176,50 +223,6 @@ Run the complete Linux release gate locally with:
 This also checks the Korean/English documentation set, Dokka API output, static documentation build, and the 5,000-leaf layout benchmark. The GitHub `Release verification` workflow runs the same gate and separately links the iOS Simulator framework on macOS.
 
 See the [platform sample gallery](https://taewooyo.github.io/volcano/en/docs/samples) for Android, Desktop, and iOS overview/drill-down captures.
-
-## Publishing 2.0.0
-
-The repository is configured for the Sonatype Central Portal. The `Publish` GitHub Actions workflow
-runs the complete release gate first and then publishes all three artifacts when a GitHub Release is
-marked as **released** (or when the workflow is started manually):
-
-```text
-io.github.taewooyo:volcano:2.0.0
-io.github.taewooyo:volcano-compose:2.0.0
-io.github.taewooyo:volcano-compose-coil:2.0.0
-```
-
-Configure these repository Actions secrets before starting a release. They are read only by the
-workflow and must never be committed to Gradle files:
-
-| Secret | Value |
-| --- | --- |
-| `CENTRAL_USERNAME` | Sonatype Central Portal user-token username |
-| `CENTRAL_PASSWORD` | Sonatype Central Portal user-token password |
-| `SIGNING_KEY_ID` | Last eight characters of the GPG signing key ID |
-| `SIGNING_PASSWORD` | GPG private-key passphrase |
-| `SIGNING_KEY` | ASCII-armored GPG private key, including the BEGIN/END lines |
-
-The `io.github.taewooyo` namespace must be verified in Central Portal before the first release.
-Publishing to Central is an external operation and cannot be undone by a local Gradle clean.
-
-The snapshot workflow uses the same credentials. If the older `OSSRH_USERNAME` and
-`OSSRH_PASSWORD` secrets are already present, they are accepted as a fallback, but they must still
-contain a Central Portal user token rather than a regular Sonatype account password. A `401`
-response from `central.sonatype.com` means the token is missing, expired, or has been entered in the
-wrong secret field; it is not fixed by changing the artifact version.
-
-To inspect generated POMs and artifacts locally without a signing key, run the following. This is a
-publication-structure check only, not a substitute for a signed Central release:
-
-```bash
-./gradlew publishToMavenLocal \
-  -PRELEASE_SIGNING_ENABLED=false \
-  --no-daemon --console=plain
-```
-
-The production build keeps `RELEASE_SIGNING_ENABLED=true`, so a missing or invalid signing secret
-fails before any unsigned release can be uploaded.
 
 ## Migrating from 1.x
 
