@@ -8,13 +8,15 @@ Heatmap(
   colorScale = SignedMetricColorScale(10.0),
 )`;
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default function Home() {
   return <main className="landing">
     <section className="hero">
-      <Image className="hero-art" src="/images/volcano-hero.png" alt="Abstract volcanic heatmap landscape" fill priority sizes="100vw" />
+      <Image className="hero-art" src={`${basePath}/images/volcano-hero.png`} alt="Abstract volcanic heatmap landscape" fill priority sizes="100vw" />
       <div className="hero-shade" />
       <div className="hero-content">
-        <p className="eyebrow brand-eyebrow"><Image src="/icon.svg" width={22} height={22} alt="" aria-hidden /> VOLCANO 2.0</p>
+        <p className="eyebrow brand-eyebrow"><Image src={`${basePath}/icon.svg`} width={22} height={22} alt="" aria-hidden /> VOLCANO 2.0</p>
         <h1>Turn changing data<br />into <em>clear terrain.</em></h1>
         <p className="hero-copy">A Kotlin Multiplatform heatmap SDK for dense, hierarchical data. One immutable model. Native-feeling Compose experiences on Android, iOS, and Desktop.</p>
         <div className="hero-actions"><Link className="button primary" href="/en/docs/getting-started">Start building <span>→</span></Link><Link className="button secondary" href="/en/docs/samples">See live samples</Link></div>

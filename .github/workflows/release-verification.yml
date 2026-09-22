@@ -1,0 +1,42 @@
+name: Release verification
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Libraries, benchmark, ABI, and docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.3.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: documentation/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x ./gradlew ./scripts/verify-release.sh
+      - run: ./scripts/verify-release.sh
+
+  ios:
+    name: iOS Simulator framework
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4.3.1
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x ./gradlew
+      - run: ./gradlew :iosApp:linkDebugFrameworkIosSimulatorArm64 --no-daemon --console=plain

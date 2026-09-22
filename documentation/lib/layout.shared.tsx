@@ -3,6 +3,8 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import Image from "next/image";
 import { i18n } from "@/lib/i18n";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const translations = i18n
   .translations()
   .extend(uiTranslations())
@@ -28,7 +30,7 @@ export const translations = i18n
 
 export function baseOptions(): BaseLayoutProps {
   return {
-    nav: { title: <><Image src="/icon.svg" width={22} height={22} alt="" aria-hidden /><span className="font-semibold">Volcano</span></> },
+    nav: { title: <><Image src={`${basePath}/icon.svg`} width={22} height={22} alt="" aria-hidden /><span className="font-semibold">Volcano</span></> },
     links: [{ text: "GitHub", url: "https://github.com/taewooyo/volcano", external: true }],
   };
 }

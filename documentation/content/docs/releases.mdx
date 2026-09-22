@@ -24,6 +24,37 @@ This is an important compatibility signal, but it does not replace behavioral te
 iOS, and Desktop. Consumers should pin a tested version and review release notes before upgrading a
 major version.
 
+## Publishing a release
+
+The `Publish` GitHub Actions workflow runs the release verification gate before uploading the
+`volcano`, `volcano-compose`, and `volcano-compose-coil` artifacts to the Sonatype Central Portal.
+It runs when a GitHub Release is marked **released**, or when a maintainer starts the workflow
+manually.
+
+Configure these repository Actions secrets before publishing:
+
+| Secret | Purpose |
+| --- | --- |
+| `CENTRAL_USERNAME` / `CENTRAL_PASSWORD` | Central Portal user-token credentials |
+| `SIGNING_KEY_ID` | Last eight characters of the GPG key ID |
+| `SIGNING_PASSWORD` | GPG private-key passphrase |
+| `SIGNING_KEY` | ASCII-armored GPG private key |
+
+The `io.github.taewooyo` namespace must be verified in Central Portal. Never commit these values
+to `gradle.properties` or a workflow file. For a local, unsigned publication-structure check only:
+
+Snapshot publishing uses the same token credentials. Existing `OSSRH_USERNAME` and
+`OSSRH_PASSWORD` secrets are supported as a fallback, but a regular legacy OSSRH password is not a
+valid Central Portal token and results in `401 Unauthorized`.
+
+```bash
+./gradlew publishToMavenLocal \
+  -PRELEASE_SIGNING_ENABLED=false \
+  --no-daemon --console=plain
+```
+
+Production publishing remains signing-protected (`RELEASE_SIGNING_ENABLED=true`).
+
 ## Consumer verification checklist
 
 - Build `commonMain` with the selected Kotlin and Compose Multiplatform toolchain.

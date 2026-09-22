@@ -7,30 +7,39 @@ on:
 
 jobs:
   publish:
-    name: Snapshot build and publish
+    name: Release build and publish
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4.3.1
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3.14.1
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: temurin
           java-version: 17
 
-      - name: Grant Permission to Execute Gradle
-        run: chmod +x gradlew
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: documentation/package-lock.json
 
-      - name: Release build
-        run: ./gradlew assemble --scan
+      - name: Grant Permission to Execute Gradle
+        run: chmod +x gradlew scripts/verify-release.sh
+
+      - name: Release verification
+        run: ./scripts/verify-release.sh
 
       - name: Publish to MavenCentral
         run: |
           ./gradlew publishAllPublicationsToMavenCentral --no-configuration-cache
         env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.OSSRH_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.OSSRH_PASSWORD }}
+          # Prefer Central Portal user-token secrets. The OSSRH names remain a
+          # backwards-compatible fallback for existing repositories.
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_USERNAME || secrets.OSSRH_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.CENTRAL_PASSWORD || secrets.OSSRH_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}

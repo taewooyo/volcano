@@ -167,7 +167,59 @@ Default cells expose label, formatted metric, and selection state. Group headers
 | Core and Compose tests | `./gradlew :volcano:allTests :volcano-compose:allTests` |
 | Public API compatibility | `./gradlew :volcano:apiCheck :volcano-compose:apiCheck :volcano-compose-coil:apiCheck` |
 
+Run the complete Linux release gate locally with:
+
+```bash
+./scripts/verify-release.sh
+```
+
+This also checks the Korean/English documentation set, Dokka API output, static documentation build, and the 5,000-leaf layout benchmark. The GitHub `Release verification` workflow runs the same gate and separately links the iOS Simulator framework on macOS.
+
 See the [platform sample gallery](https://taewooyo.github.io/volcano/en/docs/samples) for Android, Desktop, and iOS overview/drill-down captures.
+
+## Publishing 2.0.0
+
+The repository is configured for the Sonatype Central Portal. The `Publish` GitHub Actions workflow
+runs the complete release gate first and then publishes all three artifacts when a GitHub Release is
+marked as **released** (or when the workflow is started manually):
+
+```text
+io.github.taewooyo:volcano:2.0.0
+io.github.taewooyo:volcano-compose:2.0.0
+io.github.taewooyo:volcano-compose-coil:2.0.0
+```
+
+Configure these repository Actions secrets before starting a release. They are read only by the
+workflow and must never be committed to Gradle files:
+
+| Secret | Value |
+| --- | --- |
+| `CENTRAL_USERNAME` | Sonatype Central Portal user-token username |
+| `CENTRAL_PASSWORD` | Sonatype Central Portal user-token password |
+| `SIGNING_KEY_ID` | Last eight characters of the GPG signing key ID |
+| `SIGNING_PASSWORD` | GPG private-key passphrase |
+| `SIGNING_KEY` | ASCII-armored GPG private key, including the BEGIN/END lines |
+
+The `io.github.taewooyo` namespace must be verified in Central Portal before the first release.
+Publishing to Central is an external operation and cannot be undone by a local Gradle clean.
+
+The snapshot workflow uses the same credentials. If the older `OSSRH_USERNAME` and
+`OSSRH_PASSWORD` secrets are already present, they are accepted as a fallback, but they must still
+contain a Central Portal user token rather than a regular Sonatype account password. A `401`
+response from `central.sonatype.com` means the token is missing, expired, or has been entered in the
+wrong secret field; it is not fixed by changing the artifact version.
+
+To inspect generated POMs and artifacts locally without a signing key, run the following. This is a
+publication-structure check only, not a substitute for a signed Central release:
+
+```bash
+./gradlew publishToMavenLocal \
+  -PRELEASE_SIGNING_ENABLED=false \
+  --no-daemon --console=plain
+```
+
+The production build keeps `RELEASE_SIGNING_ENABLED=true`, so a missing or invalid signing secret
+fails before any unsigned release can be uploaded.
 
 ## Migrating from 1.x
 
