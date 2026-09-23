@@ -1,0 +1,71 @@
+---
+title: React API Reference
+description: Public TypeScript types, component props, layout results, and validation rules.
+---
+
+Import the public API from `@taewooyo/heatmap-react`:
+
+```ts
+import { Heatmap, computeHeatmapLayout } from "@taewooyo/heatmap-react";
+import type { HeatmapProps, HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell } from "@taewooyo/heatmap-react";
+```
+
+## `HeatmapNode`
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | `string` | Required, non-blank, unique among direct siblings; may repeat in separate branches. |
+| `label` | `string` | Required display and accessibility text. |
+| `value` | `number` | Required finite area weight; only positive weights receive area. |
+| `metric` | `number?` | Optional finite signed color metric. |
+| `color` | `string?` | Optional color override in `#RRGGBB` or `#RRGGBBAA` format. |
+| `imageUrl` | `string?` | Optional host-owned image URL. |
+| `children` | `readonly HeatmapNode[]?` | Nested nodes; absent or empty means a leaf. |
+
+The input must not contain cycles. `metric` changes color but not area. The core does not fetch `imageUrl`.
+
+## `Heatmap` props
+
+`HeatmapProps` extends `HeatmapLayoutOptions` and adds these component props:
+
+| Prop | Type | Default / behavior |
+| --- | --- | --- |
+| `data` | `HeatmapNode` | Required root tree; pass a new reference for updates. |
+| `className` | `string?` | Applied to the root SVG. |
+| `ariaLabel` | `string?` | `"Heatmap"`; accessible chart name. |
+| `cellGap` | `number?` | `1`; non-negative finite inset in SVG units. |
+| `selectedId` | `string \| null` | `null`; selects matching leaf IDs. |
+| `selectedKey` | `string \| null` | `null`; path-derived leaf key, takes precedence over `selectedId`. |
+| `selectedBorderColor` | `string?` | `"transparent"`; selected-leaf outline color. |
+| `tooltipHoverDelayMs` | `number?` | `400`; non-negative integer dwell time in milliseconds. |
+| `logoMaxSize` | `number?` | `48`; non-negative finite maximum SVG image size. |
+| `metricFormatter` | `(metric: number) => string` | Signed number; formats cell and tooltip text. |
+| `onLeafClick` | `(node, cell) => void` | Called when a leaf is clicked or activated with Enter/Space. |
+| `onGroupClick` | `(node, cell) => void` | Called when a group header is clicked or keyboard-activated. |
+
+The component uses SVG with adaptive text and optional round images. Fill changes use a 240 ms CSS transition. The tooltip is shown on hover or focus; the application owns touch detail presentation and drill-down state.
+
+## `HeatmapLayoutOptions`
+
+| Option | Type | Default / validation |
+| --- | --- | --- |
+| `width` | `number` | Required positive integer SVG width. |
+| `height` | `number` | Required positive integer SVG height. |
+| `groupHeaderHeight` | `number?` | `20`; non-negative integer. |
+| `maximumAbsoluteMetric` | `number?` | `10`; positive finite metric magnitude mapped to palette endpoints. |
+| `palette` | `{ negative: string; neutral: string; positive: string }?` | Core default; each color must be `#RRGGBB` or `#RRGGBBAA`. |
+
+## `computeHeatmapLayout(root, options)`
+
+Use the pure layout entry point without rendering React:
+
+```ts
+const cells = computeHeatmapLayout(market, { width: 960, height: 480 });
+const visibleLeaves = cells.filter((cell) => cell.visible && cell.isLeaf);
+```
+
+It returns `readonly HeatmapLayoutCell[]` in tree traversal order. Each cell has the original `node`, path-derived `key`, `parentIndex` (`-1` at the root), `depth`, `x`, `y`, `width`, `height`, computed CSS hex `color`, `isLeaf`, and `visible`. Invisible cells should not be drawn. `key` distinguishes identical IDs in different branches.
+
+Invalid dimensions, metric values, colors, cycles, or duplicate sibling IDs throw an error. The component uses this function internally; consumers normally only need `Heatmap`.
+
+For Kotlin/Compose APIs, use the separate [Kotlin API Reference](/docs/api) and generated [Dokka reference](/api-reference/index.html).

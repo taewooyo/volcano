@@ -1,21 +1,23 @@
 ---
 title: Volcano 2.0
-description: Compose Multiplatform을 위한 데이터 기반 계층형 히트맵 SDK입니다.
+description: Compose Multiplatform과 React 웹을 위한 계층형 히트맵 SDK입니다.
 ---
 
-## 하나의 모델, 세 가지 플랫폼
+## 계산 코어 공유, UI는 플랫폼별 제공
 
-Volcano는 플랫폼에 독립적인 히트맵 데이터·레이아웃과 Compose UI를 분리합니다. 불변 `HeatmapNode` 트리를 만든 뒤 Android, iOS, Desktop에서 `Heatmap`으로 렌더링합니다.
+Volcano는 계층 레이아웃·색상 계산과 UI를 분리합니다. Kotlin 아티팩트는 Android, iOS, Desktop에서 Compose UI를 렌더링합니다. `@taewooyo/heatmap-react`는 Kotlin/JS 코어를 TypeScript API 뒤에 포함하고 React 웹에서 SVG로 렌더링합니다. UI 통합과 공개 API는 서로 다릅니다.
 
 <Callout type="info">Volcano 2.0은 호환성이 깨지는 메이저 릴리스입니다. 기존 DSL과 `Volcano()` 컴포저블은 이 API에 포함되지 않습니다.</Callout>
 
 ## 시작하기
 
-- [시작하기](/ko/docs/getting-started): 모듈 설치와 첫 히트맵 렌더링
+- [시작하기](/ko/docs/getting-started): Kotlin/Compose 모듈 설치와 첫 히트맵 렌더링
+- [React 통합](/ko/docs/react): npm 설치와 웹 렌더링
 - [아키텍처](/ko/docs/architecture): 모듈 책임과 원본 데이터 매핑
-- [플랫폼 통합](/ko/docs/platforms): Android, iOS, Desktop 호스트 설정
+- [플랫폼 통합](/ko/docs/platforms): Android, iOS, Desktop, React 웹 호스트 설정
 - [핵심 개념](/ko/docs/concepts): 계층, drill-down, 지표
-- [탐색과 선택](/ko/docs/navigation): 뒤로 가기와 상세 동작
-- [렌더링](/ko/docs/rendering): 적응형 콘텐츠, 색상, 커스텀 셀
-- [대용량 데이터](/ko/docs/large-datasets): 수천 개 리프를 위한 운영 전략
+- [탐색과 선택](/ko/docs/navigation): Compose 뒤로 가기와 상세 동작
+- [렌더링](/ko/docs/rendering): Compose 적응형 콘텐츠, 색상, 커스텀 셀
+- [대용량 데이터](/ko/docs/large-datasets): Compose에서 수천 개 리프를 위한 운영 전략; 웹 피드는 React 가이드 참고
 - [문제 해결](/ko/docs/troubleshooting): 자주 발생하는 통합 문제
+- [Kotlin API 참조](/ko/docs/api)와 [React API 참조](/ko/docs/react-api): 플랫폼별 공개 API

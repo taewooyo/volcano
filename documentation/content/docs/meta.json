@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "getting-started",
+    "react",
     "migration",
     "architecture",
     "platforms",
@@ -16,6 +17,7 @@
     "samples",
     "troubleshooting",
     "releases",
-    "api"
+    "api",
+    "react-api"
   ]
 }

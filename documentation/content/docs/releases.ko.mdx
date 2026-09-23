@@ -6,3 +6,9 @@ description: 버전 선택, 호환성 검증, 변경 사항 확인 방법입니�
 Volcano는 Kotlin Multiplatform 라이브러리이므로 소비 앱의 Kotlin, Compose Multiplatform, Android Gradle Plugin 조합과 호환성을 확인해야 합니다. 새 버전으로 올리기 전에는 변경 로그와 API 호환성 검사를 검토하고 Android·iOS·Desktop의 실제 타깃을 모두 빌드하세요.
 
 2.0은 이전 DSL을 대체하는 메이저 릴리스입니다. 새 API로 마이그레이션한 뒤 의존성 버전을 고정하고, 이후 업데이트는 CI에서 core·Compose·Coil 모듈의 테스트와 공개 API 검사를 함께 실행하는 것이 좋습니다.
+
+Kotlin/Compose `2.0.1`은 지표가 바뀔 때 240ms 셀 색상 전환을 추가합니다. 별도 버전으로 배포하는 React 패키지가 사용하는 Kotlin/JS 코어 타깃도 포함합니다. `volcano`, `volcano-compose`, `volcano-compose-coil`에 같은 `2.0.1`을 사용하세요. 릴리스 이력은 [Kotlin 변경 로그](https://github.com/taewooyo/volcano/blob/main/CHANGELOG.md)를 확인하세요.
+
+React npm 패키지는 별도 릴리스 계열입니다. `@taewooyo/heatmap-react@0.1.0`이 최초 공개 버전이며 npm `latest` 태그를 사용합니다. Kotlin 아티팩트와 버전 숫자를 맞출 필요가 없습니다. React 소비자는 npm으로 설치·업그레이드하고 [React 변경 로그](https://github.com/taewooyo/volcano/blob/main/packages/volcano-react/CHANGELOG.md)와 [TypeScript API 참조](/ko/docs/react-api)를 검토하세요.
+
+JVM ABI 검사는 React 패키지를 검증하지 않습니다. React 릴리스에서는 TypeScript 검사, 빌드, smoke test, 실제 브라우저 데모를 별도로 확인해야 합니다. Maven 배포용 `Publish` 워크플로도 npm 패키지를 자동 배포하지 않습니다.

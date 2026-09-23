@@ -10,8 +10,9 @@ description: Choose the smallest Volcano artifact set and keep domain data outsi
 | `volcano` | `HeatmapNode`, color contracts, sorting, filtering, aggregation, squarified layout primitives | A shared data/domain module prepares heatmap data. |
 | `volcano-compose` | `Heatmap`, state, navigation controls, default rendering, interaction, accessibility | A Compose Multiplatform UI renders a heatmap. |
 | `volcano-compose-coil` | `CoilHeatmapLogo` optional remote-image renderer | The application chooses Coil for `imageUrl` values. |
+| `@taewooyo/heatmap-react` | TypeScript API and React SVG renderer with a bundled Kotlin/JS core | A React web app renders a heatmap. |
 
-The first two artifacts are normally paired in a UI source set. Coil is deliberately separate:
+The first two Gradle artifacts are normally paired in a UI source set. The npm package is installed independently; web consumers do not install the Gradle artifacts. React and Compose share layout/color calculations but not UI components or identical public data types. Coil is deliberately separate:
 an SDK must not force an image loader, a networking stack, or its cache policy onto every client.
 
 ## Ownership model
@@ -42,3 +43,5 @@ composition and pass the new root; state safely starts from the updated root. Ho
 the host needs to coordinate Back behavior or a detail pane.
 
 Use `HeatmapState` as presentation state, not as a repository for mutable domain data.
+
+The React component does not expose `HeatmapState`. Its host owns the visible root, breadcrumbs, and selected key; pass a new immutable `data` reference when values change. See [React Integration](/docs/react).

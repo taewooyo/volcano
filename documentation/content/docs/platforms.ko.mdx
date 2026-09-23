@@ -1,6 +1,6 @@
 ---
 title: 플랫폼 통합
-description: Android, iOS, Desktop에서 같은 commonMain UI를 호스팅합니다.
+description: Android·iOS·Desktop의 Compose와 React 웹 SVG를 통합합니다.
 ---
 
 ## 공통 의존성
@@ -18,3 +18,9 @@ Kotlin의 `ComposeUIViewController`를 SwiftUI 또는 UIKit 호스트에 연결�
 ## Desktop
 
 `application { Window { ... } }`에서 사용합니다. 창 크기가 유동적이므로 `fillMaxSize()` 또는 제한된 부모 크기를 제공하고, 마우스 hover·tooltip 정책은 `HeatmapInteraction`으로 제어합니다.
+
+## React 웹
+
+[`@taewooyo/heatmap-react`](/ko/docs/react)를 npm으로 설치합니다. Kotlin/JS 계산 코어가 번들되어 있으며 TypeScript/React API로 브라우저 SVG를 렌더링합니다. 컴포넌트에 양의 정수 `width`·`height`를 전달하고, 반응형 크기가 필요하면 앱에서 부모 영역을 측정하세요. drill-down, 뒤로 가기, 데이터 요청, 이미지 정책은 호스트가 소유합니다. React 앱은 Gradle 의존성이나 `commonMain`을 사용하지 않습니다.
+
+Compose의 세 호스트는 UI·탐색 상태를 공유하지만 React는 레이아웃·색상 계산만 Kotlin/JS로 공유합니다. 공개 타입과 렌더러는 별도이며, React의 선택·탐색 상태도 앱이 관리합니다.

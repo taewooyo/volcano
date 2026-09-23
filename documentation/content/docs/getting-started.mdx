@@ -1,18 +1,22 @@
 ---
 title: Getting Started
-description: Install the KMP artifacts, create valid data, and render a first heatmap.
+description: Choose the Compose or React integration and render a first heatmap.
 ---
 
-## Install
+For a React web app, install `@taewooyo/heatmap-react` with npm and follow [React Integration](/docs/react). The Gradle instructions below apply to Android, iOS, and Desktop Compose apps, not React consumers.
+
+## Install for Compose Multiplatform
 
 Add the core and Compose artifacts to `commonMain`. `volcano` owns the platform-neutral model and
 layout transforms; `volcano-compose` renders that model with Compose Multiplatform.
 
+<Callout type="info">Use Kotlin/Compose `2.0.1` for core, Compose, and optional Coil. This version adds a 240 ms cell-color transition when metrics change.</Callout>
+
 ```kotlin
 kotlin {
   sourceSets { commonMain.dependencies {
-    implementation("io.github.taewooyo:volcano:<version>")
-    implementation("io.github.taewooyo:volcano-compose:<version>")
+    implementation("io.github.taewooyo:volcano:2.0.1")
+    implementation("io.github.taewooyo:volcano-compose:2.0.1")
   } }
 }
 ```

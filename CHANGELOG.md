@@ -3,7 +3,16 @@
 All notable changes to Volcano are documented in this file. The project follows semantic
 versioning: breaking public API changes require a new major version.
 
-## [2.0.0] - Unreleased
+This file tracks the Kotlin/Compose artifacts. The separately versioned React npm package has its own [changelog](packages/volcano-react/CHANGELOG.md).
+
+## [2.0.1]
+
+### Added
+
+- A 240 ms Compose cell-color transition when metrics change.
+- A Kotlin/JS core target for sharing layout and color calculations with web integrations.
+
+## [2.0.0] - 2026-09-22
 
 ### Added
 

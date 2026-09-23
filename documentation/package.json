@@ -1,7 +1,7 @@
 {
   "name": "volcano-documentation",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.0.1",
   "scripts": {
     "prepare:api-reference": "node scripts/prepare-api-reference.mjs",
     "predev": "npm run prepare:api-reference",

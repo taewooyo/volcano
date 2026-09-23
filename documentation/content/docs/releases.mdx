@@ -10,7 +10,11 @@ composable were removed in favor of immutable `HeatmapNode`, `rememberHeatmapSta
 Keep a 1.x dependency or tag until every consumer can migrate; do not mix the two APIs in a single
 integration plan.
 
+Kotlin/Compose `2.0.1` adds a 240 ms cell-color transition for changing metrics. It also includes the Kotlin/JS core target used by the separately versioned React package. Use `2.0.1` consistently across `volcano`, `volcano-compose`, and `volcano-compose-coil`; see the [Kotlin changelog](https://github.com/taewooyo/volcano/blob/main/CHANGELOG.md) for the release history.
+
 Use the same Volcano version for `volcano`, `volcano-compose`, and `volcano-compose-coil`.
+
+The React npm package is a separate release line. `@taewooyo/heatmap-react@0.1.0` was its initial public version and uses the npm `latest` tag. Its version does not match the Kotlin artifact version. React consumers install and upgrade it through npm, and should review the [React changelog](https://github.com/taewooyo/volcano/blob/main/packages/volcano-react/CHANGELOG.md) and [TypeScript API reference](/docs/react-api).
 
 ## API compatibility
 
@@ -23,6 +27,8 @@ Public Desktop JVM ABI baselines are checked with Binary Compatibility Validator
 This is an important compatibility signal, but it does not replace behavioral tests across Android,
 iOS, and Desktop. Consumers should pin a tested version and review release notes before upgrading a
 major version.
+
+The JVM ABI check does not validate the React package. For React releases, run the package's TypeScript check, build, smoke test, and the browser demo separately.
 
 ## Publishing a release
 
@@ -55,6 +61,8 @@ valid Central Portal token and results in `401 Unauthorized`.
 
 Production publishing remains signing-protected (`RELEASE_SIGNING_ENABLED=true`).
 
+The Maven `Publish` workflow does not publish the npm package. npm publication is a separate maintainer action with npm account authentication and package-specific verification.
+
 ## Consumer verification checklist
 
 - Build `commonMain` with the selected Kotlin and Compose Multiplatform toolchain.
@@ -62,3 +70,4 @@ Production publishing remains signing-protected (`RELEASE_SIGNING_ENABLED=true`)
 - Verify Android Back, iOS safe area, and Desktop resizing.
 - Verify aggregate overview and a drill-down path using production-sized data.
 - Verify image failure behavior if using the optional Coil integration.
+- For React, verify TypeScript integration, SVG sizing, selection/drill-down behavior, and real-browser performance with representative data.

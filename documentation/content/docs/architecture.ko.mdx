@@ -10,8 +10,9 @@ description: 데이터 모델, 레이아웃 엔진, Compose 렌더러의 책임�
 | `volcano` | `HeatmapNode`, 색상 계약, 정렬·필터·집계, squarified 레이아웃 기본 요소 | 공유 데이터·도메인 모듈에서 히트맵 데이터를 준비할 때 |
 | `volcano-compose` | `Heatmap`, 상태, 탐색 제어, 기본 렌더링, 상호작용, 접근성 | Compose Multiplatform UI에서 히트맵을 그릴 때 |
 | `volcano-compose-coil` | 선택적 원격 이미지 렌더러 `CoilHeatmapLogo` | 앱이 `imageUrl`에 Coil을 선택할 때 |
+| `@taewooyo/heatmap-react` | 번들된 Kotlin/JS 코어를 사용하는 TypeScript API와 React SVG 렌더러 | React 웹 앱에서 히트맵을 그릴 때 |
 
-처음 두 아티팩트는 일반적으로 UI source set에서 함께 사용합니다. Coil은 의도적으로 분리되어 있습니다. SDK가 모든 클라이언트에게 이미지 로더, 네트워킹 스택, 캐시 정책을 강제해서는 안 되기 때문입니다.
+처음 두 Gradle 아티팩트는 일반적으로 UI source set에서 함께 사용합니다. npm 패키지는 별도로 설치하므로 웹 소비 앱에는 Gradle 아티팩트가 필요하지 않습니다. React와 Compose는 레이아웃·색상 계산을 공유하지만 UI 컴포넌트와 공개 데이터 타입은 동일하지 않습니다. Coil은 의도적으로 분리되어 있습니다. SDK가 모든 클라이언트에게 이미지 로더, 네트워킹 스택, 캐시 정책을 강제해서는 안 되기 때문입니다.
 
 ## 소유권 모델
 
@@ -31,3 +32,5 @@ fun Portfolio.toHeatmapNode() = HeatmapNode(
 `rememberHeatmapState(root)`는 같은 불변 `root` 인스턴스를 쓰는 동안 drill-down과 리프 선택을 보존합니다. 갱신 데이터가 root를 교체하면 composition 전에 표시 트리를 만들고 새 root를 전달하세요. 상태는 새 root에서 안전하게 시작합니다. Back 동작이나 상세 패널을 호스트와 조정할 때만 상태를 hoist합니다. `HeatmapState`는 변경 가능한 도메인 데이터 저장소가 아니라 presentation state입니다.
 
 `value`는 면적, `metric`은 색상이라는 역할을 분리하면 금융·운영·조직·저장소 분석 등 다른 도메인에도 같은 모델을 적용할 수 있습니다.
+
+React 컴포넌트에는 `HeatmapState`가 없습니다. 표시할 루트, breadcrumb, 선택 키는 호스트가 관리하며 값이 바뀌면 새 불변 `data` 참조를 전달합니다. [React 통합](/ko/docs/react)을 참고하세요.

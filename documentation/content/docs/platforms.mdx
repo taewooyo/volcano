@@ -1,9 +1,9 @@
 ---
 title: Platform Integration
-description: Integrate one shared Heatmap API into Android, iOS, and Desktop hosts.
+description: Integrate Compose on Android, iOS, and Desktop or SVG in React web apps.
 ---
 
-## Supported targets
+## Compose targets
 
 The published libraries target Android, iOS device (`iosArm64`), iOS Simulator Apple Silicon
 (`iosSimulatorArm64`), and Desktop JVM. The current Android library minimum is API 23. The supplied
@@ -51,8 +51,10 @@ a visual cue even when tooltips are disabled; it does not alter selection.
 Desktop layouts must remain resizable. Give the chart a bounded parent and rely on adaptive content
 instead of assuming one fixed monitor size.
 
+## React web
+
+Install [`@taewooyo/heatmap-react`](/docs/react) through npm. It bundles the Kotlin/JS calculation core and renders a browser SVG through a TypeScript/React API. Give the component positive integer `width` and `height` props; measure the parent when responsive sizing is needed. The host owns drill-down, Back, data fetching, and image policy. React consumers do not add Gradle dependencies or use `commonMain`.
+
 ## Platform parity and limits
 
-Data model, layout, drill-down, selection, style, adaptive content, and optional Coil integration
-are shared. System Back dispatch is intentionally host-specific. Pointer hover only has meaning on
-pointer-capable environments; mobile applications should use tap or long press instead.
+The three Compose hosts share their data model, UI, navigation state, adaptive content, and optional Coil integration. React shares layout and color calculations through Kotlin/JS but has its own TypeScript model, SVG renderer, and host-controlled drill-down and selection. System Back dispatch is host-specific. Pointer hover only has meaning on pointer-capable environments; touch applications need tap or another detail affordance.

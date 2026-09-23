@@ -1,21 +1,23 @@
 ---
 title: Volcano 2.0
-description: A data-driven hierarchical heatmap SDK for Compose Multiplatform.
+description: Hierarchical heatmaps for Compose Multiplatform and React web.
 ---
 
-## One model, three platforms
+## Shared calculations, platform-specific rendering
 
-Volcano separates platform-neutral heatmap data and layout from Compose UI. Build an immutable tree with `HeatmapNode`, then render it with `Heatmap` on Android, iOS, or Desktop.
+Volcano separates hierarchical layout and color calculations from UI. The Kotlin artifacts render Compose UI on Android, iOS, and Desktop. `@taewooyo/heatmap-react` bundles the Kotlin/JS core behind a TypeScript API and renders SVG in React web apps. These are separate UI integrations, not one cross-platform component API.
 
 <Callout type="info">Volcano 2.0 is a breaking release. The former DSL and `Volcano()` composable are not part of this API.</Callout>
 
 ## Start here
 
-- [Getting Started](/docs/getting-started) installs the modules and renders a first heatmap.
+- [Getting Started](/docs/getting-started) installs the Kotlin/Compose modules and renders a first heatmap.
+- [React Integration](/docs/react) covers npm installation and web rendering.
 - [Architecture](/docs/architecture) explains module ownership and source-data mapping.
-- [Platform Integration](/docs/platforms) covers Android, iOS, and Desktop host requirements.
+- [Platform Integration](/docs/platforms) compares Android, iOS, Desktop, and React web requirements.
 - [Concepts](/docs/concepts) explains hierarchy, drill-down, and metrics.
-- [Navigation and Selection](/docs/navigation) covers Back and detail behavior.
-- [Rendering](/docs/rendering) explains adaptive content, color, and custom cells.
-- [Large Datasets](/docs/large-datasets) covers the production strategy for thousands of leaves.
+- [Navigation and Selection](/docs/navigation) covers Compose Back and detail behavior.
+- [Rendering](/docs/rendering) explains Compose adaptive content, color, and custom cells.
+- [Large Datasets](/docs/large-datasets) covers the Compose strategy for thousands of leaves; the React guide covers web feed behavior.
 - [Troubleshooting](/docs/troubleshooting) addresses common integration failures.
+- [API Reference](/docs/api) and [React API Reference](/docs/react-api) document each public API separately.

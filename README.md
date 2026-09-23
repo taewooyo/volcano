@@ -7,7 +7,7 @@
   <a href="https://taewooyo.github.io/volcano/en/docs/getting-started"><img src="https://img.shields.io/badge/docs-online-e85d04" alt="Documentation" /></a>
 </p>
 
-> A production-oriented hierarchical heatmap SDK for Kotlin Multiplatform and Compose Multiplatform.
+> A hierarchical heatmap SDK for Kotlin Multiplatform, Compose Multiplatform, and React web.
 
 Volcano turns dense, changing data into an adaptive treemap that users can scan, select, and drill
 into. It is finance-friendly, but the data model is domain-neutral: use it for markets, service
@@ -17,13 +17,13 @@ health, budgets, inventories, capacity, or any other hierarchy with measurable v
   <img src="documentation/public/images/volcano-banner.png" alt="Volcano hierarchical heatmap landscape" width="100%" />
 </p>
 
-[Documentation](https://taewooyo.github.io/volcano/) · [Korean documentation](https://taewooyo.github.io/volcano/ko/docs/) · [Sample gallery](https://taewooyo.github.io/volcano/en/docs/samples) · [API reference](https://taewooyo.github.io/volcano/api-reference/index.html)
+[Documentation](https://taewooyo.github.io/volcano/) · [Korean documentation](https://taewooyo.github.io/volcano/ko/docs/) · [React guide](https://taewooyo.github.io/volcano/en/docs/react) · [React API](https://taewooyo.github.io/volcano/en/docs/react-api) · [Kotlin API](https://taewooyo.github.io/volcano/api-reference/index.html) · [Sample gallery](https://taewooyo.github.io/volcano/en/docs/samples)
 
 ## At a glance
 
 | Property | Details |
 | --- | --- |
-| Platforms | Android, iOS, and Desktop through Kotlin Multiplatform and Compose Multiplatform |
+| Platforms | Android, iOS, and Desktop through Compose Multiplatform; React web through an SVG package backed by Kotlin/JS calculations |
 | Rendering | Squarified treemap layout with adaptive content and measured cell padding |
 | Navigation | Overview, group drill-down, breadcrumbs, selection, and parent navigation |
 | Images | Nullable image URLs with an optional Coil integration; no forced network stack |
@@ -33,7 +33,7 @@ health, budgets, inventories, capacity, or any other hierarchy with measurable v
 
 | Need | Volcano approach |
 | --- | --- |
-| One visualization across platforms | `commonMain` data model and Compose UI for Android, iOS, and Desktop. |
+| One calculation core across platforms | `commonMain` layout and color rules; Compose UI for Android/iOS/Desktop and a separate React SVG UI for web. |
 | Dense information without unreadable cells | Measured adaptive content hides logo, label, and metric progressively. |
 | Overview and detail without separate screens | Group headers drill down; breadcrumbs and Back return to the parent group. |
 | A library, not a finance-only widget | `value` controls area, while a domain-neutral signed `metric` controls color. |
@@ -47,23 +47,27 @@ health, budgets, inventories, capacity, or any other hierarchy with measurable v
 | `volcano` | Immutable model, sorting, filtering, aggregation, color contracts, and squarified layout. |
 | `volcano-compose` | Compose `Heatmap`, state, navigation, default cells, accessibility, and interaction. |
 | `volcano-compose-coil` | Optional `CoilHeatmapLogo` implementation for remote `imageUrl` values. |
+| `@taewooyo/heatmap-react` | npm package with TypeScript API, React SVG renderer, and bundled Kotlin/JS core. |
 
-All modules use the same version. Most applications need `volcano` and `volcano-compose`; add the
-Coil module only when remote logo loading is desired.
+The three Gradle artifacts use the same version. Most Compose applications need `volcano` and
+`volcano-compose`; add Coil only when remote logo loading is desired. The React npm package is
+versioned separately (initial release `0.1.0`) and does not require Gradle in consuming apps.
 
-## Installation
+## Compose installation
 
 Add core and Compose to `commonMain`. All target applications use the same dependencies.
+
+Use `2.0.1` for the three Kotlin/Compose artifacts. This release adds a 240 ms Compose cell-color transition when metrics change. Keep all three Gradle artifacts on the same version.
 
 ```kotlin
 kotlin {
   sourceSets {
     commonMain.dependencies {
-      implementation("io.github.taewooyo:volcano:<version>")
-      implementation("io.github.taewooyo:volcano-compose:<version>")
+      implementation("io.github.taewooyo:volcano:2.0.1")
+      implementation("io.github.taewooyo:volcano-compose:2.0.1")
 
       // Only if the app chooses Coil for remote imageUrl values.
-      implementation("io.github.taewooyo:volcano-compose-coil:<version>")
+      implementation("io.github.taewooyo:volcano-compose-coil:2.0.1")
     }
   }
 }
@@ -71,13 +75,43 @@ kotlin {
 
 The base SDK never fetches an image. `imageUrl = null` or a blank URL simply renders no logo.
 
+## React web installation
+
+```bash
+npm install @taewooyo/heatmap-react
+```
+
+React 18.2–18.x and 19.x consumers import the TypeScript API directly. The npm package bundles the shared
+Kotlin/JS layout and color core, so consumers do not install Kotlin or Gradle. React renders SVG;
+it does not embed the Compose UI or expose `HeatmapState`.
+
+```tsx
+import { Heatmap, type HeatmapNode } from "@taewooyo/heatmap-react";
+
+const market: HeatmapNode = {
+  id: "market", label: "Market", value: 0,
+  children: [
+    { id: "A", label: "Alpha", value: 60, metric: 4.2 },
+    { id: "B", label: "Beta", value: 40, metric: -2.1 },
+  ],
+};
+
+<Heatmap data={market} width={960} height={480} ariaLabel="Market performance" />;
+```
+
+The host provides positive integer dimensions, a new immutable tree when values change, and any
+drill-down/navigation state. `value` determines area and `metric` determines signed color. See the
+[React integration guide](https://taewooyo.github.io/volcano/en/docs/react) and
+[React API reference](https://taewooyo.github.io/volcano/en/docs/react-api) for callbacks, selection,
+colors, and accessibility.
+
 ### Version catalog
 
 If the project uses `libs.versions.toml`, define the version and libraries once:
 
 ```toml
 [versions]
-volcano = "<version>"
+volcano = "2.0.1"
 
 [libraries]
 volcano-core = { module = "io.github.taewooyo:volcano", version.ref = "volcano" }
@@ -199,6 +233,7 @@ The `benchmark` module exercises the shared layout engine with 5,000 leaves. Tre
 - **Android:** apply edge-to-edge and safe drawing padding in the host; connect `BackHandler` only while `state.canNavigateUp` is true.
 - **iOS:** host the shared `ComposeUIViewController` in UIKit or SwiftUI; set `CADisableMinimumFrameDurationOnPhone = YES` for high-refresh-rate devices.
 - **Desktop:** keep the window resizable; use adaptive content and optionally enable pointer hover tooltips.
+- **React web:** measure the container and pass `width`/`height`; own breadcrumbs, Back, and selection in React state. The SVG renderer transitions changed fill colors over 240 ms by default.
 
 ## Accessibility
 
@@ -213,6 +248,8 @@ Default cells expose label, formatted metric, and selection state. Group headers
 | iOS Simulator framework | `./gradlew :iosApp:linkDebugFrameworkIosSimulatorArm64` |
 | Core and Compose tests | `./gradlew :volcano:allTests :volcano-compose:allTests` |
 | Public API compatibility | `./gradlew :volcano:apiCheck :volcano-compose:apiCheck :volcano-compose-coil:apiCheck` |
+| React package | `./gradlew :volcano:jsDevelopmentLibraryCompileSync`, then `cd packages/volcano-react && npm ci && npm test` |
+| React web demo | Build the React package, then `cd examples/react-demo && npm ci && npm run dev` |
 
 Run the complete Linux release gate locally with:
 
@@ -220,9 +257,9 @@ Run the complete Linux release gate locally with:
 ./scripts/verify-release.sh
 ```
 
-This also checks the Korean/English documentation set, Dokka API output, static documentation build, and the 5,000-leaf layout benchmark. The GitHub `Release verification` workflow runs the same gate and separately links the iOS Simulator framework on macOS.
+This also checks the Korean/English documentation set, Dokka API output, static documentation build, and the 5,000-leaf layout benchmark. The GitHub `Release verification` workflow runs the same gate and separately links the iOS Simulator framework on macOS. React package checks are separate from this Kotlin release gate.
 
-See the [platform sample gallery](https://taewooyo.github.io/volcano/en/docs/samples) for Android, Desktop, and iOS overview/drill-down captures.
+See the [sample gallery](https://taewooyo.github.io/volcano/en/docs/samples) for Android, Desktop, and iOS captures and the React demo instructions.
 
 ## Migrating from 1.x
 

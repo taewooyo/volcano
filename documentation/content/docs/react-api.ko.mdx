@@ -1,0 +1,71 @@
+---
+title: React API 참조
+description: 공개 TypeScript 타입, 컴포넌트 props, 레이아웃 결과와 검증 규칙입니다.
+---
+
+공개 API는 `@taewooyo/heatmap-react`에서 가져옵니다.
+
+```ts
+import { Heatmap, computeHeatmapLayout } from "@taewooyo/heatmap-react";
+import type { HeatmapProps, HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell } from "@taewooyo/heatmap-react";
+```
+
+## `HeatmapNode`
+
+| 필드 | 타입 | 의미 |
+| --- | --- | --- |
+| `id` | `string` | 필수, 비어 있지 않고 형제 사이에서 고유해야 함; 다른 가지에서는 반복 가능 |
+| `label` | `string` | 필수 표시·접근성 문자열 |
+| `value` | `number` | 필수 유한 면적 가중치; 양수만 면적을 받음 |
+| `metric` | `number?` | 선택적 유한 부호 지표, 색상 계산에 사용 |
+| `color` | `string?` | `#RRGGBB` 또는 `#RRGGBBAA` 형식의 색상 재정의 |
+| `imageUrl` | `string?` | 호스트가 관리하는 선택적 이미지 URL |
+| `children` | `readonly HeatmapNode[]?` | 중첩 노드; 없거나 비어 있으면 리프 |
+
+입력 트리에 순환 참조가 있으면 안 됩니다. `metric`은 색상만 바꾸고 면적은 바꾸지 않습니다. 코어는 `imageUrl`을 가져오지 않습니다.
+
+## `Heatmap` props
+
+`HeatmapProps`는 `HeatmapLayoutOptions`를 확장하고 다음 컴포넌트 props를 추가합니다.
+
+| Prop | 타입 | 기본값·동작 |
+| --- | --- | --- |
+| `data` | `HeatmapNode` | 필수 루트 트리; 갱신 시 새 참조 전달 |
+| `className` | `string?` | 루트 SVG에 적용 |
+| `ariaLabel` | `string?` | `"Heatmap"`; 접근성 차트 이름 |
+| `cellGap` | `number?` | `1`; SVG 단위의 0 이상 유한 간격 |
+| `selectedId` | `string \| null` | `null`; 일치하는 리프 ID 선택 |
+| `selectedKey` | `string \| null` | `null`; 경로 기반 리프 키, `selectedId`보다 우선 |
+| `selectedBorderColor` | `string?` | `"transparent"`; 선택 리프 윤곽선 색상 |
+| `tooltipHoverDelayMs` | `number?` | `400`; 밀리초 단위의 0 이상 정수 대기 시간 |
+| `logoMaxSize` | `number?` | `48`; SVG 이미지의 0 이상 유한 최대 크기 |
+| `metricFormatter` | `(metric: number) => string` | 부호 있는 숫자; 셀·툴팁 문자열 형식 지정 |
+| `onLeafClick` | `(node, cell) => void` | 리프 클릭 또는 Enter/Space 활성화 시 호출 |
+| `onGroupClick` | `(node, cell) => void` | 그룹 헤더 클릭 또는 키보드 활성화 시 호출 |
+
+컴포넌트는 적응형 글자와 선택적 원형 이미지를 SVG로 그립니다. 채우기 색상 변경에는 240ms CSS 전환이 적용됩니다. 툴팁은 hover 또는 focus에서 표시되며 터치 상세 화면과 drill-down 상태는 앱이 관리합니다.
+
+## `HeatmapLayoutOptions`
+
+| 옵션 | 타입 | 기본값·검증 |
+| --- | --- | --- |
+| `width` | `number` | 필수 양의 정수 SVG 너비 |
+| `height` | `number` | 필수 양의 정수 SVG 높이 |
+| `groupHeaderHeight` | `number?` | `20`; 0 이상 정수 |
+| `maximumAbsoluteMetric` | `number?` | `10`; 팔레트 양·음 끝점에 대응하는 양의 유한 지표 값 |
+| `palette` | `{ negative: string; neutral: string; positive: string }?` | 코어 기본값; 각 색상은 `#RRGGBB` 또는 `#RRGGBBAA` |
+
+## `computeHeatmapLayout(root, options)`
+
+React를 렌더링하지 않고 레이아웃만 계산할 수 있습니다.
+
+```ts
+const cells = computeHeatmapLayout(market, { width: 960, height: 480 });
+const visibleLeaves = cells.filter((cell) => cell.visible && cell.isLeaf);
+```
+
+결과는 트리 순서의 `readonly HeatmapLayoutCell[]`입니다. 각 셀에는 원본 `node`, 경로 기반 `key`, `parentIndex`(루트는 `-1`), `depth`, `x`, `y`, `width`, `height`, 계산된 CSS hex `color`, `isLeaf`, `visible`이 있습니다. 보이지 않는 셀은 그리지 마세요. `key`는 다른 가지에서 반복된 ID를 구분합니다.
+
+잘못된 크기·지표·색상, 순환 참조, 형제 ID 중복은 오류를 발생시킵니다. 컴포넌트가 내부적으로 이 함수를 사용하므로 일반적인 사용자는 `Heatmap`만 필요합니다.
+
+Kotlin/Compose API는 별도 [Kotlin API 참조](/ko/docs/api)와 생성된 [Dokka 참조](/api-reference/index.html)를 확인하세요.

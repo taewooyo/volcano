@@ -1,0 +1,65 @@
+---
+title: React 통합
+description: npm 패키지를 설치하고 React 웹 앱에서 Volcano 히트맵을 렌더링합니다.
+---
+
+## 설치
+
+```bash
+npm install @taewooyo/heatmap-react
+```
+
+npm 패키지에는 Volcano의 Kotlin/JS 레이아웃·색상 코어가 포함됩니다. peer 범위는 React 18.2–18.x와 19.x(19.3 포함)를 허용하며, 저장소의 현재 개발 의존성은 React 19.2.4입니다. 소비 앱에는 Kotlin이나 Gradle이 필요하지 않습니다. 미래의 React 메이저 버전은 자동으로 호환된다고 선언하지 않으며 테스트한 뒤 peer 범위를 넓혀야 합니다. React는 SVG로 렌더링하며 Compose UI를 포함하지 않습니다. npm 패키지는 Kotlin 아티팩트와 별도 버전 계열로 관리합니다(최초 배포 버전 `0.1.0`).
+
+## 히트맵 렌더링
+
+```tsx
+import { Heatmap, type HeatmapNode } from "@taewooyo/heatmap-react";
+
+const market: HeatmapNode = {
+  id: "market",
+  label: "Market",
+  value: 0,
+  children: [
+    { id: "A", label: "Alpha", value: 60, metric: 4.2 },
+    { id: "B", label: "Beta", value: 40, metric: -2.1 },
+  ],
+};
+
+export function MarketHeatmap() {
+  return (
+    <Heatmap
+      data={market}
+      width={960}
+      height={480}
+      ariaLabel="Market performance"
+      metricFormatter={(value) => `${value > 0 ? "+" : ""}${value.toFixed(2)}%`}
+      onLeafClick={(node) => console.log(node.id)}
+    />
+  );
+}
+```
+
+`width`와 `height`는 필수 양의 정수 SVG 크기입니다. 반응형 화면에서는 앱이 컨테이너를 측정해 변경된 크기를 전달합니다. `value`는 면적, 선택적인 `metric`은 기본 부호 색상 스케일을 제어합니다. 자식의 가중치가 양수라면 그룹의 `value`는 `0`이어도 됩니다. 노드 ID는 비어 있으면 안 되고 형제 사이에서 고유해야 합니다.
+
+## 데이터 갱신, 선택, 탐색
+
+실시간 값이 바뀌면 새로운 불변 `data` 트리를 전달하세요. 기존 트리를 제자리에서 수정하면 레이아웃 메모이제이션이 갱신되지 않습니다. 색상이 바뀐 셀에는 기본 240ms 전환 효과가 적용되지만, 이는 피드 수신 속도를 제한하지 않습니다. 빠른 피드에서는 앱에서 업데이트 묶음을 결정하고 대상 브라우저와 데이터 규모로 측정하세요.
+
+React는 `onGroupClick`과 `onLeafClick`을 제공하지만 drill-down이나 breadcrumb 상태를 관리하지 않습니다. 표시할 루트와 뒤로 가기는 앱에서 결정합니다. `selectedId`는 일치하는 리프 ID를 선택합니다. 다른 그룹에서 ID가 중복된다면 콜백으로 받은 `cell.key`를 `selectedKey`로 전달하세요. `selectedKey`가 `selectedId`보다 우선합니다.
+
+## 렌더링과 접근성
+
+SVG 렌더러는 셀 크기에 맞춰 글자와 선택적인 원형 `imageUrl` 로고를 표시합니다. 이미지 로딩과 캐시는 브라우저·호스트 앱의 책임이며 Kotlin 코어는 이미지를 가져오지 않습니다. 기본 툴팁은 포인터 hover 또는 focus 후 400ms에 나타납니다. 터치 사용자에게는 클릭이나 앱 차원의 상세 동작이 필요합니다. 클릭 가능한 셀과 그룹 헤더는 Enter·Space를 지원합니다. 차트를 설명하는 `ariaLabel`을 지정하고 색상만으로 의미를 전달하지 마세요.
+
+색상 규칙에는 `palette`, `maximumAbsoluteMetric`, 선택적 노드 `color`를 사용합니다. `metricFormatter`는 표시 문자열만 바꾸며 레이아웃·색상 계산에는 영향을 주지 않습니다. 타입, 기본값, 검증 규칙은 [React API 참조](/ko/docs/react-api)를 확인하세요.
+
+## 웹 데모 실행
+
+[React 데모](https://github.com/taewooyo/volcano/tree/main/examples/react-demo)에는 일반 화면, 100ms 빠른 피드, 집계/원본 5,000리프 모드가 있습니다. 수동 스트레스 시나리오이며 프레임률 보장은 아닙니다. 이 저장소에서 실행하려면 로컬 Kotlin/JS 코어와 패키지를 먼저 빌드합니다.
+
+```bash
+./gradlew :volcano:jsDevelopmentLibraryCompileSync
+cd packages/volcano-react && npm ci && npm run build
+cd ../../examples/react-demo && npm ci && npm run dev
+```

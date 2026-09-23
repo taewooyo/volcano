@@ -1,4 +1,4 @@
 {
   "root": true,
-  "pages": ["index", "getting-started", "migration", "architecture", "platforms", "concepts", "navigation", "rendering", "logos-and-images", "customization", "large-datasets", "accessibility", "samples", "troubleshooting", "releases", "api"]
+  "pages": ["index", "getting-started", "react", "migration", "architecture", "platforms", "concepts", "navigation", "rendering", "logos-and-images", "customization", "large-datasets", "accessibility", "samples", "troubleshooting", "releases", "api", "react-api"]
 }

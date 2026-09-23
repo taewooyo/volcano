@@ -2,11 +2,15 @@
 
 This pre-1.0 package renders an SVG heatmap using layout and color calculations from Volcano's shared Kotlin/JS core. The package bundles that core, so React consumers do not need Kotlin or Gradle installed.
 
+The current peer range accepts React 18.2–18.x or 19.x; the repository's development dependency is React 19.2.4. Future major versions are not declared compatible until they are tested and the package is updated.
+
+[Integration guide](https://taewooyo.github.io/volcano/en/docs/react) · [TypeScript API reference](https://taewooyo.github.io/volcano/en/docs/react-api) · [Changelog](CHANGELOG.md) · [Web demo](https://github.com/taewooyo/volcano/tree/main/examples/react-demo)
+
 ```sh
 npm install @taewooyo/heatmap-react
 ```
 
-Build the Kotlin/JS package from the repository root first:
+For repository development only, build the Kotlin/JS package from the repository root first:
 
 ```sh
 ./gradlew :volcano:jsDevelopmentLibraryCompileSync

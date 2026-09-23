@@ -12,6 +12,7 @@ import { GalleryGrid } from "@/components/gallery-grid";
 | `androidApp` | Edge-to-edge host layout, system Back drill-up, interactive leaf selection. |
 | `iosApp` | Compose `UIViewController` bridge, safe-area-aware host, iOS Simulator framework. |
 | `desktopApp` | Resizable window, hover tooltip, pointer interaction. |
+| `examples/react-demo` | React SVG integration, fast feed, drill-down, and aggregated/raw 5,000-leaf modes. |
 | `benchmark` | Shared layout measurement with a synthetic 5,000-leaf tree. |
 
 The applications are deliberately demos, not required runtime dependencies of the library.
@@ -66,3 +67,15 @@ interaction shown. Recommended flows are: overview to group drill-down, breadcru
 leaf detail selection, and Desktop hover tooltip.
 
 Android, Desktop, and iOS captures are committed under `documentation/content/gallery/`.
+
+## React web demo
+
+The [React demo](https://github.com/taewooyo/volcano/tree/main/examples/react-demo) uses the same market fixture and update formula as the Desktop/iOS samples. Build the local Kotlin/JS core and npm package, then start Vite:
+
+```bash
+./gradlew :volcano:jsDevelopmentLibraryCompileSync
+cd packages/volcano-react && npm ci && npm run build
+cd ../../examples/react-demo && npm ci && npm run dev
+```
+
+Use **Fast feed** for 100 ms metric updates and **5K view** / **5K raw** for aggregated and full 5,000-leaf scenarios. This is a manual stress demo; browser frame-rate results have not been established as a release benchmark. No React screenshot is included in the gallery yet.
