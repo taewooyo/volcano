@@ -1,0 +1,17 @@
+{
+  "name": "volcano-typescript-core-smoke",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "npm run check && npm run build && npm run start"
+  },
+  "dependencies": {
+    "volcano-volcano": "file:../../build/js/packages/volcano-volcano"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
+  }
+}

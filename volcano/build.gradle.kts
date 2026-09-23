@@ -27,6 +27,11 @@ kotlin {
         minSdk = Configuration.minSdk
     }
     jvm("desktop")
+    js {
+        nodejs()
+        binaries.library()
+        generateTypeScriptDefinitions()
+    }
     iosArm64()
     iosSimulatorArm64()
 
@@ -36,4 +41,13 @@ kotlin {
         }
     }
 
+}
+
+// Use CI's Node installation without registering a tool distribution repository in Gradle.
+@Suppress("DEPRECATION_ERROR")
+rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin> {
+    rootProject.the<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension>().apply {
+        download = false
+        downloadBaseUrl = null
+    }
 }

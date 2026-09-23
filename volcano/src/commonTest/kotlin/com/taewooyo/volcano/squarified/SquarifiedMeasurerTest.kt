@@ -30,6 +30,14 @@ class SquarifiedMeasurerTest {
     )
 
     assertEquals(3, nodes.size)
+    assertEquals(
+      listOf(
+        listOf(0, 0, 180, 200),
+        listOf(180, 0, 120, 150),
+        listOf(180, 150, 120, 50),
+      ),
+      nodes.map { node -> listOf(node.offsetX, node.offsetY, node.width, node.height) },
+    )
     nodes.forEach { node ->
       assertTrue(node.width >= 0)
       assertTrue(node.height >= 0)
@@ -37,6 +45,25 @@ class SquarifiedMeasurerTest {
       assertTrue(node.offsetY >= 0)
       assertTrue(node.offsetX + node.width <= 300)
       assertTrue(node.offsetY + node.height <= 200)
+    }
+  }
+
+  @Test
+  fun `measures dense feeds without recursive stack growth`() {
+    val nodes = SquarifiedMeasurer().measureNodes(
+      values = List(5_000) { index -> (index % 20 + 1).toDouble() },
+      width = 1_200,
+      height = 800,
+    )
+
+    assertEquals(5_000, nodes.size)
+    nodes.forEach { node ->
+      assertTrue(node.width >= 0)
+      assertTrue(node.height >= 0)
+      assertTrue(node.offsetX >= 0)
+      assertTrue(node.offsetY >= 0)
+      assertTrue(node.offsetX + node.width <= 1_200)
+      assertTrue(node.offsetY + node.height <= 800)
     }
   }
 }

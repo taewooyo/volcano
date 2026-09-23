@@ -99,23 +99,27 @@ class SquarifiedMeasurer : Measurer {
     row: List<TreemapElement>,
     w: Double,
   ) {
-    if (elements.isNotEmpty()) {
-      val remainPopped = ArrayDeque(elements)
-      val c = remainPopped.removeFirst()
-      val concatRow: MutableList<TreemapElement> = ArrayList(row)
+    var elementIndex = 0
+    var currentRow = row
+    var currentWidth = w
+
+    while (elementIndex < elements.size) {
+      val c = elements[elementIndex]
+      val concatRow: MutableList<TreemapElement> = ArrayList(currentRow)
       concatRow.add(c)
-      val remaining: List<TreemapElement> = ArrayList(remainPopped)
-      val worstConcat = worst(concatRow, w)
-      val worstRow = worst(row, w)
-      if (row.isEmpty() || worstRow > worstConcat || isEqual(worstRow, worstConcat)) {
-        if (remaining.isEmpty()) {
-          layoutRow(concatRow, w)
-        } else {
-          squarify(remaining, concatRow, w)
+      val worstConcat = worst(concatRow, currentWidth)
+      val worstRow = worst(currentRow, currentWidth)
+      if (currentRow.isEmpty() || worstRow > worstConcat || isEqual(worstRow, worstConcat)) {
+        elementIndex += 1
+        if (elementIndex == elements.size) {
+          layoutRow(concatRow, currentWidth)
+          return
         }
+        currentRow = concatRow
       } else {
-        layoutRow(row, w)
-        squarify(elements, ArrayList(), minimumSide())
+        layoutRow(currentRow, currentWidth)
+        currentRow = ArrayList()
+        currentWidth = minimumSide()
       }
     }
   }

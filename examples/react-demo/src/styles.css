@@ -1,0 +1,56 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #252525;
+  background: #f7f8fa;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+button {
+  border: 1px solid #d5dce5;
+  border-radius: 10px;
+  padding: 8px 14px;
+  background: #f1f5f9;
+  color: #1f2937;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:disabled { border-color: transparent; background: #e5e7eb; color: #94a3b8; cursor: default; }
+
+.app {
+  height: 100vh;
+  min-height: 440px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar, .feed-row, .feed-actions, .legend, .legend-item, .breadcrumbs {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar, .feed-row { justify-content: space-between; gap: 12px; }
+
+.legend { justify-content: center; flex: 1; gap: 12px; padding: 0 8px; color: #475569; font-size: 12px; }
+.legend-item { gap: 4px; }
+.legend-item i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+
+.feed-row { color: #64748b; font-size: 14px; padding-top: 8px; padding-bottom: 4px; }
+.feed-actions { gap: 12px; white-space: nowrap; }
+.breadcrumbs { min-height: 28px; gap: 0; padding: 4px 8px; }
+.breadcrumbs button { border: 0; background: transparent; padding: 0; font-size: 14px; }
+.separator { color: #94a3b8; margin: 0 3px; }
+
+.heatmap-frame { flex: 1; min-height: 0; padding-top: 8px; background: #fff; overflow: hidden; }
+.heatmap-frame svg { display: block; }
+
+@media (max-width: 680px) {
+  .app { min-height: 500px; }
+  .toolbar, .feed-row { flex-wrap: wrap; }
+  .legend { order: 2; flex-basis: 100%; }
+  .feed-actions { width: 100%; justify-content: space-between; }
+}

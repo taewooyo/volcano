@@ -18,6 +18,10 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: gradle/actions/setup-gradle@v4
       - name: Make Gradle executable
         run: chmod +x ./gradlew
@@ -33,6 +37,20 @@ jobs:
             :volcano-compose:apiCheck \
             :volcano-compose-coil:apiCheck \
             --no-daemon --console=plain
+      - name: Build Kotlin/JS package for TypeScript
+        run: ./gradlew :volcano:jsDevelopmentLibraryCompileSync --no-daemon --console=plain
+      - name: Verify TypeScript consumer
+        working-directory: examples/typescript-core-smoke
+        run: npm ci && npm test
+      - name: Verify browser bundle
+        working-directory: examples/browser-core-smoke
+        run: npm ci && npm run build
+      - name: Verify React package
+        working-directory: packages/volcano-react
+        run: npm ci && npm test
+      - name: Verify React demo
+        working-directory: examples/react-demo
+        run: npm ci && npm run build
 
   ios-link:
     name: iOS Simulator framework

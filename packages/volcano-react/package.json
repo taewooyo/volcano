@@ -1,0 +1,45 @@
+{
+  "name": "@taewooyo/heatmap-react",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "React SVG heatmaps powered by Volcano's shared Kotlin Multiplatform core",
+  "keywords": ["heatmap", "treemap", "react", "svg", "visualization", "kotlin-multiplatform"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taewooyo/volcano.git",
+    "directory": "packages/volcano-react"
+  },
+  "homepage": "https://github.com/taewooyo/volcano/tree/main/packages/volcano-react#readme",
+  "bugs": { "url": "https://github.com/taewooyo/volcano/issues" },
+  "publishConfig": { "access": "public" },
+  "files": ["dist", "README.md"],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "build": "npm run check && vite build && tsc --project tsconfig.build.json",
+    "prepack": "npm run build",
+    "test": "npm run build && node scripts/smoke.mjs"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "typescript": "5.8.3",
+    "vite": "^8.0.0",
+    "volcano-volcano": "file:../../build/js/packages/volcano-volcano"
+  }
+}
