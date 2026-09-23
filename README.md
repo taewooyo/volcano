@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/taewooyo/volcano/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/taewooyo/volcano/build.yml?label=build" alt="Build status" /></a>
-  <a href="https://github.com/taewooyo/volcano/blob/main/LICENSE"><img src="https://img.shields.io/github/license/taewooyo/volcano" alt="Apache 2.0 license" /></a>
+  <a href="https://github.com/taewooyo/volcano/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="Apache 2.0 license" /></a>
   <a href="https://kotlinlang.org/docs/multiplatform.html"><img src="https://img.shields.io/badge/Kotlin%20Multiplatform-Android%20%7C%20iOS%20%7C%20Desktop-7f52ff" alt="Kotlin Multiplatform" /></a>
   <a href="https://taewooyo.github.io/volcano/en/docs/getting-started"><img src="https://img.shields.io/badge/docs-online-e85d04" alt="Documentation" /></a>
 </p>
