@@ -24,7 +24,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
@@ -40,9 +45,14 @@ import com.taewooyo.volcano.compose.PercentageMetricFormatter
 import com.taewooyo.volcano.compose.rememberHeatmapState
 import com.taewooyo.volcano.compose.coil.CoilHeatmapLogo
 import com.taewooyo.volcano.heatmap.HeatmapNode
+import com.taewooyo.volcano.heatmap.HeatmapAggregation
 import com.taewooyo.volcano.heatmap.SignedMetricColorScale
 import com.taewooyo.volcano.heatmap.legendEntries
+import com.taewooyo.volcano.heatmap.toDisplayTree
 import platform.UIKit.UIViewController
+import kotlinx.coroutines.delay
+import kotlin.math.sin
+import kotlin.time.Duration.Companion.milliseconds
 
 /** UIKit entry point consumed by the SwiftUI sample host. */
 public fun mainViewController(): UIViewController = ComposeUIViewController {
@@ -51,6 +61,22 @@ public fun mainViewController(): UIViewController = ComposeUIViewController {
 
 @Composable
 private fun MarketHeatmapScreen() {
+  var fastFeed by remember { mutableStateOf(false) }
+  var dataMode by remember { mutableStateOf(DemoDataMode.Normal) }
+  var demoTick by remember { mutableIntStateOf(0) }
+  val changingMarketMap = remember(demoTick) { marketMap.withDemoMetrics(demoTick) }
+  val expandedMarketMap = remember(changingMarketMap, dataMode) {
+    if (dataMode == DemoDataMode.Normal) null else changingMarketMap.expandForHeatmapStressTest()
+  }
+  val displayRoot = remember(changingMarketMap, expandedMarketMap, dataMode) {
+    when (dataMode) {
+      DemoDataMode.Normal -> changingMarketMap
+      DemoDataMode.Overview5K -> requireNotNull(expandedMarketMap).toDisplayTree(
+        aggregation = HeatmapAggregation(maximumChildren = 12, othersLabel = "Others"),
+      )
+      DemoDataMode.Raw5K -> requireNotNull(expandedMarketMap)
+    }
+  }
   val colorScale = remember {
     SignedMetricColorScale(
       maximumAbsoluteMetric = 10.0,
@@ -59,7 +85,13 @@ private fun MarketHeatmapScreen() {
       positive = 0xFF16A34A,
     )
   }
-    val state = rememberHeatmapState(marketMap)
+    val state = rememberHeatmapState(displayRoot)
+
+    LaunchedEffect(demoTick, fastFeed, dataMode, state.canNavigateUp) {
+      if (state.canNavigateUp) return@LaunchedEffect
+      delay((if (fastFeed) 100L else 2_500L).milliseconds)
+      demoTick += 1
+    }
 
     Column(
       Modifier
@@ -75,8 +107,29 @@ private fun MarketHeatmapScreen() {
       ) {
         HeatmapBackButton(onClick = state::navigateUp, enabled = state.canNavigateUp)
         HeatmapLegend(
+          modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
           entries = colorScale.legendEntries().map { it.copy(label = "${it.label}%") },
           contentColor = Color(0xFF475569),
+        )
+        HeatmapBackButton(
+          onClick = { dataMode = dataMode.next() },
+          enabled = true,
+          label = dataMode.nextActionLabel,
+        )
+      }
+      Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        androidx.compose.material.Text(
+          text = "LIVE DEMO · sample metrics update every ${if (fastFeed) "100ms" else "2.5s"}",
+          color = Color(0xFF64748B),
+        )
+        HeatmapBackButton(
+          onClick = { fastFeed = !fastFeed },
+          enabled = true,
+          label = if (fastFeed) "Slow feed" else "Fast feed",
         )
       }
       HeatmapBreadcrumb(state = state, modifier = Modifier.fillMaxWidth())
@@ -122,3 +175,51 @@ private val marketMap = HeatmapNode(
 
 private fun logoUrl(label: String): String =
   "https://ui-avatars.com/api/?name=$label&background=0F172A&color=FFFFFF&bold=true&size=128"
+
+private enum class DemoDataMode(val nextActionLabel: String) {
+  Normal("5K view"),
+  Overview5K("5K raw"),
+  Raw5K("Normal"),
+  ;
+
+  fun next(): DemoDataMode = when (this) {
+    Normal -> Overview5K
+    Overview5K -> Raw5K
+    Raw5K -> Normal
+  }
+}
+
+private fun HeatmapNode.expandForHeatmapStressTest(): HeatmapNode {
+  val totalLeaves = children.sumOf { it.children.size }
+  if (totalLeaves == 0) return this
+  var assignedLeaves = 0
+  val expandedChildren = children.mapIndexed { sectorIndex, sector ->
+    val count = if (sectorIndex == children.lastIndex) {
+      5_000 - assignedLeaves
+    } else {
+      (5_000.0 * sector.children.size / totalLeaves).toInt().also { assignedLeaves += it }
+    }
+    sector.copy(
+      children = List(count) { index ->
+        val source = sector.children[index % sector.children.size]
+        source.copy(
+          id = "${source.id}-${sector.id}-$index",
+          label = "${source.label}-${index + 1}",
+        )
+      },
+    )
+  }
+  return copy(children = expandedChildren)
+}
+
+private fun HeatmapNode.withDemoMetrics(tick: Int): HeatmapNode {
+  var index = 0
+  fun update(node: HeatmapNode): HeatmapNode {
+    val updatedChildren = node.children.map(::update)
+    val updatedMetric = node.metric?.let { metric ->
+      metric + sin((tick * 0.8) + index++ * 1.7) * 5.0
+    }
+    return node.copy(children = updatedChildren, metric = updatedMetric)
+  }
+  return update(this)
+}

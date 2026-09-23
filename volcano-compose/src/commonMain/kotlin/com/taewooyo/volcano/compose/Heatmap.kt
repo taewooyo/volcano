@@ -16,6 +16,7 @@
 package com.taewooyo.volcano.compose
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -77,6 +78,7 @@ import com.taewooyo.volcano.heatmap.HeatmapNode
 import com.taewooyo.volcano.heatmap.SignedMetricColorScale
 import com.taewooyo.volcano.squarified.SquarifiedMeasurer
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Rules that preserve readable content in small heatmap cells.
@@ -171,14 +173,14 @@ public fun Heatmap(
   LaunchedEffect(tooltipRequest) {
     val shownRequest = tooltipRequest
     if (tooltipNode != null && interaction.tooltipDurationMillis > 0) {
-      delay(interaction.tooltipDurationMillis.toLong())
+      delay(interaction.tooltipDurationMillis.toLong().milliseconds)
       if (tooltipRequest == shownRequest) tooltipNode = null
     }
   }
   LaunchedEffect(hoveredNode, interaction.showTooltipOnHover, interaction.tooltipHoverDelayMillis) {
     if (!interaction.showTooltipOnHover) return@LaunchedEffect
     val node = hoveredNode ?: return@LaunchedEffect
-    delay(interaction.tooltipHoverDelayMillis.toLong())
+    delay(interaction.tooltipHoverDelayMillis.toLong().milliseconds)
     if (hoveredNode === node) {
       tooltipNode = node
       tooltipTrigger = TooltipTrigger.Hover
@@ -497,13 +499,19 @@ public fun DefaultHeatmapCell(
 ) {
   val density = LocalDensity.current
   val textMeasurer = rememberTextMeasurer()
+  val targetColor = color?.let { Color(it.toInt()) } ?: defaultHeatmapColor(node.effectiveMetric)
+  val animatedColor by animateColorAsState(
+    targetValue = targetColor,
+    animationSpec = tween(240),
+    label = "HeatmapMetricColor",
+  )
   androidx.compose.foundation.layout.BoxWithConstraints(
     modifier = modifier
       .border(
         width = if (selected && selectedBorderColor.alpha > 0f) 2.dp else 0.5.dp,
         color = if (selected && selectedBorderColor.alpha > 0f) selectedBorderColor else Color.White,
       )
-      .background(color?.let { Color(it.toInt()) } ?: defaultHeatmapColor(node.effectiveMetric))
+      .background(animatedColor)
       .semantics(mergeDescendants = true) {
         contentDescription = defaultHeatmapCellContentDescription(node, displayPolicy.metricFormatter)
         this.selected = selected

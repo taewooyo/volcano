@@ -15,7 +15,6 @@
  */
 package com.taewooyo.volcano.ui
 
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -23,7 +22,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
@@ -31,8 +29,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -58,7 +59,10 @@ import com.taewooyo.volcano.heatmap.SignedMetricColorScale
 import com.taewooyo.volcano.heatmap.legendEntries
 import com.taewooyo.volcano.heatmap.toDisplayTree
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.sin
+import kotlin.time.Duration.Companion.milliseconds
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -74,8 +78,15 @@ class MainActivity : ComponentActivity() {
       val scope = rememberCoroutineScope()
       val stocks = viewModel.stocks.collectAsState().value
       var dataMode by remember { mutableStateOf(DemoDataMode.Normal) }
-      val displayStocks = remember(stocks.stocks, dataMode) {
-        if (dataMode == DemoDataMode.Normal) stocks.stocks else stocks.stocks.expandForHeatmapStressTest()
+      var fastFeed by remember { mutableStateOf(false) }
+      var demoTick by remember { mutableIntStateOf(0) }
+      val displayStocks = remember(stocks.stocks, dataMode, demoTick) {
+        val changingStocks = stocks.stocks.mapIndexed { index, stock ->
+          val baselinePercent = if (stock.value == 0.0) 0.0 else stock.oldValue / stock.value * 100.0
+          val changingPercent = baselinePercent + sin((demoTick * 0.8) + index * 1.7) * 5.0
+          stock.copy(oldValue = stock.value * changingPercent / 100.0)
+        }
+        if (dataMode == DemoDataMode.Normal) changingStocks else changingStocks.expandForHeatmapStressTest()
       }
       val sector = displayStocks.groupBy { it.type }
       val colorScale = remember {
@@ -97,7 +108,6 @@ class MainActivity : ComponentActivity() {
               label = type,
               value = items.sumOf { it.value },
               children = items.map { stock ->
-                // The bundled fixture stores the absolute price change in oldValue.
                 val metric = if (stock.value == 0.0) {
                   0.0
                 } else {
@@ -129,6 +139,12 @@ class MainActivity : ComponentActivity() {
       }
       val heatmapState = rememberHeatmapState(heatmapRoot)
 
+      LaunchedEffect(dataMode, heatmapState.canNavigateUp, demoTick, fastFeed) {
+        if (heatmapState.canNavigateUp) return@LaunchedEffect
+        delay(if (fastFeed) 100.milliseconds else 2_500.milliseconds)
+        demoTick += 1
+      }
+
       BackHandler(enabled = heatmapState.canNavigateUp) {
         heatmapState.navigateUp()
       }
@@ -158,6 +174,22 @@ class MainActivity : ComponentActivity() {
             onClick = { dataMode = dataMode.next() },
             enabled = true,
             label = dataMode.nextActionLabel,
+          )
+        }
+        androidx.compose.foundation.layout.Row(
+          modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp),
+          horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically,
+        ) {
+          Text(
+            text = "LIVE DEMO · sample metrics update every ${if (fastFeed) "100ms" else "2.5s"}",
+            color = Color(0xFF64748B),
+          )
+          HeatmapBackButton(
+            onClick = { fastFeed = !fastFeed },
+            enabled = true,
+            modifier = Modifier.padding(start = 12.dp),
+            label = if (fastFeed) "Slow feed" else "Fast feed",
           )
         }
         HeatmapBreadcrumb(state = heatmapState, modifier = Modifier.fillMaxWidth())
