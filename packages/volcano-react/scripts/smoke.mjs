@@ -107,6 +107,26 @@ if ((keyedSelectionHtml.match(/stroke="#abcdef"/g) ?? []).length !== 1) {
   throw new Error("Path-based selection did not distinguish repeated node IDs.");
 }
 
+const configuredHtml = renderToStaticMarkup(createElement(Heatmap, {
+  data: {
+    id: "root",
+    label: "Root",
+    value: 0,
+    children: [{ id: "group", label: "Group", value: 0, children: [{ id: "leaf", label: "Leaf", value: 1 }] }],
+  },
+  width: 300,
+  height: 200,
+  groupHeaderHeight: 20,
+  style: { borderColor: "#010203", groupHeaderColor: "#040506", leafTextColor: "#070809" },
+  displayPolicy: { adaptiveContent: false, showLabelAbove: 1, showMetricAbove: 1 },
+  interaction: { showTooltipOnHover: false },
+  motion: { durationMillis: 120, initialScale: 0.95, pressScale: 0.95, pressedAlpha: 0.8, pressDurationMillis: 70 },
+  interaction: { showTooltipOnLongClick: true, tooltipDurationMillis: 800, showTooltipOnHover: false },
+}));
+if (!configuredHtml.includes('fill="#010203"') || !configuredHtml.includes('fill="#040506"') || !configuredHtml.includes('fill="#070809"')) {
+  throw new Error("Compose-aligned React configuration was not applied.");
+}
+
 const require = createRequire(import.meta.url);
 const commonJs = require("../dist/index.cjs");
 if (typeof commonJs.Heatmap !== "function" || typeof commonJs.computeHeatmapLayout !== "function") {

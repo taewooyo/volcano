@@ -44,4 +44,4 @@ the host needs to coordinate Back behavior or a detail pane.
 
 Use `HeatmapState` as presentation state, not as a repository for mutable domain data.
 
-The React component does not expose `HeatmapState`. Its host owns the visible root, breadcrumbs, and selected key; pass a new immutable `data` reference when values change. See [React Integration](/docs/react).
+The React package exposes `useHeatmapState` for visible groups, breadcrumbs, and leaf selection. Applications can use that hook or manage navigation externally; pass a new immutable `data` reference when values change. See [React Integration](/docs/react).

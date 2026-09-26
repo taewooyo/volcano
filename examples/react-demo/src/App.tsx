@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Heatmap } from "@taewooyo/heatmap-react";
-import type { HeatmapNode } from "@taewooyo/heatmap-react";
+import { Heatmap, useHeatmapState } from "@taewooyo/heatmap-react";
 import { expandForHeatmapStressTest, marketMap, toOverview, withDemoMetrics } from "./data";
 import type { DemoDataMode } from "./data";
 import "./styles.css";
@@ -30,15 +29,7 @@ export function App() {
   const [fastFeed, setFastFeed] = useState(false);
   const [dataMode, setDataMode] = useState<DemoDataMode>("normal");
   const [tick, setTick] = useState(0);
-  const [path, setPath] = useState<readonly string[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const { containerRef, size } = useHeatmapSize();
-
-  useEffect(() => {
-    if (path.length > 0) return;
-    const timer = window.setInterval(() => setTick((current) => current + 1), fastFeed ? 100 : 2_500);
-    return () => window.clearInterval(timer);
-  }, [fastFeed, path.length]);
 
   const changingMarket = useMemo(() => withDemoMetrics(marketMap, tick), [tick]);
   const displayRoot = useMemo(() => {
@@ -47,26 +38,25 @@ export function App() {
     return dataMode === "overview5k" ? toOverview(expanded) : expanded;
   }, [changingMarket, dataMode]);
 
-  const breadcrumbs: HeatmapNode[] = [displayRoot];
-  let visibleNode = displayRoot;
-  for (const id of path) {
-    const child = visibleNode.children?.find((node) => node.id === id);
-    if (!child) break;
-    breadcrumbs.push(child);
-    visibleNode = child;
-  }
+  const heatmapState = useHeatmapState(displayRoot);
+  const breadcrumbs = heatmapState.breadcrumbs;
+
+  useEffect(() => {
+    if (heatmapState.canNavigateUp) return;
+    const timer = window.setInterval(() => setTick((current) => current + 1), fastFeed ? 100 : 2_500);
+    return () => window.clearInterval(timer);
+  }, [fastFeed, heatmapState.canNavigateUp]);
 
   const nextModeLabel = dataMode === "normal" ? "5K view" : dataMode === "overview5k" ? "5K raw" : "Normal";
   function cycleDataMode() {
     setDataMode((current) => current === "normal" ? "overview5k" : current === "overview5k" ? "raw5k" : "normal");
-    setPath([]);
-    setSelectedId(null);
+    heatmapState.reset();
   }
 
   return (
     <main className="app">
       <div className="toolbar">
-        <button disabled={path.length === 0} onClick={() => setPath((current) => current.slice(0, -1))}>Back</button>
+        <button disabled={!heatmapState.canNavigateUp} onClick={() => heatmapState.navigateUp()}>Back</button>
         <div className="legend" aria-label="Heatmap legend">
           <span className="legend-item"><i style={{ background: palette.negative }} />−10%</span>
           <span className="legend-item"><i style={{ background: palette.neutral }} />0%</span>
@@ -86,10 +76,7 @@ export function App() {
             {index > 0 && <span className="separator">/</span>}
             <button
               disabled={index === breadcrumbs.length - 1}
-              onClick={() => {
-                setPath((current) => current.slice(0, index));
-                setSelectedId(null);
-              }}
+              onClick={() => heatmapState.navigateToBreadcrumb(index)}
             >
               {node.label}
             </button>
@@ -100,24 +87,16 @@ export function App() {
       <div className="heatmap-frame" ref={containerRef}>
         {size.width > 0 && size.height > 0 && (
           <Heatmap
-            data={visibleNode}
+            data={displayRoot}
+            state={heatmapState}
             width={size.width}
             height={size.height}
             groupHeaderHeight={20}
             maximumAbsoluteMetric={10}
             palette={palette}
-            selectedId={selectedId}
-            selectedBorderColor="#111827"
-            metricFormatter={(metric) => `${metric > 0 ? "+" : ""}${metric.toFixed(2)}%`}
-            tooltipHoverDelayMs={400}
+            displayPolicy={{ metricFormatter: (metric) => `${metric > 0 ? "+" : ""}${metric.toFixed(2)}%` }}
+            interaction={{ showTooltipOnHover: true, tooltipHoverDelayMillis: 400 }}
             logoMaxSize={48}
-            onGroupClick={(node) => {
-              if (visibleNode.children?.some((child) => child.id === node.id && child.children?.length)) {
-                setPath((current) => [...current, node.id]);
-                setSelectedId(null);
-              }
-            }}
-            onLeafClick={(node) => setSelectedId(node.id)}
           />
         )}
       </div>

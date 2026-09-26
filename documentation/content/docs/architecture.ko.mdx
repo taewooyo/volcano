@@ -33,4 +33,4 @@ fun Portfolio.toHeatmapNode() = HeatmapNode(
 
 `value`는 면적, `metric`은 색상이라는 역할을 분리하면 금융·운영·조직·저장소 분석 등 다른 도메인에도 같은 모델을 적용할 수 있습니다.
 
-React 컴포넌트에는 `HeatmapState`가 없습니다. 표시할 루트, breadcrumb, 선택 키는 호스트가 관리하며 값이 바뀌면 새 불변 `data` 참조를 전달합니다. [React 통합](/ko/docs/react)을 참고하세요.
+React 패키지는 표시 그룹, breadcrumb, 리프 선택을 관리하는 `useHeatmapState`를 제공합니다. 훅을 사용하거나 호스트에서 탐색을 직접 관리할 수 있으며, 값이 바뀌면 새 불변 `data` 참조를 전달하세요. [React 통합](/ko/docs/react)을 참고하세요.

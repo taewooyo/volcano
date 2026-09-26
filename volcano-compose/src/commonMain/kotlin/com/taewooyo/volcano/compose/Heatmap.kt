@@ -339,6 +339,9 @@ private fun HeatmapGroup(
     cellContent(node, modifier)
     return
   }
+  val groupInteractionSource = remember { MutableInteractionSource() }
+  val groupHovered by groupInteractionSource.collectIsHoveredAsState()
+  val groupPressed by groupInteractionSource.collectIsPressedAsState()
   // SquarifiedMeasurer mutates its working area while measuring. Each recursive group needs an
   // independent instance; sharing one across nested Layout measure passes can overwrite a
   // parent's coordinates and leave only its header visible.
@@ -351,7 +354,9 @@ private fun HeatmapGroup(
           modifier = Modifier
             .fillMaxWidth()
             .background(style.groupHeaderColor)
+            .hoverable(interactionSource = groupInteractionSource)
             .clickable(
+              interactionSource = groupInteractionSource,
               onClickLabel = "Open ${node.label}",
               role = Role.Button,
               onClick = { onGroupClick(node) },
@@ -392,7 +397,12 @@ private fun HeatmapGroup(
         }
       }
     },
-    modifier = modifier,
+    modifier = modifier.drawWithContent {
+      drawContent()
+      if (showLabel && (groupHovered || groupPressed)) {
+        drawRect(Color.Black.copy(alpha = 0.08f))
+      }
+    },
   ) { measurables, constraints ->
     // Nested groups are measured with fixed bounds. Passing that fixed minimum height to the
     // header makes Text expand to the entire group, leaving zero height for the child treemap.

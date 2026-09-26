@@ -6,8 +6,8 @@ description: 공개 TypeScript 타입, 컴포넌트 props, 레이아웃 결과�
 공개 API는 `@taewooyo/heatmap-react`에서 가져옵니다.
 
 ```ts
-import { Heatmap, computeHeatmapLayout } from "@taewooyo/heatmap-react";
-import type { HeatmapProps, HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell } from "@taewooyo/heatmap-react";
+import { Heatmap, computeHeatmapLayout, useHeatmapState } from "@taewooyo/heatmap-react";
+import type { HeatmapProps, HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell, HeatmapDisplayPolicy, HeatmapInteraction, HeatmapMotion, HeatmapStyle } from "@taewooyo/heatmap-react";
 ```
 
 ## `HeatmapNode`
@@ -41,9 +41,38 @@ import type { HeatmapProps, HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell
 | `logoMaxSize` | `number?` | `48`; SVG 이미지의 0 이상 유한 최대 크기 |
 | `metricFormatter` | `(metric: number) => string` | 부호 있는 숫자; 셀·툴팁 문자열 형식 지정 |
 | `onLeafClick` | `(node, cell) => void` | 리프 클릭 또는 Enter/Space 활성화 시 호출 |
+| `onLeafLongClick` | `(node, cell) => void` | 500ms 이상 터치했을 때 호출 |
 | `onGroupClick` | `(node, cell) => void` | 그룹 헤더 클릭 또는 키보드 활성화 시 호출 |
+| `onLeafHover` | `(node \| null) => void` | hover된 리프 또는 포인터가 나간 뒤 `null` 전달 |
+| `state` | `HeatmapState?` | `useHeatmapState`가 만든 상태; 연결하면 내부 drill-down·선택 사용 |
+| `displayPolicy`, `style`, `interaction`, `motion` | 설정 객체 | Compose와 같은 이름과 의미의 렌더링·상호작용 설정 |
 
-컴포넌트는 적응형 글자와 선택적 원형 이미지를 SVG로 그립니다. 채우기 색상 변경에는 240ms CSS 전환이 적용됩니다. 툴팁은 hover 또는 focus에서 표시되며 터치 상세 화면과 drill-down 상태는 앱이 관리합니다.
+## Compose와 맞춘 설정 객체
+
+Compose에서 `Dp`를 쓰는 값은 React에서 SVG 픽셀 숫자로 지정합니다. 객체의 이름과 기본값은 같습니다.
+
+| 객체 | 필드 |
+| --- | --- |
+| `HeatmapStyle` | `borderColor`, `groupHeaderColor`, `groupHeaderTextColor`, `selectedBorderColor`, `leafTextColor` |
+| `HeatmapDisplayPolicy` | `hideContentBelow`, `showMetricAbove`, `showLabelAbove`, `cellContentPadding`, `adaptiveContent`, `metricFormatter` |
+| `HeatmapInteraction` | `drillDownOnGroupClick`, `selectLeafOnClick`, `showTooltipOnLongClick`, `tooltipDurationMillis`, `showTooltipOnHover`, `tooltipHoverDelayMillis` |
+| `HeatmapMotion` | `enabled`, `durationMillis`, `initialScale`, `pressScale`, `pressedAlpha`, `pressDurationMillis` |
+
+기존 `metricFormatter`, `selectedBorderColor`, `tooltipHoverDelayMs` props도 사용할 수 있습니다. 같은 값이 설정 객체와 기존 prop에 모두 있으면 설정 객체가 우선합니다. hover 툴팁은 Compose처럼 기본적으로 꺼져 있습니다. React 전용 SVG 채우기 색상 전환은 240ms입니다.
+
+## `useHeatmapState(root)`
+
+이 훅을 `Heatmap`의 `state`에 전달하면 Compose처럼 현재 그룹, breadcrumb, 리프 선택 상태를 관리합니다.
+
+```tsx
+const state = useHeatmapState(market);
+
+<Heatmap data={market} state={state} width={960} height={600} />
+```
+
+`visibleNode`, `breadcrumbs`, `selectedNode`, `selectedId`, `canNavigateUp`과 함께 `drillDown`,
+`navigateUp`, `navigateTo`, `navigateToBreadcrumb`, `reset`, `select`, `isSelected`,
+`clearSelection`을 제공합니다. SVG의 필수 크기와 `className`은 React 방식대로 지정합니다.
 
 ## `HeatmapLayoutOptions`
 

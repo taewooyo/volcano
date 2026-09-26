@@ -1,6 +1,6 @@
 {
   "name": "@taewooyo/heatmap-react",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "license": "Apache-2.0",
   "description": "React SVG heatmaps powered by Volcano's shared Kotlin Multiplatform core",

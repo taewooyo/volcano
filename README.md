@@ -51,23 +51,23 @@ health, budgets, inventories, capacity, or any other hierarchy with measurable v
 
 The three Gradle artifacts use the same version. Most Compose applications need `volcano` and
 `volcano-compose`; add Coil only when remote logo loading is desired. The React npm package is
-versioned separately (initial release `0.1.0`) and does not require Gradle in consuming apps.
+versioned separately (`0.2.0`) and does not require Gradle in consuming apps.
 
 ## Compose installation
 
 Add core and Compose to `commonMain`. All target applications use the same dependencies.
 
-Use `2.0.1` for the three Kotlin/Compose artifacts. This release adds a 240 ms Compose cell-color transition when metrics change. Keep all three Gradle artifacts on the same version.
+Use `2.0.2` for the three Kotlin/Compose artifacts. This release adds group-wide hover and press feedback. Keep all three Gradle artifacts on the same version.
 
 ```kotlin
 kotlin {
   sourceSets {
     commonMain.dependencies {
-      implementation("io.github.taewooyo:volcano:2.0.1")
-      implementation("io.github.taewooyo:volcano-compose:2.0.1")
+      implementation("io.github.taewooyo:volcano:2.0.2")
+      implementation("io.github.taewooyo:volcano-compose:2.0.2")
 
       // Only if the app chooses Coil for remote imageUrl values.
-      implementation("io.github.taewooyo:volcano-compose-coil:2.0.1")
+      implementation("io.github.taewooyo:volcano-compose-coil:2.0.2")
     }
   }
 }
@@ -83,7 +83,7 @@ npm install @taewooyo/heatmap-react
 
 React 18.2–18.x and 19.x consumers import the TypeScript API directly. The npm package bundles the shared
 Kotlin/JS layout and color core, so consumers do not install Kotlin or Gradle. React renders SVG;
-it does not embed the Compose UI or expose `HeatmapState`.
+it does not embed the Compose UI. Version `0.2.0` adds Compose-aligned configuration and the `useHeatmapState` hook.
 
 ```tsx
 import { Heatmap, type HeatmapNode } from "@taewooyo/heatmap-react";
@@ -99,8 +99,8 @@ const market: HeatmapNode = {
 <Heatmap data={market} width={960} height={480} ariaLabel="Market performance" />;
 ```
 
-The host provides positive integer dimensions, a new immutable tree when values change, and any
-drill-down/navigation state. `value` determines area and `metric` determines signed color. See the
+The host provides positive integer dimensions and a new immutable tree when values change. Use
+`useHeatmapState` for drill-down/navigation state, or manage it in the host. `value` determines area and `metric` determines signed color. See the
 [React integration guide](https://taewooyo.github.io/volcano/en/docs/react) and
 [React API reference](https://taewooyo.github.io/volcano/en/docs/react-api) for callbacks, selection,
 colors, and accessibility.
@@ -111,7 +111,7 @@ If the project uses `libs.versions.toml`, define the version and libraries once:
 
 ```toml
 [versions]
-volcano = "2.0.1"
+volcano = "2.0.2"
 
 [libraries]
 volcano-core = { module = "io.github.taewooyo:volcano", version.ref = "volcano" }
@@ -233,7 +233,7 @@ The `benchmark` module exercises the shared layout engine with 5,000 leaves. Tre
 - **Android:** apply edge-to-edge and safe drawing padding in the host; connect `BackHandler` only while `state.canNavigateUp` is true.
 - **iOS:** host the shared `ComposeUIViewController` in UIKit or SwiftUI; set `CADisableMinimumFrameDurationOnPhone = YES` for high-refresh-rate devices.
 - **Desktop:** keep the window resizable; use adaptive content and optionally enable pointer hover tooltips.
-- **React web:** measure the container and pass `width`/`height`; own breadcrumbs, Back, and selection in React state. The SVG renderer transitions changed fill colors over 240 ms by default.
+- **React web:** measure the container and pass `width`/`height`; use `useHeatmapState` for breadcrumbs, Back, and selection, or manage them in app state. The SVG renderer transitions changed fill colors over 240 ms by default.
 
 ## Accessibility
 

@@ -6,9 +6,9 @@ object Configuration {
     const val minSdk = 23
     const val majorVersion = 2
     const val minorVersion = 0
-    const val patchVersion = 1
+    const val patchVersion = 2
     const val versionName = "$majorVersion.$minorVersion.$patchVersion"
-    const val versionCode = 4
+    const val versionCode = 5
     const val snapshotVersionName = "$majorVersion.$minorVersion.${patchVersion + 1}-SNAPSHOT"
     const val artifactGroup = "io.github.taewooyo"
 }

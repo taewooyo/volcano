@@ -5,6 +5,12 @@ versioning: breaking public API changes require a new major version.
 
 This file tracks the Kotlin/Compose artifacts. The separately versioned React npm package has its own [changelog](packages/volcano-react/CHANGELOG.md).
 
+## [2.0.2]
+
+### Changed
+
+- Group header hover and press feedback now shades the full group, including its child cells, on pointer platforms.
+
 ## [2.0.1]
 
 ### Added

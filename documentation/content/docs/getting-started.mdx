@@ -10,13 +10,13 @@ For a React web app, install `@taewooyo/heatmap-react` with npm and follow [Reac
 Add the core and Compose artifacts to `commonMain`. `volcano` owns the platform-neutral model and
 layout transforms; `volcano-compose` renders that model with Compose Multiplatform.
 
-<Callout type="info">Use Kotlin/Compose `2.0.1` for core, Compose, and optional Coil. This version adds a 240 ms cell-color transition when metrics change.</Callout>
+<Callout type="info">Use Kotlin/Compose `2.0.2` for core, Compose, and optional Coil. This version adds group-wide hover and press feedback on pointer platforms.</Callout>
 
 ```kotlin
 kotlin {
   sourceSets { commonMain.dependencies {
-    implementation("io.github.taewooyo:volcano:2.0.1")
-    implementation("io.github.taewooyo:volcano-compose:2.0.1")
+    implementation("io.github.taewooyo:volcano:2.0.2")
+    implementation("io.github.taewooyo:volcano-compose:2.0.2")
   } }
 }
 ```

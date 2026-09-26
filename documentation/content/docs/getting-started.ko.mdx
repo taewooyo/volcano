@@ -9,13 +9,13 @@ React 웹 앱에서는 npm으로 `@taewooyo/heatmap-react`를 설치하고 [Reac
 
 `commonMain`에 core와 Compose 아티팩트를 추가합니다. `volcano`는 플랫폼 독립 모델과 레이아웃 변환을, `volcano-compose`는 Compose Multiplatform 렌더링을 담당합니다.
 
-<Callout type="info">core, Compose, 선택적 Coil에는 Kotlin/Compose `2.0.1`을 사용하세요. 이 버전은 지표가 바뀔 때 240ms 셀 색상 전환을 추가합니다.</Callout>
+<Callout type="info">core, Compose, 선택적 Coil에는 Kotlin/Compose `2.0.2`를 사용하세요. 이 버전은 포인터 플랫폼에서 그룹 전체 hover·누름 강조를 추가합니다.</Callout>
 
 ```kotlin
 kotlin {
   sourceSets { commonMain.dependencies {
-    implementation("io.github.taewooyo:volcano:2.0.1")
-    implementation("io.github.taewooyo:volcano-compose:2.0.1")
+    implementation("io.github.taewooyo:volcano:2.0.2")
+    implementation("io.github.taewooyo:volcano-compose:2.0.2")
   } }
 }
 ```

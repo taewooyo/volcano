@@ -7,7 +7,8 @@ Import the public API from `@taewooyo/heatmap-react`:
 
 ```ts
 import { Heatmap, computeHeatmapLayout } from "@taewooyo/heatmap-react";
-import type { HeatmapProps, HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell } from "@taewooyo/heatmap-react";
+import { useHeatmapState } from "@taewooyo/heatmap-react";
+import type { HeatmapProps, HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell, HeatmapDisplayPolicy, HeatmapInteraction, HeatmapMotion, HeatmapStyle } from "@taewooyo/heatmap-react";
 ```
 
 ## `HeatmapNode`
@@ -41,9 +42,40 @@ The input must not contain cycles. `metric` changes color but not area. The core
 | `logoMaxSize` | `number?` | `48`; non-negative finite maximum SVG image size. |
 | `metricFormatter` | `(metric: number) => string` | Signed number; formats cell and tooltip text. |
 | `onLeafClick` | `(node, cell) => void` | Called when a leaf is clicked or activated with Enter/Space. |
+| `onLeafLongClick` | `(node, cell) => void` | Called after a 500 ms touch hold. |
 | `onGroupClick` | `(node, cell) => void` | Called when a group header is clicked or keyboard-activated. |
+| `onLeafHover` | `(node \| null) => void` | Receives the hovered leaf, or `null` after exit. |
+| `state` | `HeatmapState?` | State from `useHeatmapState`; enables built-in drill-down and selection. |
+| `displayPolicy`, `style`, `interaction`, `motion` | configuration objects | Compose-aligned rendering and interaction settings. |
 
-The component uses SVG with adaptive text and optional round images. Fill changes use a 240 ms CSS transition. The tooltip is shown on hover or focus; the application owns touch detail presentation and drill-down state.
+## Compose-aligned configuration
+
+React uses SVG pixels where Compose uses `Dp`. The configuration objects share Compose's setting names and corresponding defaults.
+
+| Object | Fields |
+| --- | --- |
+| `HeatmapStyle` | `borderColor`, `groupHeaderColor`, `groupHeaderTextColor`, `selectedBorderColor`, `leafTextColor` |
+| `HeatmapDisplayPolicy` | `hideContentBelow`, `showMetricAbove`, `showLabelAbove`, `cellContentPadding`, `adaptiveContent`, `metricFormatter` |
+| `HeatmapInteraction` | `drillDownOnGroupClick`, `selectLeafOnClick`, `showTooltipOnLongClick`, `tooltipDurationMillis`, `showTooltipOnHover`, `tooltipHoverDelayMillis` |
+| `HeatmapMotion` | `enabled`, `durationMillis`, `initialScale`, `pressScale`, `pressedAlpha`, `pressDurationMillis` |
+
+The older flat props (`metricFormatter`, `selectedBorderColor`, and `tooltipHoverDelayMs`) remain supported. Values in the configuration objects take precedence. Hover tooltips default to off, like Compose.
+
+## `useHeatmapState(root)`
+
+Use this hook when React should manage drill-down and leaf selection like Compose:
+
+```tsx
+const state = useHeatmapState(data);
+
+<Heatmap data={data} state={state} width={960} height={600} />
+```
+
+It exposes `visibleNode`, `breadcrumbs`, `selectedNode`, `selectedId`, `canNavigateUp`, and the same
+navigation/selection operations as Compose: `drillDown`, `navigateUp`, `navigateTo`,
+`navigateToBreadcrumb`, `reset`, `select`, `isSelected`, and `clearSelection`.
+
+The component uses SVG with adaptive text and optional round images. Fill changes use a 240 ms CSS transition. Hover tooltips are opt-in through `interaction.showTooltipOnHover`; the application owns touch detail presentation.
 
 ## `HeatmapLayoutOptions`
 

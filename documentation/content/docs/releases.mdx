@@ -10,11 +10,11 @@ composable were removed in favor of immutable `HeatmapNode`, `rememberHeatmapSta
 Keep a 1.x dependency or tag until every consumer can migrate; do not mix the two APIs in a single
 integration plan.
 
-Kotlin/Compose `2.0.1` adds a 240 ms cell-color transition for changing metrics. It also includes the Kotlin/JS core target used by the separately versioned React package. Use `2.0.1` consistently across `volcano`, `volcano-compose`, and `volcano-compose-coil`; see the [Kotlin changelog](https://github.com/taewooyo/volcano/blob/main/CHANGELOG.md) for the release history.
+Kotlin/Compose `2.0.2` adds group-wide hover and press feedback on pointer platforms. Use `2.0.2` consistently across `volcano`, `volcano-compose`, and `volcano-compose-coil`; see the [Kotlin changelog](https://github.com/taewooyo/volcano/blob/main/CHANGELOG.md) for the release history.
 
 Use the same Volcano version for `volcano`, `volcano-compose`, and `volcano-compose-coil`.
 
-The React npm package is a separate release line. `@taewooyo/heatmap-react@0.1.0` was its initial public version and uses the npm `latest` tag. Its version does not match the Kotlin artifact version. React consumers install and upgrade it through npm, and should review the [React changelog](https://github.com/taewooyo/volcano/blob/main/packages/volcano-react/CHANGELOG.md) and [TypeScript API reference](/docs/react-api).
+The React npm package is a separate release line. `@taewooyo/heatmap-react@0.2.0` adds Compose-aligned configuration objects and `useHeatmapState`; it uses the npm `latest` tag. Its version does not match the Kotlin artifact version. React consumers install and upgrade it through npm, and should review the [React changelog](https://github.com/taewooyo/volcano/blob/main/packages/volcano-react/CHANGELOG.md) and [TypeScript API reference](/docs/react-api).
 
 ## API compatibility
 
