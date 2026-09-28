@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 taewooyo
+ * Copyright (C) 2023 taewooyo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import com.taewooyo.volcano.heatmap.HeatmapNode
 import com.taewooyo.volcano.squarified.SquarifiedMeasurer
 import kotlin.system.measureNanoTime
 
-private const val warmupIterations = 20
-private const val measuredIterations = 50
-private const val viewportWidth = 1_080
-private const val viewportHeight = 1_920
+private const val WARMUP_ITERATIONS = 20
+private const val MEASURED_ITERATIONS = 50
+private const val VIEWPORT_WIDTH = 1_080
+private const val VIEWPORT_HEIGHT = 1_920
 
 /**
  * Repeatable JVM baseline for the platform-independent hierarchical layout engine.
@@ -32,16 +32,18 @@ private const val viewportHeight = 1_920
  */
 public fun main() {
   println("Volcano hierarchical layout benchmark")
-  println("viewport=${viewportWidth}x$viewportHeight, warmup=$warmupIterations, samples=$measuredIterations")
+  println(
+    "viewport=${VIEWPORT_WIDTH}x$VIEWPORT_HEIGHT, warmup=$WARMUP_ITERATIONS, samples=$MEASURED_ITERATIONS",
+  )
   println("| leaves | median ms | p95 ms | layouts / run |")
   println("| ---: | ---: | ---: | ---: |")
 
   listOf(100, 500, 1_000, 5_000).forEach { leafCount ->
     val root = createTree(leafCount)
-    repeat(warmupIterations) { layoutTree(root, viewportWidth, viewportHeight) }
-    val samples = List(measuredIterations) {
+    repeat(WARMUP_ITERATIONS) { layoutTree(root, VIEWPORT_WIDTH, VIEWPORT_HEIGHT) }
+    val samples = List(MEASURED_ITERATIONS) {
       var layouts = 0
-      val elapsed = measureNanoTime { layouts = layoutTree(root, viewportWidth, viewportHeight) }
+      val elapsed = measureNanoTime { layouts = layoutTree(root, VIEWPORT_WIDTH, VIEWPORT_HEIGHT) }
       elapsed to layouts
     }
     val sortedNanos = samples.map { it.first }.sorted()
@@ -79,7 +81,8 @@ private fun createTree(leafCount: Int): HeatmapNode {
   )
 }
 
-private fun deterministicWeight(index: Int): Double = ((index * 1_103L + 97L) % 10_000L + 1L).toDouble()
+private fun deterministicWeight(index: Int): Double =
+  ((index * 1_103L + 97L) % 10_000L + 1L).toDouble()
 
 private fun deterministicMetric(index: Int): Double = ((index * 313L) % 2_001L - 1_000L) / 100.0
 

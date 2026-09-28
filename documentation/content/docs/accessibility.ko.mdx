@@ -3,6 +3,19 @@ title: 접근성
 description: 작은 사각형에서도 의미를 잃지 않는 히트맵을 만듭니다.
 ---
 
-히트맵은 면적과 색상만으로 정보를 전달하기 쉽지만, 이는 접근성에 충분하지 않습니다. 큰 셀에는 레이블과 수치 지표를 함께 보여 주고, 작은 셀은 읽을 수 없는 텍스트를 억지로 그리지 않습니다. 선택·상세 화면에서 전체 라벨과 값을 다시 제공하세요.
+히트맵은 면적과 색상만으로 정보를 전달하기 쉽지만, 이는 접근성에 충분하지 않습니다. 기본 셀은 레이블, 원본 값, 수치 지표와 선택 상태를 보조 기술에 전달합니다. 작은 셀은 읽을 수 없는 텍스트를 억지로 그리지 않습니다. 선택·상세 화면에서 전체 라벨과 값을 다시 제공하세요.
 
 상태 설명에는 색상 이외의 텍스트(예: `+2.30%`, `오류 증가`)를 포함하고, 배경과 글자의 대비를 확인하세요. 터치 대상이 작은 리프에서는 부모 확대와 상세 콜백을 함께 제공하는 것이 키보드·보조 기술·손가락 입력 모두에 적합합니다.
+
+## 문자열 현지화와 동작 설정
+
+Compose에서는 `CompositionLocalProvider(LocalHeatmapLabels provides HeatmapLabels(...))`로
+`noData`, `selected`, `notSelected`, `currentGroup`, `openGroup`, `navigate`, `showDetails`,
+`metric`, `enabled`, `disabled`, `back`, `value`를 번역할 수 있습니다. Back 버튼은 기본 번역을
+사용하고 `label` 인자로 덮어쓸 수 있습니다. `LocalHeatmapValueFormatter`로 기본 셀 설명과 상세
+팝업의 값 표기를 지정합니다.
+`HeatmapMotion(enabled = false)`는 기본 셀의 색상·눌림 전환도 끕니다.
+
+React는 한 번의 Tab으로 차트에 진입합니다. 방향키는 데이터 순서로 이동하고 Home/End는
+첫 항목/마지막 항목으로 이동합니다. Enter/Space로 활성화하며 포커스 표시를 제공합니다.
+공간상의 가장 가까운 셀을 계산하는 이동 방식은 아닙니다. `emptyContent`로 빈 상태를 번역하세요.

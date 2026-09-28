@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 taewooyo
+ * Copyright (C) 2023 taewooyo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ public data class HeatmapStyle(
   val borderColor: Color = Color.White,
   val groupHeaderColor: Color = Color.White,
   val groupHeaderTextColor: Color = Color(0xFF252525),
-  /** Optional persistent selection border. The default relies on transient press feedback instead. */
-  val selectedBorderColor: Color = Color.Transparent,
+  /** Persistent selection border. Use Color.Transparent to opt out. */
+  val selectedBorderColor: Color = Color(0xFF0F172A),
   val leafTextColor: Color = Color.White,
 )
 

@@ -9,7 +9,7 @@ description: Install the npm package and render a Volcano heatmap in a React web
 npm install @taewooyo/heatmap-react
 ```
 
-The npm package includes Volcano's Kotlin/JS layout and color core. Its peer range accepts React 18.2–18.x and 19.x (including 19.3), while the repository's current development dependency is React 19.2.4; consumers do not need a Kotlin or Gradle toolchain. A future React major is not automatically declared compatible—it must be tested before widening the peer range. React renders SVG; it does not embed Compose UI. The npm package has its own version line (`0.2.0`), separate from the Kotlin artifacts.
+The npm package includes Volcano's Kotlin/JS layout and color core. Version `0.3.0` adds responsive sizing, refresh-safe state, keyboard navigation, and accessible value details. Its peer range accepts React 18.2–18.x and 19.x (including 19.3), while the repository's current development dependency is React 19.2.4; consumers do not need a Kotlin or Gradle toolchain. A future React major is not automatically declared compatible—it must be tested before widening the peer range. React renders SVG; it does not embed Compose UI. The npm package has its own version line, separate from the Kotlin artifacts.
 
 ## Render a heatmap
 
@@ -40,17 +40,17 @@ export function MarketHeatmap() {
 }
 ```
 
-`width` and `height` are required positive integer SVG dimensions. For responsive layouts, measure the container in the application and pass updated dimensions. `value` controls area; optional `metric` controls the default signed color scale. A group can have `value: 0` when its children supply positive weights. Node IDs must be non-blank and unique among siblings.
+`width` and `height` are required positive integer SVG dimensions for `Heatmap`. For responsive layouts, use `ResponsiveHeatmap` inside a bounded-height container; it observes its size and supports an optional SSR fallback. `value` controls area; optional `metric` controls the default signed color scale. A group can have `value: 0` when its children supply positive weights. Node IDs must be non-blank and unique among siblings.
 
 ## Updates, selection, and navigation
 
 Pass a new immutable `data` tree when feed values change. Mutating an existing tree in place will not invalidate layout memoization. A changed fill color transitions over 240 ms by default; this is a visual transition, not a data-rate limiter. For a fast feed, decide in the application whether to batch incoming updates and profile the chosen dataset and browser.
 
-Use `useHeatmapState(root)` and pass its result through the `state` prop to manage drill-down, breadcrumbs, and leaf selection like Compose. The state exposes `visibleNode`, `breadcrumbs`, `navigateUp()`, and `navigateToBreadcrumb(index)`. The controlled `onGroupClick` and external-data approach also remains available. `selectedId` and `selectedKey` can control selection highlighting; `selectedKey` distinguishes repeated IDs in different branches.
+Use `useHeatmapState(root)` and pass its result through the `state` prop to manage drill-down, breadcrumbs, and leaf selection like Compose. The state exposes `visibleNode`, `breadcrumbs`, `navigationPath`, `navigateToPath(path)`, and `navigateToBreadcrumb(index)`. Valid paths and selections survive immutable refreshes with the same root ID. The controlled `onGroupClick` and external-data approach also remains available. `selectedId` and `selectedKey` can control selection highlighting; `selectedKey` distinguishes repeated IDs in different branches.
 
 ## Rendering and accessibility
 
-The SVG renderer adapts text and optional circular `imageUrl` logos to cell size. Image loading and caching belong to the browser or host application, not the Kotlin core. The `style`, `displayPolicy`, `interaction`, and `motion` objects use Compose's setting names and defaults, with SVG pixel numbers in place of `Dp`. Hover tooltips are off by default; enable one with `interaction={{ showTooltipOnHover: true }}`. Clickable cells and group headers support Enter and Space. Set `ariaLabel` to describe the chart, and do not rely on color alone to convey meaning.
+The SVG renderer adapts text and optional circular `imageUrl` logos to cell size. Image loading and caching belong to the browser or host application, not the Kotlin core. The `style`, `displayPolicy`, `interaction`, and `motion` objects use Compose's setting names and defaults, with SVG pixel numbers in place of `Dp`. Hover tooltips are off by default; enable one with `interaction={{ showTooltipOnHover: true }}`. Interactive charts use one Tab stop, arrow keys move in data order, and Home/End move to the first/last item. Cells include their source value in accessible names by default; use `valueFormatter` and `valueLabel` to customize it. Set `ariaLabel` to describe the chart, and do not rely on color alone to convey meaning.
 
 Use `palette`, `maximumAbsoluteMetric`, and the optional node `color` for color rules. `metricFormatter` affects displayed text, not layout or color. See the [React API Reference](/docs/react-api) for types, defaults, and validation rules.
 

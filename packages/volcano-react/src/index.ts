@@ -5,3 +5,5 @@ export type { HeatmapProps } from "./Heatmap";
 export type { HeatmapDisplayPolicy, HeatmapInteraction, HeatmapMotion, HeatmapStyle } from "./configuration";
 export type { HeatmapState } from "./HeatmapState";
 export type { HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell } from "./types";
+export { ResponsiveHeatmap } from "./ResponsiveHeatmap";
+export type { ResponsiveHeatmapProps } from "./ResponsiveHeatmap";

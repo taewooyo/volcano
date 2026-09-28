@@ -1,35 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Heatmap, useHeatmapState } from "@taewooyo/heatmap-react";
+import { useEffect, useMemo, useState } from "react";
+import { ResponsiveHeatmap, useHeatmapState } from "@taewooyo/heatmap-react";
 import { expandForHeatmapStressTest, marketMap, toOverview, withDemoMetrics } from "./data";
 import type { DemoDataMode } from "./data";
 import "./styles.css";
 
 const palette = { negative: "#e53935", neutral: "#9ca3af", positive: "#16a34a" } as const;
 
-function useHeatmapSize() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const observer = new ResizeObserver(([entry]) => {
-      const width = Math.max(0, Math.floor(entry.contentRect.width));
-      const height = Math.max(0, Math.floor(entry.contentRect.height));
-      setSize((current) => current.width === width && current.height === height
-        ? current
-        : { width, height });
-    });
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, []);
-  return { containerRef, size };
-}
+const valueFormat = new Intl.NumberFormat("en", { notation: "compact" });
+const formatValue = (value: number) => valueFormat.format(value);
 
 export function App() {
   const [fastFeed, setFastFeed] = useState(false);
   const [dataMode, setDataMode] = useState<DemoDataMode>("normal");
   const [tick, setTick] = useState(0);
-  const { containerRef, size } = useHeatmapSize();
 
   const changingMarket = useMemo(() => withDemoMetrics(marketMap, tick), [tick]);
   const displayRoot = useMemo(() => {
@@ -42,10 +25,9 @@ export function App() {
   const breadcrumbs = heatmapState.breadcrumbs;
 
   useEffect(() => {
-    if (heatmapState.canNavigateUp) return;
     const timer = window.setInterval(() => setTick((current) => current + 1), fastFeed ? 100 : 2_500);
     return () => window.clearInterval(timer);
-  }, [fastFeed, heatmapState.canNavigateUp]);
+  }, [fastFeed]);
 
   const nextModeLabel = dataMode === "normal" ? "5K view" : dataMode === "overview5k" ? "5K raw" : "Normal";
   function cycleDataMode() {
@@ -84,22 +66,28 @@ export function App() {
         ))}
       </nav>
 
-      <div className="heatmap-frame" ref={containerRef}>
-        {size.width > 0 && size.height > 0 && (
-          <Heatmap
-            data={displayRoot}
-            state={heatmapState}
-            width={size.width}
-            height={size.height}
-            groupHeaderHeight={20}
-            maximumAbsoluteMetric={10}
-            palette={palette}
-            displayPolicy={{ metricFormatter: (metric) => `${metric > 0 ? "+" : ""}${metric.toFixed(2)}%` }}
-            interaction={{ showTooltipOnHover: true, tooltipHoverDelayMillis: 400 }}
-            logoMaxSize={48}
-          />
-        )}
+      <div className="heatmap-frame">
+        <ResponsiveHeatmap
+          data={displayRoot}
+          state={heatmapState}
+          groupHeaderHeight={20}
+          maximumAbsoluteMetric={10}
+          palette={palette}
+          displayPolicy={{ metricFormatter: (metric) => `${metric > 0 ? "+" : ""}${metric.toFixed(2)}%` }}
+          interaction={{ showTooltipOnHover: true, tooltipHoverDelayMillis: 400 }}
+          valueFormatter={formatValue}
+          emptyContent="No matching items"
+          logoMaxSize={48}
+        />
       </div>
+      {heatmapState.selectedNode && (
+        <aside className="toolbar" aria-label="Selected item">
+          <strong>{heatmapState.selectedNode.label}</strong>
+          <span>Value: {heatmapState.selectedNode.value.toLocaleString()}</span>
+          <span>Change: {heatmapState.selectedNode.metric?.toFixed(2) ?? "—"}%</span>
+          <button onClick={heatmapState.clearSelection}>Clear selection</button>
+        </aside>
+      )}
     </main>
   );
 }

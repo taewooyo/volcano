@@ -5,6 +5,19 @@ versioning: breaking public API changes require a new major version.
 
 This file tracks the Kotlin/Compose artifacts. The separately versioned React npm package has its own [changelog](packages/volcano-react/CHANGELOG.md).
 
+## [2.0.3]
+
+- Preserve navigation and selection across immutable updates with the same root ID; reset for a different root ID.
+- Add exact-node drill-down and root-relative `navigateToPath` for nested groups with repeated IDs.
+- Remove quadratic membership scans during aggregation and precompute immutable node weights/metrics.
+- Add `toDisplayTreeWithSources` for opening original items represented by Others. Synthetic IDs are now order-independent; do not persist or parse their old format. `maximumChildren` excludes Others.
+- Show a persistent selection border by default; opt out with `Color.Transparent`.
+- Add localized empty/accessible labels through `LocalHeatmapLabels`, stable Compose child keys, and make `motion.enabled = false` disable default cell color/press motion too.
+- Snapshot node children and navigation path lists before caching derived values; reject selections for leaves outside the current tree.
+- Include source values in Compose accessibility descriptions and detail popups, with customizable value formatting and localized Back/value labels.
+- Resolve visible `Others` source paths through a prefix index and add a many-group preparation benchmark.
+- Keep tooltip content tied to the current data path while live values update.
+
 ## [2.0.2]
 
 ### Changed

@@ -9,7 +9,7 @@ description: Kotlin/Compose API와 별도의 React TypeScript API 문서를 안�
 
 ## 주요 진입점
 
-- `HeatmapNode`: ID, 라벨, 면적 값, 지표, 선택 이미지 URL, 자식 노드를 담는 불변 모델
+- `HeatmapNode`: ID, 라벨, 면적 값, 지표, 선택 이미지 URL, 자식 노드를 담는 불변 모델. 생성 시 자식 목록을 복사하며 변경 시 `copy(children = ...)`를 사용합니다.
 - `rememberHeatmapState`: 현재 그룹 경로와 탐색 상태를 보유
 - `Heatmap`: 제약된 Compose 영역에 계층형 사각형을 렌더링
 - `HeatmapInteraction`: 탭, long press, hover, tooltip 같은 입력 정책

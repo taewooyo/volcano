@@ -23,6 +23,19 @@ public final class com/taewooyo/volcano/heatmap/HeatmapColorScaleKt {
 	public static final fun legendEntries (Lcom/taewooyo/volcano/heatmap/SignedMetricColorScale;)Ljava/util/List;
 }
 
+public final class com/taewooyo/volcano/heatmap/HeatmapDisplayTree {
+	public fun <init> (Lcom/taewooyo/volcano/heatmap/HeatmapNode;Ljava/util/Map;)V
+	public final fun component1 ()Lcom/taewooyo/volcano/heatmap/HeatmapNode;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun copy (Lcom/taewooyo/volcano/heatmap/HeatmapNode;Ljava/util/Map;)Lcom/taewooyo/volcano/heatmap/HeatmapDisplayTree;
+	public static synthetic fun copy$default (Lcom/taewooyo/volcano/heatmap/HeatmapDisplayTree;Lcom/taewooyo/volcano/heatmap/HeatmapNode;Ljava/util/Map;ILjava/lang/Object;)Lcom/taewooyo/volcano/heatmap/HeatmapDisplayTree;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAggregatedSources ()Ljava/util/Map;
+	public final fun getRoot ()Lcom/taewooyo/volcano/heatmap/HeatmapNode;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class com/taewooyo/volcano/heatmap/HeatmapLegendEntry {
 	public fun <init> (Ljava/lang/String;J)V
 	public final fun component1 ()Ljava/lang/String;
@@ -95,6 +108,8 @@ public final class com/taewooyo/volcano/heatmap/HeatmapTransformKt {
 	public static final fun sorted (Lcom/taewooyo/volcano/heatmap/HeatmapNode;Lcom/taewooyo/volcano/heatmap/HeatmapSort;)Lcom/taewooyo/volcano/heatmap/HeatmapNode;
 	public static final fun toDisplayTree (Lcom/taewooyo/volcano/heatmap/HeatmapNode;Lcom/taewooyo/volcano/heatmap/HeatmapSort;Lcom/taewooyo/volcano/heatmap/HeatmapAggregation;)Lcom/taewooyo/volcano/heatmap/HeatmapNode;
 	public static synthetic fun toDisplayTree$default (Lcom/taewooyo/volcano/heatmap/HeatmapNode;Lcom/taewooyo/volcano/heatmap/HeatmapSort;Lcom/taewooyo/volcano/heatmap/HeatmapAggregation;ILjava/lang/Object;)Lcom/taewooyo/volcano/heatmap/HeatmapNode;
+	public static final fun toDisplayTreeWithSources (Lcom/taewooyo/volcano/heatmap/HeatmapNode;Lcom/taewooyo/volcano/heatmap/HeatmapSort;Lcom/taewooyo/volcano/heatmap/HeatmapAggregation;)Lcom/taewooyo/volcano/heatmap/HeatmapDisplayTree;
+	public static synthetic fun toDisplayTreeWithSources$default (Lcom/taewooyo/volcano/heatmap/HeatmapNode;Lcom/taewooyo/volcano/heatmap/HeatmapSort;Lcom/taewooyo/volcano/heatmap/HeatmapAggregation;ILjava/lang/Object;)Lcom/taewooyo/volcano/heatmap/HeatmapDisplayTree;
 }
 
 public final class com/taewooyo/volcano/heatmap/SignedMetricColorScale : com/taewooyo/volcano/heatmap/HeatmapColorScale {

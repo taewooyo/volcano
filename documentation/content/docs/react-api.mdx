@@ -37,10 +37,12 @@ The input must not contain cycles. `metric` changes color but not area. The core
 | `cellGap` | `number?` | `1`; non-negative finite inset in SVG units. |
 | `selectedId` | `string \| null` | `null`; selects matching leaf IDs. |
 | `selectedKey` | `string \| null` | `null`; path-derived leaf key, takes precedence over `selectedId`. |
-| `selectedBorderColor` | `string?` | `"transparent"`; selected-leaf outline color. |
+| `selectedBorderColor` | `string?` | `"#0f172a"`; selected-leaf outline color. |
 | `tooltipHoverDelayMs` | `number?` | `400`; non-negative integer dwell time in milliseconds. |
 | `logoMaxSize` | `number?` | `48`; non-negative finite maximum SVG image size. |
 | `metricFormatter` | `(metric: number) => string` | Signed number; formats cell and tooltip text. |
+| `valueFormatter` | `(value: number) => string` | `String(value)` by default; adds the source value to cell descriptions and tooltips. |
+| `valueLabel` | `string` | `"Value"`; accessible label paired with the formatted source value. |
 | `onLeafClick` | `(node, cell) => void` | Called when a leaf is clicked or activated with Enter/Space. |
 | `onLeafLongClick` | `(node, cell) => void` | Called after a 500 ms touch hold. |
 | `onGroupClick` | `(node, cell) => void` | Called when a group header is clicked or keyboard-activated. |
@@ -101,3 +103,16 @@ It returns `readonly HeatmapLayoutCell[]` in tree traversal order. Each cell has
 Invalid dimensions, metric values, colors, cycles, or duplicate sibling IDs throw an error. The component uses this function internally; consumers normally only need `Heatmap`.
 
 For Kotlin/Compose APIs, use the separate [Kotlin API Reference](/docs/api) and generated [Dokka reference](/api-reference/index.html).
+
+## Version 0.3.0 additions
+
+- `ResponsiveHeatmap` accepts `containerStyle` and `containerClassName` instead of explicit
+  width/height. Supply a bounded height. `fallback` is rendered before measurement or while hidden.
+- `emptyContent` is shown when no positive visual items exist; the default is `No data`.
+- The source value is included in accessible names by default. `valueFormatter` changes its text,
+  and `valueLabel` localizes the accessible label.
+- `state.navigationPath` and `state.navigateToPath(path)` use root-relative ID arrays.
+- `state.drillDown(node)` opens an exact nested group from the current data. Strings address direct children.
+
+Updates with the same root ID retain valid paths and selection. A different root ID resets both.
+`motion.enabled = false` also disables fill-color transitions.

@@ -51,23 +51,23 @@ health, budgets, inventories, capacity, or any other hierarchy with measurable v
 
 The three Gradle artifacts use the same version. Most Compose applications need `volcano` and
 `volcano-compose`; add Coil only when remote logo loading is desired. The React npm package is
-versioned separately (`0.2.0`) and does not require Gradle in consuming apps.
+versioned separately (`0.3.0`) and does not require Gradle in consuming apps.
 
 ## Compose installation
 
 Add core and Compose to `commonMain`. All target applications use the same dependencies.
 
-Use `2.0.2` for the three Kotlin/Compose artifacts. This release adds group-wide hover and press feedback. Keep all three Gradle artifacts on the same version.
+Use `2.0.3` for the three Kotlin/Compose artifacts. This release adds refresh-safe navigation, source lookup for aggregated items, and accessibility improvements. Keep all three Gradle artifacts on the same version.
 
 ```kotlin
 kotlin {
   sourceSets {
     commonMain.dependencies {
-      implementation("io.github.taewooyo:volcano:2.0.2")
-      implementation("io.github.taewooyo:volcano-compose:2.0.2")
+      implementation("io.github.taewooyo:volcano:2.0.3")
+      implementation("io.github.taewooyo:volcano-compose:2.0.3")
 
       // Only if the app chooses Coil for remote imageUrl values.
-      implementation("io.github.taewooyo:volcano-compose-coil:2.0.2")
+      implementation("io.github.taewooyo:volcano-compose-coil:2.0.3")
     }
   }
 }
@@ -83,7 +83,7 @@ npm install @taewooyo/heatmap-react
 
 React 18.2–18.x and 19.x consumers import the TypeScript API directly. The npm package bundles the shared
 Kotlin/JS layout and color core, so consumers do not install Kotlin or Gradle. React renders SVG;
-it does not embed the Compose UI. Version `0.2.0` adds Compose-aligned configuration and the `useHeatmapState` hook.
+it does not embed the Compose UI. Version `0.3.0` adds responsive sizing, refresh-safe state, keyboard navigation, and accessible value details.
 
 ```tsx
 import { Heatmap, type HeatmapNode } from "@taewooyo/heatmap-react";
@@ -111,7 +111,7 @@ If the project uses `libs.versions.toml`, define the version and libraries once:
 
 ```toml
 [versions]
-volcano = "2.0.2"
+volcano = "2.0.3"
 
 [libraries]
 volcano-core = { module = "io.github.taewooyo:volcano", version.ref = "volcano" }

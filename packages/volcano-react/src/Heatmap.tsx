@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import type { HeatmapDisplayPolicy, HeatmapInteraction, HeatmapMotion, HeatmapStyle } from "./configuration";
 import { computeHeatmapLayout } from "./core-adapter";
 import type { HeatmapState } from "./HeatmapState";
@@ -14,6 +14,8 @@ export interface HeatmapProps extends HeatmapLayoutOptions {
   readonly motion?: HeatmapMotion;
   readonly className?: string;
   readonly ariaLabel?: string;
+  /** Content shown when no positive visual values are available. */
+  readonly emptyContent?: ReactNode;
   /** Visible inset between adjacent cells, in SVG units. Defaults to 1. */
   readonly cellGap?: number;
   /** Node ID with a persistent selection outline. */
@@ -24,6 +26,10 @@ export interface HeatmapProps extends HeatmapLayoutOptions {
   readonly tooltipHoverDelayMs?: number;
   readonly logoMaxSize?: number;
   readonly metricFormatter?: (metric: number) => string;
+  /** Optional area-value formatter, included in cell descriptions and tooltips. */
+  readonly valueFormatter?: (value: number) => string;
+  /** Accessible label paired with the formatted area value. */
+  readonly valueLabel?: string;
   readonly onLeafClick?: (node: HeatmapNode, cell: HeatmapLayoutCell) => void;
   readonly onLeafLongClick?: (node: HeatmapNode, cell: HeatmapLayoutCell) => void;
   readonly onGroupClick?: (node: HeatmapNode, cell: HeatmapLayoutCell) => void;
@@ -54,13 +60,16 @@ export function Heatmap({
   palette,
   className,
   ariaLabel = "Heatmap",
+  emptyContent = "No data",
   cellGap = 1,
   selectedId = null,
   selectedKey = null,
-  selectedBorderColor = "transparent",
+  selectedBorderColor = "#0f172a",
   tooltipHoverDelayMs = 400,
   logoMaxSize = 48,
   metricFormatter = defaultMetricFormatter,
+  valueFormatter,
+  valueLabel = "Value",
   onLeafClick,
   onLeafLongClick,
   onGroupClick,
@@ -75,6 +84,9 @@ export function Heatmap({
   if (!Number.isFinite(logoMaxSize) || logoMaxSize < 0) {
     throw new Error("logoMaxSize must be a non-negative finite number.");
   }
+  const svgRef = useRef<SVGSVGElement>(null);
+  const focusWithin = useRef(false);
+  const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [tooltipKey, setTooltipKey] = useState<string | null>(null);
   const [hoveredGroupKey, setHoveredGroupKey] = useState<string | null>(null);
   const [pressedGroupKey, setPressedGroupKey] = useState<string | null>(null);
@@ -146,6 +158,7 @@ export function Heatmap({
     if (longPressTimer.current !== null) clearTimeout(longPressTimer.current);
     if (tooltipDurationTimer.current !== null) clearTimeout(tooltipDurationTimer.current);
   }, []);
+  const navigationKey = JSON.stringify(state?.navigationPath ?? []);
   useEffect(() => {
     if (!resolvedMotion.enabled) {
       setLevelEntered(true);
@@ -154,22 +167,67 @@ export function Heatmap({
     setLevelEntered(false);
     const frame = requestAnimationFrame(() => setLevelEntered(true));
     return () => cancelAnimationFrame(frame);
-  }, [state?.visibleNode.id, resolvedMotion.enabled, resolvedMotion.durationMillis]);
+  }, [navigationKey, resolvedMotion.enabled, resolvedMotion.durationMillis]);
+  const stablePalette = useMemo(() => palette ? { ...palette } : undefined, [palette?.negative, palette?.neutral, palette?.positive]);
+  const visibleData = state?.visibleNode ?? data;
   const cells = useMemo(
-    () => computeHeatmapLayout(state?.visibleNode ?? data, { width, height, groupHeaderHeight, maximumAbsoluteMetric, palette }),
-    [data, state?.visibleNode, width, height, groupHeaderHeight, maximumAbsoluteMetric, palette],
+    () => computeHeatmapLayout(visibleData, { width, height, groupHeaderHeight, maximumAbsoluteMetric, palette: stablePalette }),
+    [visibleData, width, height, groupHeaderHeight, maximumAbsoluteMetric, stablePalette],
   );
+  const currentCells = useRef(cells);
+  const currentLongClick = useRef(onLeafLongClick);
+  useEffect(() => { currentCells.current = cells; currentLongClick.current = onLeafLongClick; }, [cells, onLeafLongClick]);
   const tooltipCell = tooltipKey ? cells.find((cell) => cell.key === tooltipKey && cell.isLeaf && cell.visible) : undefined;
+
+  const interactiveCells = cells.filter((cell, index) => cell.visible && !(index === 0 && !cell.isLeaf) &&
+    (cell.isLeaf ? Boolean(onLeafClick || onLeafLongClick || state) : groupHeaderHeight > 0 && Boolean(onGroupClick || state)));
+  const activeKey = interactiveCells.some((cell) => cell.key === focusedKey) ? focusedKey : interactiveCells[0]?.key;
+  useEffect(() => {
+    setTooltipKey(null);
+    setHoveredGroupKey(null);
+    setPressedGroupKey(null);
+    setPressedLeafKey(null);
+    clearTooltipTimer();
+    if (longPressTimer.current !== null) clearTimeout(longPressTimer.current);
+    if (tooltipDurationTimer.current !== null) clearTimeout(tooltipDurationTimer.current);
+    longPressTriggered.current = false;
+  }, [visibleData.id, navigationKey]);
+  useEffect(() => {
+    if (focusWithin.current) {
+      svgRef.current?.querySelector<SVGGElement>('[data-heatmap-key][tabindex="0"]')?.focus();
+    }
+  }, [activeKey, navigationKey, visibleData.id]);
+  const handleChartKeyDown = (event: KeyboardEvent<SVGSVGElement>) => {
+    if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    const targets = Array.from(svgRef.current?.querySelectorAll<SVGGElement>("[data-heatmap-key]") ?? []);
+    if (!targets.length) return;
+    const current = targets.indexOf(event.target as SVGGElement);
+    const next = event.key === "Home" ? 0 : event.key === "End" ? targets.length - 1 :
+      Math.max(0, Math.min(targets.length - 1, current + (["ArrowLeft", "ArrowUp"].includes(event.key) ? -1 : 1)));
+    event.preventDefault();
+    targets[next].focus();
+  };
 
   return (
     <svg
+      ref={svgRef}
+      onKeyDown={handleChartKeyDown}
+      onFocusCapture={(event) => {
+        focusWithin.current = true;
+        const key = (event.target as Element).getAttribute("data-heatmap-key");
+        if (key) setFocusedKey(key);
+      }}
+      onBlurCapture={(event) => {
+        if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) focusWithin.current = false;
+      }}
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      className={className}
+      className={["volcano-heatmap", className].filter(Boolean).join(" ")}
       role="group"
       aria-label={ariaLabel}
     >
+      <style>{`.volcano-heatmap [data-heatmap-key]:focus-visible > rect:first-of-type { stroke: #ffffff; stroke-width: 3; filter: drop-shadow(0 0 1px #000000); }`}</style>
       <g
         style={resolvedMotion.enabled ? {
           opacity: levelEntered ? 1 : 0,
@@ -188,13 +246,14 @@ export function Heatmap({
           const groupInteractive = onGroupClick !== undefined || state !== undefined;
           const activate = () => {
             onGroupClick?.(cell.node, cell);
-            if (resolvedInteraction.drillDownOnGroupClick) state?.drillDown(cell.node.id);
+            if (resolvedInteraction.drillDownOnGroupClick) state?.drillDown(cell.node);
           };
           return (
             <g
               key={cell.key}
               role={groupInteractive ? "button" : undefined}
-              tabIndex={groupInteractive ? 0 : undefined}
+              data-heatmap-key={groupInteractive ? cell.key : undefined}
+              tabIndex={groupInteractive ? (cell.key === activeKey ? 0 : -1) : undefined}
               onClick={groupInteractive ? activate : undefined}
               onKeyDown={groupInteractive ? (event) => onKeyboardActivate(event, activate) : undefined}
               onMouseEnter={groupInteractive ? () => setHoveredGroupKey(cell.key) : undefined}
@@ -208,9 +267,16 @@ export function Heatmap({
             >
               <rect x={cell.x} y={cell.y} width={cell.width} height={headerHeight} fill={resolvedStyle.groupHeaderColor} />
               {cell.width >= 40 && (
-                <text x={cell.x + 4} y={cell.y + headerHeight / 2} fill={resolvedStyle.groupHeaderTextColor} fontSize={12} dominantBaseline="middle">
-                  {cell.node.label}
-                </text>
+                <>
+                  <defs>
+                    <clipPath id={`${logoClipPrefix}-group-${index}`} clipPathUnits="userSpaceOnUse">
+                      <rect x={cell.x + 4} y={cell.y} width={Math.max(0, cell.width - 8)} height={headerHeight} />
+                    </clipPath>
+                  </defs>
+                  <text clipPath={`url(#${logoClipPrefix}-group-${index})`} x={cell.x + 4} y={cell.y + headerHeight / 2} fill={resolvedStyle.groupHeaderTextColor} fontSize={12} dominantBaseline="middle">
+                    {cell.node.label}
+                  </text>
+                </>
               )}
               <title>{cell.node.label}</title>
             </g>
@@ -250,7 +316,8 @@ export function Heatmap({
         const logoHeight = showLogo ? logoSize + 4 : 0;
         const contentHeight = labelHeight + metricHeight + logoHeight;
         const contentTop = cell.y + inset + (drawHeight - contentHeight) / 2;
-        const tooltipText = metricText === null ? cell.node.label : `${cell.node.label}  ${metricText}`;
+        const formattedValue = valueFormatter?.(cell.node.value) ?? String(cell.node.value);
+        const tooltipText = [cell.node.label, `${valueLabel}: ${formattedValue}`, metricText].filter((part) => part != null).join("  ");
         const beginTooltip = () => {
           clearTooltipTimer();
           onLeafHover?.(cell.node);
@@ -268,7 +335,8 @@ export function Heatmap({
           <g
             key={cell.key}
             role={leafInteractive ? "button" : undefined}
-            tabIndex={leafInteractive ? 0 : undefined}
+            data-heatmap-key={leafInteractive ? cell.key : undefined}
+            tabIndex={leafInteractive ? (cell.key === activeKey ? 0 : -1) : undefined}
             onClick={leafInteractive ? () => {
               if (longPressTriggered.current) {
                 longPressTriggered.current = false;
@@ -287,8 +355,10 @@ export function Heatmap({
             onTouchStart={leafInteractive && (resolvedInteraction.showTooltipOnLongClick || onLeafLongClick !== undefined) ? () => {
               longPressTriggered.current = false;
               longPressTimer.current = setTimeout(() => {
+                const latestCell = currentCells.current.find((candidate) => candidate.key === cell.key && candidate.visible);
+                if (!latestCell) return;
                 longPressTriggered.current = true;
-                onLeafLongClick?.(cell.node, cell);
+                currentLongClick.current?.(latestCell.node, latestCell);
                 if (resolvedInteraction.showTooltipOnLongClick) {
                   setTooltipKey(cell.key);
                   if (resolvedInteraction.tooltipDurationMillis > 0) {
@@ -297,6 +367,10 @@ export function Heatmap({
                 }
               }, 500);
             } : undefined}
+            onTouchMove={() => {
+              if (longPressTimer.current !== null) clearTimeout(longPressTimer.current);
+              longPressTimer.current = null;
+            }}
             onTouchEnd={() => {
               if (longPressTimer.current !== null) clearTimeout(longPressTimer.current);
               longPressTimer.current = null;
@@ -315,7 +389,7 @@ export function Heatmap({
               transformOrigin: "center",
               transform: resolvedMotion.enabled && pressed ? `scale(${resolvedMotion.pressScale})` : "scale(1)",
               opacity: resolvedMotion.enabled && pressed ? resolvedMotion.pressedAlpha : 1,
-              transition: `transform ${resolvedMotion.pressDurationMillis}ms ease, opacity ${resolvedMotion.pressDurationMillis}ms ease`,
+              transition: resolvedMotion.enabled ? `transform ${resolvedMotion.pressDurationMillis}ms ease, opacity ${resolvedMotion.pressDurationMillis}ms ease` : undefined,
             } : undefined}
             aria-label={tooltipText}
             aria-pressed={leafInteractive ? selected : undefined}
@@ -328,8 +402,13 @@ export function Heatmap({
               fill={cell.color}
               stroke={selected && resolvedStyle.selectedBorderColor !== "transparent" ? resolvedStyle.selectedBorderColor : resolvedStyle.borderColor}
               strokeWidth={selected && resolvedStyle.selectedBorderColor !== "transparent" ? 2 : 0.5}
-              style={{ transition: "fill 240ms ease" }}
+              style={resolvedMotion.enabled ? { transition: "fill 240ms ease" } : undefined}
             />
+            {(showLabel || showMetric) && (
+              <defs><clipPath id={`${logoClipPrefix}-text-${index}`}>
+                <rect x={cell.x + inset + contentPadding} y={cell.y + inset} width={availableWidth} height={drawHeight} />
+              </clipPath></defs>
+            )}
             {showLogo && (
               <g>
                 <defs>
@@ -372,6 +451,7 @@ export function Heatmap({
             )}
             {showLabel && (
               <text
+                clipPath={`url(#${logoClipPrefix}-text-${index})`}
                 x={cell.x + inset + drawWidth / 2}
                 y={contentTop + logoHeight + labelHeight / 2}
                 fill={resolvedStyle.leafTextColor}
@@ -385,6 +465,7 @@ export function Heatmap({
             )}
             {showMetric && (
               <text
+                clipPath={`url(#${logoClipPrefix}-text-${index})`}
                 x={cell.x + inset + drawWidth / 2}
                 y={contentTop + logoHeight + labelHeight + metricHeight / 2}
                 fill={resolvedStyle.leafTextColor}
@@ -417,7 +498,8 @@ export function Heatmap({
       })}
       {tooltipCell && (() => {
         const metric = tooltipCell.node.metric === undefined ? null : resolvedDisplayPolicy.metricFormatter(tooltipCell.node.metric);
-        const text = metric === null ? tooltipCell.node.label : `${tooltipCell.node.label}  ${metric}`;
+        const formattedValue = valueFormatter?.(tooltipCell.node.value) ?? String(tooltipCell.node.value);
+        const text = [tooltipCell.node.label, `${valueLabel}: ${formattedValue}`, metric].filter((part) => part != null).join("  ");
         const tooltipWidth = Math.max(76, Math.min(width - 8, text.length * 7 + 24));
         const x = Math.max(4, Math.min(width - tooltipWidth - 4, tooltipCell.x + tooltipCell.width / 2 - tooltipWidth / 2));
         const y = tooltipCell.y >= 42 ? tooltipCell.y - 36 : Math.min(height - 32, tooltipCell.y + tooltipCell.height + 6);
@@ -431,6 +513,11 @@ export function Heatmap({
         );
       })()}
       </g>
+      {!cells.some((cell) => cell.visible && cell.isLeaf) && (
+        <foreignObject width={width} height={height}>
+          <div role="status" style={{ display: "grid", placeItems: "center", width: "100%", height: "100%" }}>{emptyContent}</div>
+        </foreignObject>
+      )}
     </svg>
   );
 }

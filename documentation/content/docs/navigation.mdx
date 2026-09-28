@@ -43,4 +43,17 @@ an id because ids are unique among siblings, not globally across a tree.
 Leaf tap selection is on by default and is independent of drill-down. Read `state.selectedNode`
 for all node data or `state.selectedId` for a lightweight key. Call `clearSelection()` when a
 detail panel closes. Disable automatic selection with `selectLeafOnClick = false` when the host
-uses a separate selection model.
+uses a separate selection model. `select(node)` only accepts a leaf in the current tree; selection
+of items shown in a host-owned `Others` detail list belongs to that host's state.
+
+## Navigation across data refreshes
+
+Immutable updates with the same root ID retain valid group and selection paths and resolve the
+selected item to its latest object. Deleted groups fall back to the closest surviving group;
+deleted selections clear. Changing the root ID resets both. Use `reset()` for an explicit return
+to the overview. State is retained in memory, not automatically restored after process death.
+
+`state.drillDown(node)` opens an exact group from the current tree, including nested groups.
+The string overload still opens direct children. For search or external navigation, use
+`state.navigateToPath(HeatmapPath(listOf("technology", "semiconductors")))`.
+Selection has a visible default outline; opt out with `HeatmapStyle(selectedBorderColor = Color.Transparent)`.

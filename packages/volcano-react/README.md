@@ -1,6 +1,6 @@
 # @taewooyo/heatmap-react
 
-This pre-1.0 package renders an SVG heatmap using layout and color calculations from Volcano's shared Kotlin/JS core. The package bundles that core, so React consumers do not need Kotlin or Gradle installed.
+Version 0.3.0 of this pre-1.0 package renders an SVG heatmap using layout and color calculations from Volcano's shared Kotlin/JS core. The package bundles that core, so React consumers do not need Kotlin or Gradle installed.
 
 The current peer range accepts React 18.2–18.x or 19.x; the repository's development dependency is React 19.2.4. Future major versions are not declared compatible until they are tested and the package is updated.
 
@@ -45,9 +45,9 @@ import { Heatmap } from "@taewooyo/heatmap-react";
 />
 ```
 
-`value` determines area and `metric` determines the shared red/neutral/green color. The default color range is `-10` to `+10`; set `maximumAbsoluteMetric` and `palette` to match your data. Explicit `color` accepts CSS `#RRGGBB` or `#RRGGBBAA`. Width, height, and group header height use integer pixels. The component requires explicit dimensions; apps can make it responsive by measuring their container. Use `onGroupClick` to control drill-down in your application.
+`value` determines area and `metric` determines the shared red/neutral/green color. The default color range is `-10` to `+10`; set `maximumAbsoluteMetric` and `palette` to match your data. Explicit `color` accepts CSS `#RRGGBB` or `#RRGGBBAA`. Width, height, and group header height use integer pixels. Use `Heatmap` with explicit dimensions, or `ResponsiveHeatmap` with a bounded-height container that follows its parent size. The responsive wrapper waits until it has a measurable size and supports an optional SSR fallback. Use `onGroupClick` to control drill-down in your application.
 
-The default SVG cells adapt label and metric size to the available space and animate color changes over 240 ms. Hover tooltips are off by default; configure hover or long-press behavior with `interaction`. The `displayPolicy`, `style`, `interaction`, and `motion` objects share Compose's setting names and defaults; dimensions and padding values use SVG pixels. An optional `imageUrl` is rendered as a circular logo when a cell is large enough; the package does not fetch or cache images itself. `selectedId` selects a leaf by ID; because IDs may repeat in different groups, use `selectedKey` with the `cell.key` passed to `onLeafClick` when selection must be unambiguous. Set `ariaLabel` to describe the chart for assistive technology. `metricFormatter` controls the cell and tooltip text; it does not affect layout or color calculations.
+The default SVG cells adapt label and metric size to the available space and animate color changes over 240 ms. Hover tooltips are off by default; configure hover or long-press behavior with `interaction`. The `displayPolicy`, `style`, `interaction`, and `motion` objects share Compose's setting names and defaults; dimensions and padding values use SVG pixels. An optional `imageUrl` is rendered as a circular logo when a cell is large enough; the package does not fetch or cache images itself. `selectedId` selects a leaf by ID; because IDs may repeat in different groups, use `selectedKey` with the `cell.key` passed to `onLeafClick` when selection must be unambiguous. Set `ariaLabel` to describe the chart for assistive technology. Source values are included in accessible names and tooltips by default; `valueFormatter` and `valueLabel` customize their display. `metricFormatter` controls metric text; it does not affect layout or color calculations.
 
 `onLeafClick` and `onGroupClick` receive the original node and its computed layout cell. Use `onGroupClick` to control drill-down in your application. The layout cell key is a path-derived key and remains distinct when IDs repeat in separate branches.
 
@@ -68,12 +68,51 @@ When values change, pass a new immutable `data` tree. Mutating the existing tree
 | `palette` | core default | Negative, neutral, and positive CSS hex colors. |
 | `cellGap` | `1` | Inset between neighboring cells in SVG units. |
 | `metricFormatter` | signed number | Formats the metric displayed in cells and tooltips. |
+| `valueFormatter` | source number | Formats the source value included in cell descriptions and tooltips. |
+| `valueLabel` | `Value` | Label paired with the formatted value in accessible names and tooltips. |
+| `emptyContent` | `No data` | Content shown when no positive visualization values remain. |
 | `onLeafClick`, `onGroupClick` | — | Click handlers receiving `(node, layoutCell)`. |
 | `selectedId`, `selectedKey` | `null` | Selected leaf by ID or unambiguous path key. `selectedKey` takes precedence. |
-| `selectedBorderColor` | `transparent` | Outline color for the selected leaf. |
+| `selectedBorderColor` | `#0f172a` | Outline color for the selected leaf. |
 | `tooltipHoverDelayMs` | `400` | Hover delay before showing the tooltip. |
 | `logoMaxSize` | `48` | Maximum rendered image size in SVG pixels. |
 | `ariaLabel` | `Heatmap` | Accessible name for the SVG chart. |
 | `className` | — | Class applied to the root SVG element. |
 
 The hover tooltip is pointer-based, so provide `onLeafClick` or another app-level detail affordance for touch users.
+
+## Live updates, navigation and responsive containers (0.3.0)
+
+Keep root and sibling IDs stable. `useHeatmapState` retains the valid group path and resolves
+selection to the latest leaf object on refresh. Removed groups fall back to the nearest surviving
+group, removed selections clear, and changing the root ID resets both. Use `state.reset()` for an
+explicit return to the overview. `state.navigateToPath(["sector", "industry"])` opens an exact
+root-relative group path. `state.drillDown(node)` opens any group from the current data tree;
+`state.drillDown("id")` still addresses a direct child.
+
+```tsx
+const state = useHeatmapState(data);
+<ResponsiveHeatmap
+  data={data}
+  state={state}
+  containerStyle={{ height: 360 }}
+  emptyContent="No matching items"
+  valueFormatter={(value) => value.toLocaleString()}
+  motion={{ enabled: false }}
+/>;
+```
+
+Import `ResponsiveHeatmap` alongside `useHeatmapState`. Give the container a bounded height.
+The wrapper waits when hidden or unmeasured, supports SSR with an optional `fallback`, and
+observes size changes. Use `Heatmap` directly for explicit pixel dimensions.
+
+Interactive charts have one Tab stop. Arrow keys move through cells in data order; Home/End go
+to the first/last target and Enter/Space activate it. These are logical-order movements, not
+spatial nearest-neighbor navigation. The selected outline defaults to `#0f172a`; use
+`selectedBorderColor="transparent"` to opt out. `emptyContent` replaces an empty chart, and
+`valueFormatter` adds the area value to cell descriptions and tooltips. Reduced motion disables
+all built-in transitions when `motion.enabled` is false.
+
+The source value is included in accessible names and tooltips by default. Set `valueLabel` to
+localize the accessible label (default: `"Value"`), and provide `valueFormatter` when values need
+domain units or locale-specific formatting.

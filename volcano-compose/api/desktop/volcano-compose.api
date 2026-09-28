@@ -57,12 +57,56 @@ public final class com/taewooyo/volcano/compose/HeatmapKt {
 	public static final fun HeatmapBreadcrumb (Lcom/taewooyo/volcano/compose/HeatmapState;Landroidx/compose/ui/Modifier;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)V
 }
 
+public final class com/taewooyo/volcano/compose/HeatmapLabels {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()Ljava/lang/String;
+	public final fun component12 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/taewooyo/volcano/compose/HeatmapLabels;
+	public static synthetic fun copy$default (Lcom/taewooyo/volcano/compose/HeatmapLabels;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/taewooyo/volcano/compose/HeatmapLabels;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBack ()Ljava/lang/String;
+	public final fun getCurrentGroup ()Ljava/lang/String;
+	public final fun getDisabled ()Ljava/lang/String;
+	public final fun getEnabled ()Ljava/lang/String;
+	public final fun getMetric ()Ljava/lang/String;
+	public final fun getNavigate ()Ljava/lang/String;
+	public final fun getNoData ()Ljava/lang/String;
+	public final fun getNotSelected ()Ljava/lang/String;
+	public final fun getOpenGroup ()Ljava/lang/String;
+	public final fun getSelected ()Ljava/lang/String;
+	public final fun getShowDetails ()Ljava/lang/String;
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/taewooyo/volcano/compose/HeatmapLabelsKt {
+	public static final fun getLocalHeatmapLabels ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+}
+
 public final class com/taewooyo/volcano/compose/HeatmapLegendKt {
 	public static final fun HeatmapLegend-EfRbmQ0 (Ljava/util/List;Landroidx/compose/ui/Modifier;FJLandroidx/compose/runtime/Composer;II)V
 }
 
 public abstract interface class com/taewooyo/volcano/compose/HeatmapMetricFormatter {
 	public abstract fun format (D)Ljava/lang/String;
+}
+
+public final class com/taewooyo/volcano/compose/HeatmapMetricFormatterKt {
+	public static final fun getLocalHeatmapValueFormatter ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
 
 public final class com/taewooyo/volcano/compose/HeatmapMotion {
@@ -92,18 +136,23 @@ public final class com/taewooyo/volcano/compose/HeatmapMotion {
 public final class com/taewooyo/volcano/compose/HeatmapState {
 	public static final field $stable I
 	public final fun clearSelection ()V
+	public final fun drillDown (Lcom/taewooyo/volcano/heatmap/HeatmapNode;)Z
 	public final fun drillDown (Ljava/lang/String;)Z
 	public final fun getBreadcrumbs ()Ljava/util/List;
 	public final fun getCanNavigateUp ()Z
+	public final fun getNavigationPath ()Lcom/taewooyo/volcano/heatmap/HeatmapPath;
 	public final fun getSelectedId ()Ljava/lang/String;
 	public final fun getSelectedNode ()Lcom/taewooyo/volcano/heatmap/HeatmapNode;
+	public final fun getSelectionPath ()Lcom/taewooyo/volcano/heatmap/HeatmapPath;
 	public final fun getVisibleNode ()Lcom/taewooyo/volcano/heatmap/HeatmapNode;
 	public final fun isSelected (Lcom/taewooyo/volcano/heatmap/HeatmapNode;)Z
 	public final fun navigateTo (Ljava/lang/String;)Z
 	public final fun navigateToBreadcrumb (I)Z
+	public final fun navigateToPath (Lcom/taewooyo/volcano/heatmap/HeatmapPath;)Z
 	public final fun navigateUp ()Z
 	public final fun reset ()V
 	public final fun select (Lcom/taewooyo/volcano/heatmap/HeatmapNode;)V
+	public final fun updateRoot (Lcom/taewooyo/volcano/heatmap/HeatmapNode;)V
 }
 
 public final class com/taewooyo/volcano/compose/HeatmapStateKt {
@@ -132,9 +181,19 @@ public final class com/taewooyo/volcano/compose/HeatmapStyle {
 	public fun toString ()Ljava/lang/String;
 }
 
+public abstract interface class com/taewooyo/volcano/compose/HeatmapValueFormatter {
+	public abstract fun format (D)Ljava/lang/String;
+}
+
 public final class com/taewooyo/volcano/compose/PercentageMetricFormatter : com/taewooyo/volcano/compose/HeatmapMetricFormatter {
 	public static final field $stable I
 	public static final field INSTANCE Lcom/taewooyo/volcano/compose/PercentageMetricFormatter;
+	public fun format (D)Ljava/lang/String;
+}
+
+public final class com/taewooyo/volcano/compose/PlainHeatmapValueFormatter : com/taewooyo/volcano/compose/HeatmapValueFormatter {
+	public static final field $stable I
+	public static final field INSTANCE Lcom/taewooyo/volcano/compose/PlainHeatmapValueFormatter;
 	public fun format (D)Ljava/lang/String;
 }
 

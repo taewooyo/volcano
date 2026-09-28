@@ -36,3 +36,26 @@ product SLA.
 
 For a raw diagnostic view, disable transitions with `HeatmapMotion(enabled = false)`. For normal
 users, the aggregate overview plus drill-down is the recommended experience.
+
+## Opening aggregated items
+
+`toDisplayTreeWithSources()` returns a display `root` and `aggregatedSources`: root-relative
+`HeatmapPath` keys mapped to original direct children represented by each Others cell. Use this
+mapping to open a host-owned list or detail view. Existing `toDisplayTree()` remains available.
+`maximumChildren` limits retained children; Others is additional. Do not parse or persist synthetic
+IDs; use the returned path mapping.
+
+Node `layoutValue` and `effectiveMetric` are calculated once at construction. Never mutate a
+supplied children list; create new snapshots with `copy(children = ...)` instead.
+
+```kotlin
+val display = raw.toDisplayTreeWithSources(
+  aggregation = HeatmapAggregation(maximumChildren = 12),
+)
+val state = rememberHeatmapState(display.root)
+Heatmap(state = state, onLeafClick = {
+  state.selectionPath?.let { path ->
+    display.aggregatedSources[path]?.let { originals -> showItems(originals) }
+  }
+})
+```

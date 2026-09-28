@@ -15,6 +15,8 @@
  */
 package com.taewooyo.volcano.compose
 
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.staticCompositionLocalOf
 import kotlin.math.abs
 import kotlin.math.roundToLong
 
@@ -41,3 +43,17 @@ public object PercentageMetricFormatter : HeatmapMetricFormatter {
     return "$sign${magnitude / 100}.${(magnitude % 100).toString().padStart(2, '0')}%"
   }
 }
+
+/** Formats the source value announced for a heatmap leaf. */
+public fun interface HeatmapValueFormatter {
+  public fun format(value: Double): String
+}
+
+/** Default formatter that preserves the source value's decimal representation. */
+public object PlainHeatmapValueFormatter : HeatmapValueFormatter {
+  override fun format(value: Double): String = value.toString()
+}
+
+/** Formatter used by default cell semantics and tooltip content. */
+public val LocalHeatmapValueFormatter: ProvidableCompositionLocal<HeatmapValueFormatter> =
+  staticCompositionLocalOf<HeatmapValueFormatter> { PlainHeatmapValueFormatter }

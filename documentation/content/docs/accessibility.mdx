@@ -5,7 +5,8 @@ description: Preserve meaningful navigation and data when a heatmap becomes visu
 
 ## Built-in semantics
 
-The default cell exposes its label, formatted metric, and selected state to accessibility services.
+The default cell exposes its label, source value, formatted metric, and selected state to
+accessibility services.
 Group headers, breadcrumbs, and Back controls expose their navigation action. This makes the
 default experience usable without requiring consumers to recreate basic semantics.
 
@@ -28,3 +29,16 @@ green/red scale may not be suitable for every domain or user.
 Hidden text in tiny rectangles is intentional, not missing content. Use aggregation and drill-down
 so an assistive-technology user and a touch user can both reach the same underlying item. See
 [Large Datasets](/docs/large-datasets) for the recommended overview strategy.
+
+## Localized labels and motion
+
+In Compose, provide `LocalHeatmapLabels` with `CompositionLocalProvider` to translate `noData`,
+`selected`, `notSelected`, `currentGroup`, `openGroup`, `navigate`, `showDetails`, `metric`,
+`enabled`, `disabled`, `back`, and `value`. Back button text can be overridden with its `label`
+argument. Provide `LocalHeatmapValueFormatter` to format values in cell descriptions and the
+built-in detail popup.
+`HeatmapMotion(enabled = false)` also disables default cell color and press transitions.
+
+React charts have a single Tab entry point. Arrow keys move in data order, Home/End move to the
+first/last item, and Enter/Space activate it. A visible focus indicator is provided. Movement is
+logical rather than spatial. Translate the empty state through `emptyContent`.

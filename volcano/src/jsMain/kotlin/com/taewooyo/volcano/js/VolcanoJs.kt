@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 taewooyo
+ * Copyright (C) 2023 taewooyo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ package com.taewooyo.volcano.js
 import com.taewooyo.volcano.heatmap.HeatmapNode
 import com.taewooyo.volcano.heatmap.SignedMetricColorScale
 import com.taewooyo.volcano.squarified.SquarifiedMeasurer
-import kotlin.math.min
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
+import kotlin.math.min
 
 private const val HEATMAP_RESULT_STRIDE = 5
 private const val DEFAULT_NEGATIVE = 0xFFD44848L
@@ -126,12 +126,16 @@ public fun layoutHeatmapWithPalette(
   require(metrics.all { it.isNaN() || it.isFinite() }) {
     "metrics must be finite or NaN when absent."
   }
-  require(explicitColors.all { color ->
-    color.isNaN() || (color.isFinite() && color in 0.0..4_294_967_295.0 && color % 1.0 == 0.0)
-  }) { "explicitColors must be unsigned ARGB integers or NaN when absent." }
-  require(listOf(negativeColor, neutralColor, positiveColor).all { color ->
-    color.isFinite() && color in 0.0..4_294_967_295.0 && color % 1.0 == 0.0
-  }) { "Palette colors must be unsigned ARGB integers." }
+  require(
+    explicitColors.all { color ->
+      color.isNaN() || (color.isFinite() && color in 0.0..4_294_967_295.0 && color % 1.0 == 0.0)
+    },
+  ) { "explicitColors must be unsigned ARGB integers or NaN when absent." }
+  require(
+    listOf(negativeColor, neutralColor, positiveColor).all { color ->
+      color.isFinite() && color in 0.0..4_294_967_295.0 && color % 1.0 == 0.0
+    },
+  ) { "Palette colors must be unsigned ARGB integers." }
 
   val children = Array(count) { mutableListOf<Int>() }
   var rootIndex = -1
@@ -181,6 +185,7 @@ public fun layoutHeatmapWithPalette(
   }
 
   fun placeNode(indexedNode: IndexedHeatmapNode, x: Int, y: Int, nodeWidth: Int, nodeHeight: Int) {
+    if (indexedNode.node.layoutValue <= 0.0) return
     val offset = indexedNode.sourceIndex * HEATMAP_RESULT_STRIDE
     result[offset] = x.toDouble()
     result[offset + 1] = y.toDouble()

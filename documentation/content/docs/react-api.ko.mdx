@@ -36,10 +36,12 @@ import type { HeatmapProps, HeatmapNode, HeatmapLayoutOptions, HeatmapLayoutCell
 | `cellGap` | `number?` | `1`; SVG 단위의 0 이상 유한 간격 |
 | `selectedId` | `string \| null` | `null`; 일치하는 리프 ID 선택 |
 | `selectedKey` | `string \| null` | `null`; 경로 기반 리프 키, `selectedId`보다 우선 |
-| `selectedBorderColor` | `string?` | `"transparent"`; 선택 리프 윤곽선 색상 |
+| `selectedBorderColor` | `string?` | `"#0f172a"`; 선택 리프 윤곽선 색상 |
 | `tooltipHoverDelayMs` | `number?` | `400`; 밀리초 단위의 0 이상 정수 대기 시간 |
 | `logoMaxSize` | `number?` | `48`; SVG 이미지의 0 이상 유한 최대 크기 |
 | `metricFormatter` | `(metric: number) => string` | 부호 있는 숫자; 셀·툴팁 문자열 형식 지정 |
+| `valueFormatter` | `(value: number) => string` | 기본은 `String(value)`이며 셀 설명·툴팁에 원본 값을 추가합니다. |
+| `valueLabel` | `string` | 기본은 `"Value"`; 접근성 설명에서 값 앞에 표시할 이름입니다. |
 | `onLeafClick` | `(node, cell) => void` | 리프 클릭 또는 Enter/Space 활성화 시 호출 |
 | `onLeafLongClick` | `(node, cell) => void` | 500ms 이상 터치했을 때 호출 |
 | `onGroupClick` | `(node, cell) => void` | 그룹 헤더 클릭 또는 키보드 활성화 시 호출 |
@@ -98,3 +100,16 @@ const visibleLeaves = cells.filter((cell) => cell.visible && cell.isLeaf);
 잘못된 크기·지표·색상, 순환 참조, 형제 ID 중복은 오류를 발생시킵니다. 컴포넌트가 내부적으로 이 함수를 사용하므로 일반적인 사용자는 `Heatmap`만 필요합니다.
 
 Kotlin/Compose API는 별도 [Kotlin API 참조](/ko/docs/api)와 생성된 [Dokka 참조](/api-reference/index.html)를 확인하세요.
+
+## 0.3.0 추가 API
+
+- `ResponsiveHeatmap`: width/height 대신 `containerStyle`과 `containerClassName`을 받습니다.
+  높이가 제한된 컨테이너를 제공하세요. 측정 전·숨겨진 상태에는 `fallback`을 표시합니다.
+- `emptyContent`: 양수 시각화 항목이 없을 때 보여줄 콘텐츠입니다. 기본값은 `No data`입니다.
+- 원본 값은 접근성 이름에 기본 포함됩니다. `valueFormatter`로 숫자 표기를 바꾸고,
+  `valueLabel`로 값 이름을 현지화할 수 있습니다.
+- `state.navigationPath`, `state.navigateToPath(path)`: root를 제외한 ID 배열로 탐색합니다.
+- `state.drillDown(node)`: 현재 데이터의 깊은 그룹을 정확하게 엽니다. 문자열은 직계 자식용입니다.
+
+같은 root ID로 갱신하면 유효한 경로와 선택을 유지합니다. root ID 변경 시 초기화합니다.
+`motion.enabled = false`는 채우기 색상 전환도 끕니다.

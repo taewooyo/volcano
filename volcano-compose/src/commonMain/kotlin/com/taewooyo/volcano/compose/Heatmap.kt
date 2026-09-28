@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 taewooyo
+ * Copyright (C) 2023 taewooyo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,10 +78,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import com.taewooyo.volcano.heatmap.HeatmapColorScale
 import com.taewooyo.volcano.heatmap.HeatmapNode
+import com.taewooyo.volcano.heatmap.HeatmapPath
 import com.taewooyo.volcano.heatmap.SignedMetricColorScale
 import com.taewooyo.volcano.squarified.SquarifiedMeasurer
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
+
+private val LocalHeatmapMotionEnabled = compositionLocalOf { true }
 
 /**
  * Rules that preserve readable content in small heatmap cells.
@@ -144,64 +150,89 @@ public fun Heatmap(
   tooltipContent: HeatmapTooltipContent? = null,
 ) {
   val visibleNode = state.visibleNode
-  var tooltipNode by remember { mutableStateOf<HeatmapNode?>(null) }
+  val labels = LocalHeatmapLabels.current
+  var tooltipPath by remember { mutableStateOf<HeatmapPath?>(null) }
+  val tooltipNode = tooltipPath?.let(state::nodeAtPath)
   var tooltipTrigger by remember { mutableStateOf<TooltipTrigger?>(null) }
   var tooltipRequest by remember { mutableStateOf(0) }
-  var hoveredNode by remember { mutableStateOf<HeatmapNode?>(null) }
+  var hoveredPath by remember { mutableStateOf<HeatmapPath?>(null) }
   val hoverEnabled = interaction.showTooltipOnHover || onLeafHover != null
   val handleLeafLongClick: (HeatmapNode) -> Unit = { node ->
     onLeafLongClick(node)
     if (interaction.showTooltipOnLongClick) {
-      tooltipNode = node
+      tooltipPath = state.pathOf(node)
       tooltipTrigger = TooltipTrigger.LongPress
       tooltipRequest += 1
     }
   }
   val handleLeafHover: (HeatmapNode, Boolean) -> Unit = { node, isHovered ->
     if (isHovered) {
-      hoveredNode = node
+      hoveredPath = state.pathOf(node)
       onLeafHover?.invoke(node)
-    } else if (hoveredNode === node) {
-      hoveredNode = null
+    } else if (hoveredPath == state.pathOf(node)) {
+      hoveredPath = null
       onLeafHover?.invoke(null)
       if (tooltipTrigger == TooltipTrigger.Hover && tooltipNode === node) {
-        tooltipNode = null
+        tooltipPath = null
         tooltipTrigger = null
       }
     }
+  }
+  LaunchedEffect(state.navigationPath, state.breadcrumbs.first().id) {
+    tooltipPath = null
+    tooltipTrigger = null
+    hoveredPath = null
   }
   LaunchedEffect(tooltipRequest) {
     val shownRequest = tooltipRequest
     if (tooltipNode != null && interaction.tooltipDurationMillis > 0) {
       delay(interaction.tooltipDurationMillis.toLong().milliseconds)
-      if (tooltipRequest == shownRequest) tooltipNode = null
+      if (tooltipRequest == shownRequest) tooltipPath = null
     }
   }
-  LaunchedEffect(hoveredNode, interaction.showTooltipOnHover, interaction.tooltipHoverDelayMillis) {
+  LaunchedEffect(hoveredPath, interaction.showTooltipOnHover, interaction.tooltipHoverDelayMillis) {
     if (!interaction.showTooltipOnHover) return@LaunchedEffect
-    val node = hoveredNode ?: return@LaunchedEffect
+    val path = hoveredPath ?: return@LaunchedEffect
     delay(interaction.tooltipHoverDelayMillis.toLong().milliseconds)
-    if (hoveredNode === node) {
-      tooltipNode = node
+    if (hoveredPath == path && state.nodeAtPath(path) != null) {
+      tooltipPath = path
       tooltipTrigger = TooltipTrigger.Hover
     }
   }
-  Box(modifier = modifier.background(style.borderColor)) {
-    if (motion.enabled) {
-      AnimatedContent(
-        targetState = visibleNode,
-        modifier = Modifier.fillMaxSize(),
-        transitionSpec = {
-          (fadeIn(animationSpec = tween(motion.durationMillis)) + scaleIn(
-            initialScale = motion.initialScale,
-            animationSpec = tween(motion.durationMillis),
-          )).togetherWith(fadeOut(animationSpec = tween(motion.durationMillis)))
-        },
-        contentKey = HeatmapNode::id,
-        label = "HeatmapDrillDown",
-      ) { targetNode ->
+  CompositionLocalProvider(LocalHeatmapMotionEnabled provides motion.enabled) {
+    Box(modifier = modifier.background(style.borderColor)) {
+      if (visibleNode.layoutValue <= 0.0) {
+        Text(labels.noData, modifier = Modifier.align(Alignment.Center))
+      } else if (motion.enabled) {
+        AnimatedContent(
+          targetState = state.navigationPath to visibleNode,
+          modifier = Modifier.fillMaxSize(),
+          transitionSpec = {
+            (fadeIn(animationSpec = tween(motion.durationMillis)) + scaleIn(
+              initialScale = motion.initialScale,
+              animationSpec = tween(motion.durationMillis),
+            )).togetherWith(fadeOut(animationSpec = tween(motion.durationMillis)))
+          },
+          contentKey = { it.first },
+          label = "HeatmapDrillDown",
+        ) { targetNode ->
+          HeatmapLevel(
+            visibleNode = targetNode.second,
+            state = state,
+            interaction = interaction,
+            motion = motion,
+            style = style,
+            onGroupClick = onGroupClick,
+            onLeafClick = onLeafClick,
+            onLeafLongClick = handleLeafLongClick,
+            onLeafHover = handleLeafHover,
+            hoverEnabled = hoverEnabled,
+            cellContent = cellContent,
+          )
+        }
+      } else {
         HeatmapLevel(
-          visibleNode = targetNode,
+          visibleNode = visibleNode,
           state = state,
           interaction = interaction,
           motion = motion,
@@ -214,28 +245,14 @@ public fun Heatmap(
           cellContent = cellContent,
         )
       }
-    } else {
-      HeatmapLevel(
-        visibleNode = visibleNode,
-        state = state,
-        interaction = interaction,
-        motion = motion,
-        style = style,
-        onGroupClick = onGroupClick,
-        onLeafClick = onLeafClick,
-        onLeafLongClick = handleLeafLongClick,
-        onLeafHover = handleLeafHover,
-        hoverEnabled = hoverEnabled,
-        cellContent = cellContent,
-      )
-    }
-    tooltipNode?.let { node ->
-      Popup(onDismissRequest = { tooltipNode = null }, alignment = Alignment.Center) {
-        tooltipContent?.invoke(node) { tooltipNode = null } ?: DefaultHeatmapTooltip(
-          node = node,
-          metricFormatter = displayPolicy.metricFormatter,
-          onDismissRequest = { tooltipNode = null },
-        )
+      tooltipNode?.let { node ->
+        Popup(onDismissRequest = { tooltipPath = null }, alignment = Alignment.Center) {
+          tooltipContent?.invoke(node) { tooltipPath = null } ?: DefaultHeatmapTooltip(
+            node = node,
+            metricFormatter = displayPolicy.metricFormatter,
+            onDismissRequest = { tooltipPath = null },
+          )
+        }
       }
     }
   }
@@ -279,7 +296,7 @@ private fun HeatmapLevel(
       style = style,
       onGroupClick = { group ->
         onGroupClick(group)
-        if (interaction.drillDownOnGroupClick) state.drillDown(group.id)
+        if (interaction.drillDownOnGroupClick) state.drillDown(group)
       },
       onLeafClick = handleLeafClick,
       onLeafLongClick = handleLeafLongClick,
@@ -298,17 +315,18 @@ public fun HeatmapBreadcrumb(
   modifier: Modifier = Modifier,
   separator: String = " / ",
 ) {
+  val labels = LocalHeatmapLabels.current
   Row(modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
     state.breadcrumbs.forEachIndexed { index, crumb ->
       Text(
         text = crumb.label,
         modifier = if (index < state.breadcrumbs.lastIndex) {
           Modifier.clickable(
-            onClickLabel = "Navigate to ${crumb.label}",
+            onClickLabel = "${labels.navigate} ${crumb.label}",
             role = Role.Button,
           ) { state.navigateToBreadcrumb(index) }
         } else {
-          Modifier.semantics { stateDescription = "Current group" }
+          Modifier.semantics { stateDescription = labels.currentGroup }
         },
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -334,6 +352,7 @@ private fun HeatmapGroup(
   motion: HeatmapMotion,
   cellContent: @Composable (HeatmapNode, Modifier) -> Unit,
 ) {
+  val labels = LocalHeatmapLabels.current
   val visibleChildren = node.children.filter { it.layoutValue > 0.0 }
   if (visibleChildren.isEmpty()) {
     cellContent(node, modifier)
@@ -357,7 +376,7 @@ private fun HeatmapGroup(
             .hoverable(interactionSource = groupInteractionSource)
             .clickable(
               interactionSource = groupInteractionSource,
-              onClickLabel = "Open ${node.label}",
+              onClickLabel = "${labels.openGroup} ${node.label}",
               role = Role.Button,
               onClick = { onGroupClick(node) },
             )
@@ -369,31 +388,33 @@ private fun HeatmapGroup(
         )
       }
       visibleChildren.forEach { child ->
-        if (child.isLeaf) {
-          cellContent(
-            child,
-            heatmapPressModifier(
-              motion = motion,
-              onClick = { onLeafClick(child) },
-              onLongClick = { onLeafLongClick(child) },
-              onHoverChanged = { onLeafHover(child, it) },
+        key(child.id) {
+          if (child.isLeaf) {
+            cellContent(
+              child,
+              heatmapPressModifier(
+                motion = motion,
+                onClick = { onLeafClick(child) },
+                onLongClick = { onLeafLongClick(child) },
+                onHoverChanged = { onLeafHover(child, it) },
+                hoverEnabled = hoverEnabled,
+              ),
+            )
+          } else {
+            HeatmapGroup(
+              node = child,
+              modifier = Modifier,
+              showLabel = true,
+              style = style,
+              onGroupClick = onGroupClick,
+              onLeafClick = onLeafClick,
+              onLeafLongClick = onLeafLongClick,
+              onLeafHover = onLeafHover,
               hoverEnabled = hoverEnabled,
-            ),
-          )
-        } else {
-          HeatmapGroup(
-            node = child,
-            modifier = Modifier,
-            showLabel = true,
-            style = style,
-            onGroupClick = onGroupClick,
-            onLeafClick = onLeafClick,
-            onLeafLongClick = onLeafLongClick,
-            onLeafHover = onLeafHover,
-            hoverEnabled = hoverEnabled,
-            motion = motion,
-            cellContent = cellContent,
-          )
+              motion = motion,
+              cellContent = cellContent,
+            )
+          }
         }
       }
     },
@@ -440,17 +461,18 @@ private fun heatmapPressModifier(
   hoverEnabled: Boolean,
   onHoverChanged: (Boolean) -> Unit,
 ): Modifier {
+  val labels = LocalHeatmapLabels.current
   val interactionSource = remember { MutableInteractionSource() }
   val pressed by interactionSource.collectIsPressedAsState()
   val hovered by interactionSource.collectIsHoveredAsState()
   val scale by animateFloatAsState(
-    targetValue = if (pressed) motion.pressScale else 1f,
-    animationSpec = tween(motion.pressDurationMillis),
+    targetValue = if (motion.enabled && pressed) motion.pressScale else 1f,
+    animationSpec = tween(if (motion.enabled) motion.pressDurationMillis else 0),
     label = "HeatmapLeafPressScale",
   )
   val alpha by animateFloatAsState(
-    targetValue = if (pressed) motion.pressedAlpha else 1f,
-    animationSpec = tween(motion.pressDurationMillis),
+    targetValue = if (motion.enabled && pressed) motion.pressedAlpha else 1f,
+    animationSpec = tween(if (motion.enabled) motion.pressDurationMillis else 0),
     label = "HeatmapLeafPressAlpha",
   )
   return Modifier
@@ -468,7 +490,7 @@ private fun heatmapPressModifier(
       interactionSource = interactionSource,
       indication = null,
       onClick = onClick,
-      onLongClickLabel = "Show details",
+      onLongClickLabel = labels.showDetails,
       onLongClick = onLongClick,
     )
     .heatmapHoverModifier(enabled = hoverEnabled, onHoverChanged = onHoverChanged)
@@ -507,12 +529,14 @@ public fun DefaultHeatmapCell(
   contentColor: Color = Color.White,
   logoContent: HeatmapLogoContent? = null,
 ) {
+  val labels = LocalHeatmapLabels.current
+  val valueFormatter = LocalHeatmapValueFormatter.current
   val density = LocalDensity.current
   val textMeasurer = rememberTextMeasurer()
   val targetColor = color?.let { Color(it.toInt()) } ?: defaultHeatmapColor(node.effectiveMetric)
   val animatedColor by animateColorAsState(
     targetValue = targetColor,
-    animationSpec = tween(240),
+    animationSpec = tween(if (LocalHeatmapMotionEnabled.current) 240 else 0),
     label = "HeatmapMetricColor",
   )
   androidx.compose.foundation.layout.BoxWithConstraints(
@@ -523,9 +547,15 @@ public fun DefaultHeatmapCell(
       )
       .background(animatedColor)
       .semantics(mergeDescendants = true) {
-        contentDescription = defaultHeatmapCellContentDescription(node, displayPolicy.metricFormatter)
+        contentDescription = defaultHeatmapCellContentDescription(
+          node = node,
+          metricFormatter = displayPolicy.metricFormatter,
+          metricLabel = labels.metric,
+          valueFormatter = valueFormatter,
+          valueLabel = labels.value,
+        )
         this.selected = selected
-        stateDescription = if (selected) "Selected" else "Not selected"
+        stateDescription = if (selected) labels.selected else labels.notSelected
       },
     contentAlignment = Alignment.Center,
   ) {
@@ -610,10 +640,15 @@ public fun DefaultHeatmapCell(
 internal fun defaultHeatmapCellContentDescription(
   node: HeatmapNode,
   metricFormatter: HeatmapMetricFormatter,
+  metricLabel: String = "metric",
+  valueFormatter: HeatmapValueFormatter = PlainHeatmapValueFormatter,
+  valueLabel: String = "value",
 ): String = buildString {
   append(node.label)
+  append(", $valueLabel ")
+  append(valueFormatter.format(node.value))
   node.effectiveMetric?.let { metric ->
-    append(", metric ")
+    append(", $metricLabel ")
     append(metricFormatter.format(metric))
   }
 }
@@ -631,6 +666,8 @@ public fun DefaultHeatmapTooltip(
   modifier: Modifier = Modifier,
   onDismissRequest: () -> Unit,
 ) {
+  val valueFormatter = LocalHeatmapValueFormatter.current
+  val valueLabel = LocalHeatmapLabels.current.value
   Column(
     modifier = modifier
       .clip(RoundedCornerShape(14.dp))
@@ -639,6 +676,7 @@ public fun DefaultHeatmapTooltip(
       .padding(horizontal = 18.dp, vertical = 12.dp),
   ) {
     Text(text = node.label, color = Color.White, fontWeight = FontWeight.Bold)
+    Text(text = "$valueLabel ${valueFormatter.format(node.value)}", color = Color.White)
     node.effectiveMetric?.let { metric ->
       Text(text = metricFormatter.format(metric), color = Color.White)
     }

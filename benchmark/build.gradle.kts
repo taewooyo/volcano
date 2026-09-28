@@ -21,3 +21,12 @@ tasks.register<JavaExec>("runHeatmapBenchmark") {
     configurations.named("desktopRuntimeClasspath").get()
   mainClass.set("com.taewooyo.volcano.benchmark.MainKt")
 }
+
+tasks.register<JavaExec>("runHeatmapPreparationBenchmark") {
+  group = "verification"
+  description = "Measures wide-group aggregation and deep-tree derived value access."
+  dependsOn("desktopMainClasses")
+  classpath = files(layout.buildDirectory.dir("classes/kotlin/desktop/main")) +
+    configurations.named("desktopRuntimeClasspath").get()
+  mainClass.set("com.taewooyo.volcano.benchmark.PreparationBenchmarkKt")
+}

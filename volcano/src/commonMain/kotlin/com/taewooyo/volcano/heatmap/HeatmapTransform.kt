@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 taewooyo
+ * Copyright (C) 2023 taewooyo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ public enum class HeatmapSort {
 /** Options for reducing dense groups into a readable display tree. */
 public data class HeatmapAggregation(
   val minimumChildFraction: Double = 0.0,
+  /** Maximum retained children, excluding the additional Others cell. */
   val maximumChildren: Int? = null,
   val othersLabel: String = "Others",
 ) {
@@ -68,15 +69,19 @@ public fun HeatmapNode.filterLeaves(predicate: (HeatmapNode) -> Boolean): Heatma
  * It is intentionally a leaf so callers can render a compact overview without another nested
  * drill-down level.
  */
-public fun HeatmapNode.aggregateSmallChildren(
-  aggregation: HeatmapAggregation,
-): HeatmapNode = copy(
-  children = aggregateChildren(children.map { it.aggregateSmallChildren(aggregation) }, aggregation),
+public fun HeatmapNode.aggregateSmallChildren(aggregation: HeatmapAggregation): HeatmapNode = copy(
+  children = aggregateChildren(
+    children.map {
+      it.aggregateSmallChildren(aggregation)
+    },
+    aggregation,
+  ),
 )
 
 private fun aggregateChildren(
   children: List<HeatmapNode>,
   aggregation: HeatmapAggregation,
+  onAggregated: (HeatmapNode, List<HeatmapNode>) -> Unit = { _, _ -> },
 ): List<HeatmapNode> {
   if (children.isEmpty()) return children
   val totalValue = children.sumOf(HeatmapNode::layoutValue)
@@ -86,11 +91,13 @@ private fun aggregateChildren(
     child.layoutValue / totalValue >= aggregation.minimumChildFraction
   }
   val retainedIds = aggregation.maximumChildren
-    ?.let { maximum -> fractionQualified.sortedByDescending(HeatmapNode::layoutValue).take(maximum) }
+    ?.let { maximum ->
+      fractionQualified.sortedByDescending(HeatmapNode::layoutValue).take(maximum)
+    }
     ?.mapTo(mutableSetOf(), HeatmapNode::id)
     ?: fractionQualified.mapTo(mutableSetOf(), HeatmapNode::id)
   val retained = children.filter { it.id in retainedIds }
-  val omitted = children.filterNot { child -> child in retained }
+  val omitted = children.filterNot { it.id in retainedIds }
   if (omitted.isEmpty()) return children
 
   val othersValue = omitted.sumOf(HeatmapNode::layoutValue)
@@ -100,16 +107,72 @@ private fun aggregateChildren(
     val weight = measuredNodes.sumOf { it.first }
     if (weight > 0.0) measuredNodes.sumOf { (value, metric) -> value * metric } / weight else null
   }
-  val baseId = "${children.first().id.substringBefore("::")}::others"
+  val baseId = "volcano::others"
   val otherId = generateSequence(baseId) { "$it-" }
     .first { candidate -> children.none { it.id == candidate } }
 
-  return retained + HeatmapNode(
+  val others = HeatmapNode(
     id = otherId,
     label = aggregation.othersLabel,
     value = othersValue,
     metric = weightedMetric,
   )
+  onAggregated(others, omitted)
+  return retained + others
+}
+
+/** Display data plus the original direct children represented by each generated Others cell. */
+public data class HeatmapDisplayTree(
+  val root: HeatmapNode,
+  val aggregatedSources: Map<HeatmapPath, List<HeatmapNode>>,
+)
+
+/**
+ * Like [toDisplayTree], retaining source nodes for a host-owned Others detail list.
+ * Keys are root-relative paths, so identical IDs in different branches remain unambiguous.
+ */
+public fun HeatmapNode.toDisplayTreeWithSources(
+  sort: HeatmapSort = HeatmapSort.LAYOUT_VALUE_DESCENDING,
+  aggregation: HeatmapAggregation = HeatmapAggregation(),
+): HeatmapDisplayTree {
+  val sources = mutableMapOf<HeatmapPath, List<HeatmapNode>>()
+  fun transform(node: HeatmapNode, path: List<String>): HeatmapNode {
+    val children = node.children.map { transform(it, path + it.id) }
+    val aggregated = aggregateChildren(children, aggregation) { others, omitted ->
+      val omittedIds = omitted.mapTo(mutableSetOf(), HeatmapNode::id)
+      sources[HeatmapPath(path + others.id)] = node.children.filter { it.id in omittedIds }
+    }
+    return node.copy(children = aggregated)
+  }
+  val displayRoot = transform(this, emptyList()).sorted(sort)
+  class SourcePathNode {
+    val children = mutableMapOf<String, SourcePathNode>()
+    var sources: List<HeatmapNode>? = null
+  }
+  val sourcePaths = SourcePathNode()
+  sources.forEach { (path, nodes) ->
+    var current = sourcePaths
+    path.nodeIds.forEach { id ->
+      current = current.children.getOrPut(id, ::SourcePathNode)
+    }
+    current.sources = nodes
+  }
+
+  // Walk only path prefixes represented by source entries instead of resolving every path from
+  // the root. This keeps wide trees with many aggregated groups linear in their display size.
+  val visibleSources = mutableMapOf<HeatmapPath, List<HeatmapNode>>()
+  val visiblePath = mutableListOf<String>()
+  fun collectVisibleSources(node: HeatmapNode, sourcePath: SourcePathNode) {
+    sourcePath.sources?.let { visibleSources[HeatmapPath(visiblePath)] = it }
+    node.children.forEach { child ->
+      val childSourcePath = sourcePath.children[child.id] ?: return@forEach
+      visiblePath += child.id
+      collectVisibleSources(child, childSourcePath)
+      visiblePath.removeAt(visiblePath.lastIndex)
+    }
+  }
+  collectVisibleSources(displayRoot, sourcePaths)
+  return HeatmapDisplayTree(displayRoot, visibleSources)
 }
 
 /** Applies aggregation first, then a stable recursive ordering for presentation. */

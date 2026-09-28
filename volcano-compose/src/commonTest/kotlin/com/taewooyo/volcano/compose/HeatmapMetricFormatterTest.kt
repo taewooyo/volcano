@@ -31,7 +31,7 @@ class HeatmapMetricFormatterTest {
     val node = HeatmapNode(id = "latency", label = "Latency", value = 1.0, metric = -2.5)
 
     assertEquals(
-      "Latency, metric -2.50%",
+      "Latency, value 1.0, metric -2.50%",
       defaultHeatmapCellContentDescription(node, PercentageMetricFormatter),
     )
   }
@@ -40,6 +40,24 @@ class HeatmapMetricFormatterTest {
   fun `cell accessibility description omits a missing metric`() {
     val node = HeatmapNode(id = "latency", label = "Latency", value = 1.0)
 
-    assertEquals("Latency", defaultHeatmapCellContentDescription(node, PercentageMetricFormatter))
+    assertEquals(
+      "Latency, value 1.0",
+      defaultHeatmapCellContentDescription(node, PercentageMetricFormatter),
+    )
+  }
+
+  @Test
+  fun `cell accessibility description formats values and localizes the label`() {
+    val node = HeatmapNode(id = "price", label = "Price", value = 12.5)
+
+    assertEquals(
+      "Price, 값 12.50 USD",
+      defaultHeatmapCellContentDescription(
+        node = node,
+        metricFormatter = PercentageMetricFormatter,
+        valueFormatter = HeatmapValueFormatter { "${it}0 USD" },
+        valueLabel = "값",
+      ),
+    )
   }
 }

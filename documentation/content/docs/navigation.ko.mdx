@@ -26,3 +26,23 @@ iOS·Desktop toolbar에서는 `state.canNavigateUp`일 때만 `HeatmapBackButton
 ## Breadcrumb과 리프 선택
 
 차트 위 `HeatmapBreadcrumb(state)`는 조상으로 직접 이동합니다. 맞춤 breadcrumb는 `state.breadcrumbs`와 `navigateToBreadcrumb(index)`를 사용하세요. ID는 트리 전체가 아니라 형제 사이에서만 고유하므로 ID보다 index를 선호합니다. 리프 선택은 drill-down과 독립적이고, 별도 선택 모델이 있다면 `selectLeafOnClick = false`로 끌 수 있습니다.
+
+`select(node)`는 현재 트리에 포함된 리프만 선택합니다. `Others` 상세 목록에서 원본 항목을
+표시한다면 해당 목록의 선택은 호스트 앱 상태로 관리하세요.
+
+## 데이터 갱신 시 탐색 유지
+
+같은 root ID의 새 불변 트리를 전달하면 탐색 경로와 선택이 유지되며, 선택 정보는 최신
+노드로 교체됩니다. 삭제된 그룹은 가장 가까운 유효한 상위 그룹으로 이동하고 삭제된
+선택은 해제됩니다. root ID가 바뀌면 초기화합니다. 명시적으로 돌아가려면 `reset()`을
+사용하세요. 이 상태는 메모리에 유지되며 프로세스 종료 후 자동 복원을 제공하지 않습니다.
+
+`state.drillDown(node)`는 현재 트리의 깊은 그룹도 정확히 엽니다. 문자열 오버로드는
+직계 자식 탐색용입니다. 검색이나 외부 탐색에는 전체 경로를 사용하세요.
+
+```kotlin
+state.navigateToPath(HeatmapPath(listOf("technology", "semiconductors")))
+```
+
+선택은 기본적으로 테두리로 표시합니다. `HeatmapStyle(selectedBorderColor = Color.Transparent)`로
+끄거나 앱 테마에 맞는 색상을 지정할 수 있습니다.

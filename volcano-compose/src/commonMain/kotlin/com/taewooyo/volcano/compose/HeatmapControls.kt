@@ -1,7 +1,17 @@
 /*
- * Copyright (C) 2026 taewooyo
+ * Copyright (C) 2023 taewooyo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.taewooyo.volcano.compose
 
@@ -26,19 +36,21 @@ public fun HeatmapBackButton(
   onClick: () -> Unit,
   enabled: Boolean,
   modifier: Modifier = Modifier,
-  label: String = "Back",
+  label: String? = null,
 ) {
+  val labels = LocalHeatmapLabels.current
+  val buttonLabel = label ?: labels.back
   val shape = RoundedCornerShape(10.dp)
   Text(
-    text = label,
+    text = buttonLabel,
     modifier = modifier
       .clip(shape)
       .background(if (enabled) Color(0xFFF1F5F9) else Color(0xFFE5E7EB))
       .border(1.dp, if (enabled) Color(0xFFD5DCE5) else Color.Transparent, shape)
-      .semantics { stateDescription = if (enabled) "Enabled" else "Disabled" }
+      .semantics { stateDescription = if (enabled) labels.enabled else labels.disabled }
       .clickable(
         enabled = enabled,
-        onClickLabel = label,
+        onClickLabel = buttonLabel,
         role = Role.Button,
         onClick = onClick,
       )

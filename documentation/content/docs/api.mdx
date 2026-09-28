@@ -27,6 +27,9 @@ This page covers the Kotlin/Compose artifacts. The npm package has a separate [R
 | `children` | Nested groups or leaves. |
 | `imageUrl` | Optional loader-owned address; the base artifact never fetches it. |
 
+The constructor snapshots the supplied child list. Later changes to the caller's mutable list do not
+change the node or its cached derived values. Use `copy(children = ...)` to create updated data.
+
 Transforms include `sorted(HeatmapSort)`, `filterLeaves { ... }`,
 `aggregateSmallChildren(HeatmapAggregation)`, and `toDisplayTree(...)`.
 

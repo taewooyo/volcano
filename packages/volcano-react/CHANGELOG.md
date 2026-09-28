@@ -2,6 +2,19 @@
 
 This file tracks `@taewooyo/heatmap-react` independently from the Kotlin/Compose artifacts in the [root changelog](../../CHANGELOG.md).
 
+## 0.3.0
+
+- Keep the current group and selection on immutable refreshes; fall back to a surviving ancestor when removed and reset when the root ID changes.
+- Add `navigationPath`, `navigateToPath`, and exact-node `drillDown` to the state hook.
+- Add `ResponsiveHeatmap`, customizable `emptyContent`, and optional `valueFormatter` for accessible details/tooltips.
+- Add one Tab entry point with Arrow/Home/End navigation and a visible keyboard focus indicator.
+- Show a persistent selected-cell outline by default (`#0f172a`); set `transparent` to opt out.
+- Respect `motion.enabled = false` for fill and press transitions, clip cell text, and cancel long presses on touch movement.
+- Avoid layout invalidation for equivalent palette objects and use the optimized shared metric calculation.
+- Keep live updates running during drill-down in the demo and show the selected item's latest details.
+- Freeze root-relative navigation and selection paths, ignore selections for leaves outside the current tree, and include values in accessible names by default.
+- Add a localized value label and clip long group titles to their headers.
+
 ## 0.2.0
 
 - Added Compose-aligned `style`, `displayPolicy`, `interaction`, and `motion` configuration objects.
