@@ -44,7 +44,7 @@ jobs:
         working-directory: documentation
         env:
           NEXT_PUBLIC_BASE_PATH: /volcano
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v3
         with:
           path: documentation/out
